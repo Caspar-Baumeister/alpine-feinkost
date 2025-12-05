@@ -452,7 +452,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                     packlist.status === 'completed' ? 'text-blue-500' : 'text-emerald-500'
                   }`} />
                   <p className={`font-medium ${
-                    packlist.status === 'completed' ? 'text-blue-400' : 'text-emerald-400'
+                    packlist.status === 'completed' ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'
                   }`}>
                     {packlist.status === 'completed'
                       ? (locale === 'de' ? 'Abgeschlossen' : 'Completed')
@@ -483,7 +483,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                           {locale === 'de' ? 'Differenz' : 'Difference'}
                         </p>
                         <p className={`font-medium ${
-                          (packlist.difference ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                          (packlist.difference ?? 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                         }`}>
                           {(packlist.difference ?? 0) >= 0 ? '+' : ''}€{(packlist.difference ?? 0).toFixed(2)}
                         </p>

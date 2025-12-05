@@ -131,7 +131,7 @@ function PacklistCard({ packlist, dateLocale }: PacklistCardProps) {
               <div className="flex justify-between text-muted-foreground">
                 <span>Differenz</span>
                 <span className={
-                  (packlist.difference ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                  (packlist.difference ?? 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                 }>
                   {(packlist.difference ?? 0) >= 0 ? '+' : ''}€{(packlist.difference ?? 0).toFixed(2)}
                 </span>

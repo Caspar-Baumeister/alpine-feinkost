@@ -231,8 +231,8 @@ export function UsersTable({ initialData, onDataChange }: UsersTableProps) {
                         variant="outline"
                         className={
                           user.role === 'admin'
-                            ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                            : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30'
+                            : 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30'
                         }
                       >
                         {user.role === 'admin' ? t('form.roleAdmin') : t('form.roleWorker')}

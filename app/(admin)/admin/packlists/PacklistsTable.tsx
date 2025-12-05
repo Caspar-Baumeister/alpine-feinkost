@@ -88,8 +88,8 @@ export function PacklistsTable({ initialData, posList, users }: PacklistsTablePr
     if (expected === undefined || expected === null || reported === undefined || reported === null) return '—'
     const diff = reported - expected
     const formatted = `€${Math.abs(diff).toFixed(2)}`
-    if (diff > 0) return <span className="text-emerald-400">+{formatted}</span>
-    if (diff < 0) return <span className="text-red-400">-{formatted}</span>
+    if (diff > 0) return <span className="text-emerald-600 dark:text-emerald-400">+{formatted}</span>
+    if (diff < 0) return <span className="text-red-600 dark:text-red-400">-{formatted}</span>
     return formatted
   }
 

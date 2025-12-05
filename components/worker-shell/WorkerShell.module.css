@@ -1,10 +1,11 @@
 /* WorkerShell CSS Module */
 /* Mobile-first, minimal design for worker interface */
+/* Uses CSS custom properties for theme support */
 
 /* Topbar */
 .topbar {
   height: 60px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -62,7 +63,7 @@
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--muted-foreground);
   white-space: nowrap;
   transition: all 150ms ease;
   cursor: pointer;
@@ -70,12 +71,11 @@
 }
 
 .navTab:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--foreground);
+  background: var(--accent);
 }
 
 .navTab.active {
   color: #10b981;
   background: rgba(16, 185, 129, 0.15);
 }
-

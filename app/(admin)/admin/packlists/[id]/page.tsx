@@ -196,7 +196,7 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
 
       {/* Completed Badge */}
       {packlist.status === 'completed' && (
-        <div className="flex items-center gap-2 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+        <div className="flex items-center gap-2 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400">
           <CheckCircle className="h-5 w-5" />
           <span className="font-medium">
             {locale === 'de' ? 'Diese Packliste wurde abgeschlossen' : 'This packlist has been completed'}
@@ -366,7 +366,7 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
                 {t('columns.difference')}
               </p>
               <p className={`text-2xl font-bold ${
-                difference >= 0 ? 'text-emerald-400' : 'text-red-400'
+                difference >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
               }`}>
                 {difference >= 0 ? '+' : ''}€{difference.toFixed(2)}
               </p>
