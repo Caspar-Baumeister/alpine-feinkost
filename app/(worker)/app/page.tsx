@@ -21,23 +21,13 @@ export default function WorkerDashboardPage() {
       }
 
       try {
-        console.log('Loading packlists for user:', user.uid)
-
-        // Get all packlists (no status filter to include all)
+        // Get all packlists and filter for assigned user
         const allPacklists = await listPacklists()
-
-        console.log('All packlists:', allPacklists.map(p => ({
-          id: p.id,
-          status: p.status,
-          assignedUserIds: p.assignedUserIds
-        })))
 
         // Filter for current user
         const assignedPacklists = allPacklists.filter(
           (p) => p.assignedUserIds.includes(user.uid)
         )
-
-        console.log('Assigned to this user:', assignedPacklists.length)
 
         setPacklists(assignedPacklists)
       } catch (error) {

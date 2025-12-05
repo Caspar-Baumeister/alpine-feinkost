@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { AppUser } from '@/lib/firestore/types'
 import styles from './WorkerShell.module.css'
 
@@ -93,6 +94,9 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
 
         {/* Right Side */}
         <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Language Switcher */}
           <LanguageSwitcher />
 

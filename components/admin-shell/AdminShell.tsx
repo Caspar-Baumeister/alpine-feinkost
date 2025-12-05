@@ -48,6 +48,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { AppUser } from '@/lib/firestore/types'
 import styles from './AdminShell.module.css'
 
@@ -299,6 +300,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {/* Language Switcher */}
               <LanguageSwitcher />
 
