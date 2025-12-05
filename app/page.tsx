@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function RootPage() {
   const router = useRouter()

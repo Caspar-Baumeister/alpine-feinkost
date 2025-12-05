@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, ShieldX } from 'lucide-react'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
@@ -13,13 +13,19 @@ interface AdminAuthGuardProps {
 
 export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const router = useRouter()
-  const { user, isLoading } = useCurrentUser()
+  const { user, firebaseUser, isLoading, error } = useCurrentUser()
+  const [hasRedirected, setHasRedirected] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login')
+    // Wait for auth to finish loading
+    if (isLoading) return
+
+    // If not authenticated, redirect to login
+    if (!firebaseUser && !hasRedirected) {
+      setHasRedirected(true)
+      router.replace('/login')
     }
-  }, [user, isLoading, router])
+  }, [firebaseUser, isLoading, router, hasRedirected])
 
   // Loading state
   if (isLoading) {
@@ -33,9 +39,33 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     )
   }
 
-  // Not authenticated
+  // Not authenticated - show loading while redirecting
+  if (!firebaseUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-sm text-muted-foreground">Redirecting to login...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Firebase user exists but no Firestore user data yet - still loading
   if (!user) {
-    return null // Will redirect to login
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-sm text-muted-foreground">Loading user data...</p>
+          {error && (
+            <p className="text-sm text-destructive">
+              Error: {error.message}
+            </p>
+          )}
+        </div>
+      </div>
+    )
   }
 
   // Wrong role
@@ -54,7 +84,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
                   You don&apos;t have permission to access this area.
                 </p>
               </div>
-              <Button onClick={() => router.push('/app')} variant="outline">
+              <Button onClick={() => router.replace('/app')} variant="outline">
                 Go to Worker Dashboard
               </Button>
             </div>
@@ -67,4 +97,3 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   // Authenticated and correct role
   return <>{children}</>
 }
-

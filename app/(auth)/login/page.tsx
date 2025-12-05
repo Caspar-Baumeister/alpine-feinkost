@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signInWithEmailAndPassword } from 'firebase/auth'
@@ -18,37 +18,43 @@ export default function LoginPage() {
   const t = useTranslations('login')
   const tApp = useTranslations('app')
   const router = useRouter()
-  const { user, isLoading: isCheckingAuth } = useCurrentUser()
+  const { user, firebaseUser, isLoading: isCheckingAuth } = useCurrentUser()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasRedirected, setHasRedirected] = useState(false)
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!isCheckingAuth && user) {
-      if (user.role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/app')
-      }
+    if (!isCheckingAuth && user && !hasRedirected) {
+      setHasRedirected(true)
+      const destination = user.role === 'admin' ? '/admin' : '/app'
+      router.replace(destination)
     }
-  }, [user, isCheckingAuth, router])
+  }, [user, isCheckingAuth, router, hasRedirected])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (isLoading) return
+
     setIsLoading(true)
     setError(null)
 
     try {
+      console.log('Attempting login...')
       const credential = await signInWithEmailAndPassword(auth, email, password)
+      console.log('Firebase auth successful, uid:', credential.user.uid)
 
       // Fetch user data to determine role
       const appUser = await getUserByUid(credential.user.uid)
+      console.log('User data fetched:', appUser ? 'found' : 'not found')
 
       if (!appUser) {
-        setError('User account not found. Please contact an administrator.')
+        setError('User account not found in database. Please contact an administrator.')
+        await auth.signOut()
         setIsLoading(false)
         return
       }
@@ -60,34 +66,66 @@ export default function LoginPage() {
         return
       }
 
+      // Mark as redirected to prevent double navigation
+      setHasRedirected(true)
+
       // Redirect based on role
-      if (appUser.role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/app')
-      }
+      const destination = appUser.role === 'admin' ? '/admin' : '/app'
+      console.log('Redirecting to:', destination)
+      router.replace(destination)
+
+      // Keep loading state until navigation completes
     } catch (err: unknown) {
       console.error('Login error:', err)
 
       // Handle Firebase auth errors
       const errorCode = (err as { code?: string })?.code
-      if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
+      const errorMessage = (err as { message?: string })?.message
+
+      console.error('Error code:', errorCode, 'Message:', errorMessage)
+
+      if (errorCode === 'auth/user-not-found') {
+        setError('No account found with this email address.')
+      } else if (errorCode === 'auth/wrong-password') {
+        setError('Incorrect password.')
+      } else if (errorCode === 'auth/invalid-credential') {
         setError('Invalid email or password.')
+      } else if (errorCode === 'auth/invalid-email') {
+        setError('Please enter a valid email address.')
+      } else if (errorCode === 'auth/user-disabled') {
+        setError('This account has been disabled.')
       } else if (errorCode === 'auth/too-many-requests') {
         setError('Too many failed attempts. Please try again later.')
+      } else if (errorCode === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection.')
       } else {
-        setError('An error occurred. Please try again.')
+        setError(`Login failed: ${errorMessage || 'Unknown error'}`)
       }
 
       setIsLoading(false)
     }
-  }
+  }, [email, password, isLoading, router])
 
-  // Show loading while checking auth
+  // Show loading while checking auth state on mount
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-sm text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If already logged in, show loading until redirect completes
+  if (user || firebaseUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-sm text-muted-foreground">Redirecting...</p>
+        </div>
       </div>
     )
   }
@@ -119,9 +157,9 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                {error}
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
             )}
 
@@ -138,6 +176,7 @@ export default function LoginPage() {
                   className="pl-10"
                   required
                   disabled={isLoading}
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -148,6 +187,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
                 >
                   {t('forgotPassword')}
                 </button>
@@ -162,6 +202,7 @@ export default function LoginPage() {
                   className="pl-10"
                   required
                   disabled={isLoading}
+                  autoComplete="current-password"
                 />
               </div>
             </div>

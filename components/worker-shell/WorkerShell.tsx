@@ -1,11 +1,13 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { ClipboardList, Mountain, LogOut, Settings } from 'lucide-react'
+import { signOut } from 'firebase/auth'
+import { ClipboardList, Mountain, LogOut, Settings, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { auth } from '@/lib/firebase'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -17,8 +19,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 import { AppUser } from '@/lib/firestore/types'
 import styles from './WorkerShell.module.css'
 
@@ -30,6 +30,8 @@ interface WorkerShellProps {
 export function WorkerShell({ children, user }: WorkerShellProps) {
   const t = useTranslations()
   const pathname = usePathname()
+  const router = useRouter()
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   const getInitials = (name: string) => {
     return name
@@ -45,6 +47,33 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
       return pathname === '/app'
     }
     return pathname.startsWith(href)
+  }
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return
+
+    setIsSigningOut(true)
+
+    try {
+      await signOut(auth)
+      // Wait a moment for auth state to update
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      router.replace('/login')
+    } catch (error) {
+      console.error('Sign out error:', error)
+      setIsSigningOut(false)
+    }
+  }
+
+  if (isSigningOut) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-sm text-muted-foreground">Signing out...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -93,7 +122,8 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
-                onClick={() => signOut(auth)}
+                onClick={handleSignOut}
+                disabled={isSigningOut}
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 {t('nav.logout')}
@@ -119,4 +149,3 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
     </div>
   )
 }
-
