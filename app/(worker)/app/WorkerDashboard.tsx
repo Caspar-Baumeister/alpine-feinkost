@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { format, Locale } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
 import {
   CalendarDays,
