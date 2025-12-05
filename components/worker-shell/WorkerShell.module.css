@@ -1,0 +1,81 @@
+/* WorkerShell CSS Module */
+/* Mobile-first, minimal design for worker interface */
+
+/* Topbar */
+.topbar {
+  height: 60px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Logo */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logoText {
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Main content */
+.mainContent {
+  min-height: calc(100vh - 60px);
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mainContent {
+    padding: 1.5rem;
+  }
+}
+
+/* Navigation tabs */
+.navTabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.navTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.navTab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  transition: all 150ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navTab:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navTab.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+}
+

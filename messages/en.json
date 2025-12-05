@@ -1,0 +1,215 @@
+{
+  "app": {
+    "title": "Alpine Feinkost",
+    "subtitle": "Market Management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "lagerbestand": "Inventory",
+    "products": "Products",
+    "pos": "Points of Sale",
+    "packlists": "Pack Lists",
+    "templates": "Templates",
+    "settings": "Settings",
+    "users": "User Management",
+    "logout": "Log out",
+    "myPacklists": "My Pack Lists"
+  },
+  "user": {
+    "openPacklists": "Open Pack Lists",
+    "assignedPacklists": "Assigned Pack Lists",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "status": {
+    "open": "Open",
+    "currentlySelling": "Currently Selling",
+    "sold": "Sold",
+    "completed": "Completed",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "actions": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "view": "View",
+    "open": "Open",
+    "create": "Create",
+    "duplicate": "Duplicate",
+    "adjust": "Adjust",
+    "invite": "Invite",
+    "deactivate": "Deactivate",
+    "startSelling": "Start Selling",
+    "finishSelling": "Finish Selling",
+    "saveAsOpen": "Save as Open",
+    "saveAndReady": "Save and Mark Ready"
+  },
+  "lagerbestand": {
+    "title": "Inventory",
+    "description": "Overview of all products and their stock",
+    "viewTotal": "Total",
+    "viewCurrent": "Current",
+    "columns": {
+      "product": "Product",
+      "unit": "Unit",
+      "totalStock": "Total Stock",
+      "currentStock": "Current Stock",
+      "lastUpdated": "Last Updated",
+      "actions": "Actions"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "description": "Manage all products",
+    "addProduct": "Add Product",
+    "editProduct": "Edit Product",
+    "columns": {
+      "name": "Name",
+      "unit": "Unit",
+      "basePrice": "Base Price",
+      "status": "Status",
+      "thumbnail": "Image",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Product Name",
+      "unit": "Unit",
+      "unitPiece": "Piece",
+      "unitWeight": "Weight (kg)",
+      "basePrice": "Base Price (€)",
+      "active": "Active",
+      "description": "Description"
+    }
+  },
+  "pos": {
+    "title": "Points of Sale",
+    "description": "Manage your markets and points of sale",
+    "addPos": "Add Point of Sale",
+    "editPos": "Edit Point of Sale",
+    "columns": {
+      "name": "Name",
+      "location": "Location",
+      "notes": "Notes",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Point of Sale Name",
+      "location": "Location / Address",
+      "notes": "Notes",
+      "active": "Active"
+    }
+  },
+  "packlists": {
+    "title": "Pack Lists",
+    "description": "Overview of all pack lists",
+    "createPacklist": "Create Pack List",
+    "editPacklist": "Edit Pack List",
+    "columns": {
+      "id": "ID",
+      "pos": "Point of Sale",
+      "date": "Date",
+      "assignedUsers": "Assigned Users",
+      "status": "Status",
+      "expectedCash": "Expected Cash",
+      "reportedCash": "Reported Cash",
+      "difference": "Difference",
+      "actions": "Actions"
+    },
+    "filters": {
+      "status": "Status",
+      "pos": "Point of Sale",
+      "dateRange": "Date Range",
+      "allStatuses": "All Statuses",
+      "allPos": "All Points of Sale"
+    },
+    "form": {
+      "selectPos": "Select Point of Sale",
+      "date": "Date",
+      "assignUsers": "Assign Users",
+      "changeAmount": "Change Amount",
+      "note": "Note",
+      "lineItems": "Products",
+      "product": "Product",
+      "plannedQuantity": "Planned Quantity",
+      "specialPrice": "Special Price",
+      "lineNote": "Note",
+      "addLine": "Add Product",
+      "removeLine": "Remove",
+      "startFromTemplate": "Start from Template",
+      "saveAsTemplate": "Save as Template",
+      "templateName": "Template Name"
+    }
+  },
+  "templates": {
+    "title": "Templates",
+    "description": "Manage pack list templates",
+    "createTemplate": "Create Template",
+    "editTemplate": "Edit Template",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "lastUsed": "Last Used",
+      "productCount": "Number of Products",
+      "actions": "Actions"
+    }
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage users and roles",
+    "inviteUser": "Invite User",
+    "editUser": "Edit User",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "roleAdmin": "Administrator",
+      "roleWorker": "Worker"
+    }
+  },
+  "worker": {
+    "dashboard": {
+      "title": "My Pack Lists",
+      "description": "Your assigned pack lists",
+      "noPacklists": "No pack lists assigned"
+    },
+    "packlist": {
+      "info": "Information",
+      "beforeSelling": "Before Selling",
+      "afterSelling": "After Selling",
+      "actualQuantity": "Actual Quantity",
+      "remainingQuantity": "Remaining Quantity",
+      "finalCash": "Final Cash Amount",
+      "confirmStart": "Confirm Quantity & Start Selling",
+      "confirmEnd": "Confirm Remaining & Finish Selling"
+    }
+  },
+  "common": {
+    "search": "Search...",
+    "loading": "Loading...",
+    "noResults": "No results",
+    "selectPlaceholder": "Select...",
+    "language": "Language",
+    "german": "Deutsch",
+    "english": "English"
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "forgotPassword": "Forgot Password?"
+  }
+}
+

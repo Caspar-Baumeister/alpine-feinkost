@@ -1,0 +1,215 @@
+{
+  "app": {
+    "title": "Alpine Feinkost",
+    "subtitle": "Marktmanagement"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "lagerbestand": "Lagerbestand",
+    "products": "Produkte",
+    "pos": "Verkaufsstellen",
+    "packlists": "Packlisten",
+    "templates": "Vorlagen",
+    "settings": "Einstellungen",
+    "users": "Benutzerverwaltung",
+    "logout": "Abmelden",
+    "myPacklists": "Meine Packlisten"
+  },
+  "user": {
+    "openPacklists": "Offene Packlisten",
+    "assignedPacklists": "Zugewiesene Packlisten",
+    "profile": "Profil",
+    "settings": "Einstellungen"
+  },
+  "status": {
+    "open": "Offen",
+    "currentlySelling": "Aktuell im Verkauf",
+    "sold": "Verkauft",
+    "completed": "Abgeschlossen",
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "actions": {
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "view": "Ansehen",
+    "open": "Öffnen",
+    "create": "Erstellen",
+    "duplicate": "Duplizieren",
+    "adjust": "Anpassen",
+    "invite": "Einladen",
+    "deactivate": "Deaktivieren",
+    "startSelling": "Verkauf starten",
+    "finishSelling": "Verkauf beenden",
+    "saveAsOpen": "Als offen speichern",
+    "saveAndReady": "Speichern und bereitstellen"
+  },
+  "lagerbestand": {
+    "title": "Lagerbestand",
+    "description": "Übersicht über alle Produkte und deren Bestand",
+    "viewTotal": "Gesamt",
+    "viewCurrent": "Aktuell",
+    "columns": {
+      "product": "Produkt",
+      "unit": "Einheit",
+      "totalStock": "Gesamtbestand",
+      "currentStock": "Aktueller Bestand",
+      "lastUpdated": "Zuletzt aktualisiert",
+      "actions": "Aktionen"
+    }
+  },
+  "products": {
+    "title": "Produkte",
+    "description": "Verwalten Sie alle Produkte",
+    "addProduct": "Produkt hinzufügen",
+    "editProduct": "Produkt bearbeiten",
+    "columns": {
+      "name": "Name",
+      "unit": "Einheit",
+      "basePrice": "Grundpreis",
+      "status": "Status",
+      "thumbnail": "Bild",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Produktname",
+      "unit": "Einheit",
+      "unitPiece": "Stück",
+      "unitWeight": "Gewicht (kg)",
+      "basePrice": "Grundpreis (€)",
+      "active": "Aktiv",
+      "description": "Beschreibung"
+    }
+  },
+  "pos": {
+    "title": "Verkaufsstellen",
+    "description": "Verwalten Sie Ihre Märkte und Verkaufsstellen",
+    "addPos": "Verkaufsstelle hinzufügen",
+    "editPos": "Verkaufsstelle bearbeiten",
+    "columns": {
+      "name": "Name",
+      "location": "Standort",
+      "notes": "Notizen",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name der Verkaufsstelle",
+      "location": "Standort / Adresse",
+      "notes": "Notizen",
+      "active": "Aktiv"
+    }
+  },
+  "packlists": {
+    "title": "Packlisten",
+    "description": "Übersicht aller Packlisten",
+    "createPacklist": "Packliste erstellen",
+    "editPacklist": "Packliste bearbeiten",
+    "columns": {
+      "id": "ID",
+      "pos": "Verkaufsstelle",
+      "date": "Datum",
+      "assignedUsers": "Zugewiesene Benutzer",
+      "status": "Status",
+      "expectedCash": "Erwartetes Bargeld",
+      "reportedCash": "Gemeldetes Bargeld",
+      "difference": "Differenz",
+      "actions": "Aktionen"
+    },
+    "filters": {
+      "status": "Status",
+      "pos": "Verkaufsstelle",
+      "dateRange": "Zeitraum",
+      "allStatuses": "Alle Status",
+      "allPos": "Alle Verkaufsstellen"
+    },
+    "form": {
+      "selectPos": "Verkaufsstelle auswählen",
+      "date": "Datum",
+      "assignUsers": "Benutzer zuweisen",
+      "changeAmount": "Wechselgeld",
+      "note": "Notiz",
+      "lineItems": "Produkte",
+      "product": "Produkt",
+      "plannedQuantity": "Geplante Menge",
+      "specialPrice": "Sonderpreis",
+      "lineNote": "Notiz",
+      "addLine": "Produkt hinzufügen",
+      "removeLine": "Entfernen",
+      "startFromTemplate": "Von Vorlage starten",
+      "saveAsTemplate": "Als Vorlage speichern",
+      "templateName": "Vorlagenname"
+    }
+  },
+  "templates": {
+    "title": "Vorlagen",
+    "description": "Verwalten Sie Packlisten-Vorlagen",
+    "createTemplate": "Vorlage erstellen",
+    "editTemplate": "Vorlage bearbeiten",
+    "columns": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "lastUsed": "Zuletzt verwendet",
+      "productCount": "Anzahl Produkte",
+      "actions": "Aktionen"
+    }
+  },
+  "users": {
+    "title": "Benutzerverwaltung",
+    "description": "Verwalten Sie Benutzer und Rollen",
+    "inviteUser": "Benutzer einladen",
+    "editUser": "Benutzer bearbeiten",
+    "columns": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "roleAdmin": "Administrator",
+      "roleWorker": "Mitarbeiter"
+    }
+  },
+  "worker": {
+    "dashboard": {
+      "title": "Meine Packlisten",
+      "description": "Ihre zugewiesenen Packlisten",
+      "noPacklists": "Keine Packlisten zugewiesen"
+    },
+    "packlist": {
+      "info": "Informationen",
+      "beforeSelling": "Vor dem Verkauf",
+      "afterSelling": "Nach dem Verkauf",
+      "actualQuantity": "Tatsächliche Menge",
+      "remainingQuantity": "Restmenge",
+      "finalCash": "Endbetrag (Bargeld)",
+      "confirmStart": "Menge bestätigen & Verkauf starten",
+      "confirmEnd": "Restmenge bestätigen & Verkauf beenden"
+    }
+  },
+  "common": {
+    "search": "Suchen...",
+    "loading": "Laden...",
+    "noResults": "Keine Ergebnisse",
+    "selectPlaceholder": "Auswählen...",
+    "language": "Sprache",
+    "german": "Deutsch",
+    "english": "English"
+  },
+  "login": {
+    "title": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "forgotPassword": "Passwort vergessen?"
+  }
+}
+

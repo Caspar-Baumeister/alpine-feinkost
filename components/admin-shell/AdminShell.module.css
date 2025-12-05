@@ -1,0 +1,243 @@
+/* AdminShell CSS Module */
+/* Responsive design: Mobile-first approach */
+
+/* ===== MOBILE STYLES (default) ===== */
+
+/* Sidebar - hidden on mobile */
+.sidebar {
+  display: none;
+}
+
+/* Main content - full width on mobile */
+.mainContent {
+  margin-left: 0;
+  min-height: 100vh;
+  transition: margin-left 200ms ease;
+}
+
+/* Topbar */
+.topbar {
+  height: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Mobile menu button */
+.mobileMenuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.mobileMenuButton:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Logo container */
+.logoContainer {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoText {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Navigation */
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 150ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navItem.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.navItem.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: #10b981;
+  border-radius: 0 2px 2px 0;
+}
+
+.navIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.navLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 200ms ease;
+}
+
+/* Toggle button */
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 150ms ease;
+  gap: 0.5rem;
+}
+
+.toggleButton:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== TABLET STYLES (768px+) ===== */
+@media (min-width: 768px) {
+  .mainContent {
+    padding-left: 0;
+  }
+}
+
+/* ===== DESKTOP STYLES (1024px+) ===== */
+@media (min-width: 1024px) {
+  /* Show desktop sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    height: 100vh;
+    width: 280px;
+    min-width: 280px;
+    transition: width 200ms ease, min-width 200ms ease;
+  }
+
+  .sidebar.collapsed {
+    width: 72px;
+    min-width: 72px;
+  }
+
+  /* Adjust main content for sidebar */
+  .mainContent {
+    margin-left: 280px;
+  }
+
+  .mainContent.sidebarCollapsed {
+    margin-left: 72px;
+  }
+
+  /* Hide mobile menu button on desktop */
+  .mobileMenuButton {
+    display: none;
+  }
+
+  /* Toggle button styling for collapsed state */
+  .toggleButton {
+    width: 100%;
+  }
+
+  .sidebar.collapsed .toggleButton {
+    width: 40px;
+    margin: 0 auto;
+  }
+
+  /* Logo adjustments for collapsed */
+  .sidebar.collapsed .logoContainer {
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+/* ===== DRAWER/SHEET NAV STYLES ===== */
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.drawerNavContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.drawerFooter {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* User info in drawer */
+.drawerUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.5rem;
+}
+
+.drawerUserDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawerUserName {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.drawerUserEmail {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
