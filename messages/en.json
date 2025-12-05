@@ -46,7 +46,9 @@
     "startSelling": "Start Selling",
     "finishSelling": "Finish Selling",
     "saveAsOpen": "Save as Open",
-    "saveAndReady": "Save and Mark Ready"
+    "saveAndReady": "Save and Mark Ready",
+    "complete": "Complete",
+    "back": "Back"
   },
   "lagerbestand": {
     "title": "Inventory",
@@ -73,16 +75,22 @@
       "basePrice": "Base Price",
       "status": "Status",
       "thumbnail": "Image",
-      "actions": "Actions"
+      "actions": "Actions",
+      "stock": "Stock"
     },
     "form": {
       "name": "Product Name",
       "unit": "Unit",
       "unitPiece": "Piece",
       "unitWeight": "Weight (kg)",
+      "unitLabel": "Unit Label",
       "basePrice": "Base Price (€)",
       "active": "Active",
-      "description": "Description"
+      "description": "Description",
+      "stock": "Stock",
+      "image": "Product Image",
+      "uploadImage": "Upload Image",
+      "removeImage": "Remove Image"
     }
   },
   "pos": {
@@ -109,6 +117,15 @@
     "description": "Overview of all pack lists",
     "createPacklist": "Create Pack List",
     "editPacklist": "Edit Pack List",
+    "detail": {
+      "title": "Pack List Details",
+      "summary": "Summary",
+      "items": "Items",
+      "awaitingReview": "Awaiting Review",
+      "reviewDescription": "Review the data and complete the pack list",
+      "completePacklist": "Complete Pack List",
+      "completed": "This pack list has been completed"
+    },
     "columns": {
       "id": "ID",
       "pos": "Point of Sale",
@@ -118,7 +135,15 @@
       "expectedCash": "Expected Cash",
       "reportedCash": "Reported Cash",
       "difference": "Difference",
-      "actions": "Actions"
+      "actions": "Actions",
+      "product": "Product",
+      "unit": "Unit",
+      "planned": "Planned",
+      "start": "Start",
+      "end": "End",
+      "sold": "Sold",
+      "price": "Price",
+      "total": "Total"
     },
     "filters": {
       "status": "Status",
@@ -162,27 +187,38 @@
     "title": "User Management",
     "description": "Manage users and roles",
     "inviteUser": "Invite User",
+    "createUser": "Create User",
     "editUser": "Edit User",
     "columns": {
       "name": "Name",
       "email": "Email",
       "role": "Role",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "locale": "Language"
     },
     "form": {
       "name": "Name",
       "email": "Email",
       "role": "Role",
       "roleAdmin": "Administrator",
-      "roleWorker": "Worker"
+      "roleWorker": "Worker",
+      "locale": "Language",
+      "active": "Active"
+    },
+    "note": {
+      "firebaseAuth": "Note: The user must also be created in Firebase Authentication."
     }
   },
   "worker": {
     "dashboard": {
       "title": "My Pack Lists",
       "description": "Your assigned pack lists",
-      "noPacklists": "No pack lists assigned"
+      "noPacklists": "No pack lists assigned",
+      "active": "Active",
+      "history": "History",
+      "start": "Start",
+      "continue": "Continue"
     },
     "packlist": {
       "info": "Information",
@@ -192,7 +228,13 @@
       "remainingQuantity": "Remaining Quantity",
       "finalCash": "Final Cash Amount",
       "confirmStart": "Confirm Quantity & Start Selling",
-      "confirmEnd": "Confirm Remaining & Finish Selling"
+      "confirmEnd": "Confirm Remaining & Finish Selling",
+      "sellingFinished": "Selling finished",
+      "awaitingReview": "Waiting for admin review",
+      "completed": "Completed",
+      "expected": "Expected",
+      "reported": "Reported",
+      "difference": "Difference"
     }
   },
   "common": {
@@ -202,14 +244,38 @@
     "selectPlaceholder": "Select...",
     "language": "Language",
     "german": "Deutsch",
-    "english": "English"
+    "english": "English",
+    "date": "Date",
+    "product": "Product",
+    "unit": "Unit",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "note": "Note",
+    "users": "Users",
+    "assigned": "Assigned",
+    "error": {
+      "generic": "An error occurred",
+      "negativeQuantity": "Quantities cannot be negative",
+      "negativeCash": "Cash amount cannot be negative",
+      "startSelling": "Failed to start selling",
+      "finishSelling": "Failed to finish selling",
+      "complete": "Failed to complete",
+      "loading": "Failed to load"
+    }
   },
   "login": {
     "title": "Login",
     "email": "Email",
     "password": "Password",
     "submit": "Sign In",
-    "forgotPassword": "Forgot Password?"
+    "forgotPassword": "Forgot Password?",
+    "error": {
+      "invalidCredentials": "Invalid email or password",
+      "tooManyRequests": "Too many failed attempts. Please try again later.",
+      "accountDeactivated": "Your account has been deactivated. Please contact an administrator.",
+      "accountNotFound": "User account not found. Please contact an administrator.",
+      "generic": "An error occurred. Please try again."
+    }
   }
 }
-

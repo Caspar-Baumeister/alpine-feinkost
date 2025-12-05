@@ -32,7 +32,11 @@ export {
   listPacklists,
   getPacklist,
   createPacklist,
-  updatePacklist
+  updatePacklist,
+  startSellingPacklist,
+  finishSellingPacklist,
+  completePacklist,
+  getProductsForPacklist
 } from './packlists'
 
 // Packlist Templates

@@ -46,7 +46,9 @@
     "startSelling": "Verkauf starten",
     "finishSelling": "Verkauf beenden",
     "saveAsOpen": "Als offen speichern",
-    "saveAndReady": "Speichern und bereitstellen"
+    "saveAndReady": "Speichern und bereitstellen",
+    "complete": "Abschließen",
+    "back": "Zurück"
   },
   "lagerbestand": {
     "title": "Lagerbestand",
@@ -73,16 +75,22 @@
       "basePrice": "Grundpreis",
       "status": "Status",
       "thumbnail": "Bild",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "stock": "Bestand"
     },
     "form": {
       "name": "Produktname",
       "unit": "Einheit",
       "unitPiece": "Stück",
       "unitWeight": "Gewicht (kg)",
+      "unitLabel": "Einheits-Label",
       "basePrice": "Grundpreis (€)",
       "active": "Aktiv",
-      "description": "Beschreibung"
+      "description": "Beschreibung",
+      "stock": "Bestand",
+      "image": "Produktbild",
+      "uploadImage": "Bild hochladen",
+      "removeImage": "Bild entfernen"
     }
   },
   "pos": {
@@ -109,6 +117,15 @@
     "description": "Übersicht aller Packlisten",
     "createPacklist": "Packliste erstellen",
     "editPacklist": "Packliste bearbeiten",
+    "detail": {
+      "title": "Packlisten-Details",
+      "summary": "Zusammenfassung",
+      "items": "Positionen",
+      "awaitingReview": "Warte auf Überprüfung",
+      "reviewDescription": "Überprüfen Sie die Daten und schließen Sie die Packliste ab",
+      "completePacklist": "Packliste abschließen",
+      "completed": "Diese Packliste wurde abgeschlossen"
+    },
     "columns": {
       "id": "ID",
       "pos": "Verkaufsstelle",
@@ -118,7 +135,15 @@
       "expectedCash": "Erwartetes Bargeld",
       "reportedCash": "Gemeldetes Bargeld",
       "difference": "Differenz",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "product": "Produkt",
+      "unit": "Einheit",
+      "planned": "Geplant",
+      "start": "Start",
+      "end": "Ende",
+      "sold": "Verkauft",
+      "price": "Preis",
+      "total": "Gesamt"
     },
     "filters": {
       "status": "Status",
@@ -162,27 +187,38 @@
     "title": "Benutzerverwaltung",
     "description": "Verwalten Sie Benutzer und Rollen",
     "inviteUser": "Benutzer einladen",
+    "createUser": "Benutzer erstellen",
     "editUser": "Benutzer bearbeiten",
     "columns": {
       "name": "Name",
       "email": "E-Mail",
       "role": "Rolle",
       "status": "Status",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "locale": "Sprache"
     },
     "form": {
       "name": "Name",
       "email": "E-Mail",
       "role": "Rolle",
       "roleAdmin": "Administrator",
-      "roleWorker": "Mitarbeiter"
+      "roleWorker": "Mitarbeiter",
+      "locale": "Sprache",
+      "active": "Aktiv"
+    },
+    "note": {
+      "firebaseAuth": "Hinweis: Der Benutzer muss auch in Firebase Authentication angelegt werden."
     }
   },
   "worker": {
     "dashboard": {
       "title": "Meine Packlisten",
       "description": "Ihre zugewiesenen Packlisten",
-      "noPacklists": "Keine Packlisten zugewiesen"
+      "noPacklists": "Keine Packlisten zugewiesen",
+      "active": "Aktiv",
+      "history": "Verlauf",
+      "start": "Starten",
+      "continue": "Fortsetzen"
     },
     "packlist": {
       "info": "Informationen",
@@ -192,7 +228,13 @@
       "remainingQuantity": "Restmenge",
       "finalCash": "Endbetrag (Bargeld)",
       "confirmStart": "Menge bestätigen & Verkauf starten",
-      "confirmEnd": "Restmenge bestätigen & Verkauf beenden"
+      "confirmEnd": "Restmenge bestätigen & Verkauf beenden",
+      "sellingFinished": "Verkauf abgeschlossen",
+      "awaitingReview": "Warte auf Überprüfung durch Admin",
+      "completed": "Abgeschlossen",
+      "expected": "Erwartet",
+      "reported": "Gemeldet",
+      "difference": "Differenz"
     }
   },
   "common": {
@@ -202,14 +244,38 @@
     "selectPlaceholder": "Auswählen...",
     "language": "Sprache",
     "german": "Deutsch",
-    "english": "English"
+    "english": "English",
+    "date": "Datum",
+    "product": "Produkt",
+    "unit": "Einheit",
+    "quantity": "Menge",
+    "price": "Preis",
+    "total": "Gesamt",
+    "note": "Notiz",
+    "users": "Benutzer",
+    "assigned": "Zugewiesen",
+    "error": {
+      "generic": "Ein Fehler ist aufgetreten",
+      "negativeQuantity": "Mengen dürfen nicht negativ sein",
+      "negativeCash": "Bargeldbetrag darf nicht negativ sein",
+      "startSelling": "Fehler beim Starten des Verkaufs",
+      "finishSelling": "Fehler beim Beenden des Verkaufs",
+      "complete": "Fehler beim Abschließen",
+      "loading": "Fehler beim Laden"
+    }
   },
   "login": {
     "title": "Anmelden",
     "email": "E-Mail",
     "password": "Passwort",
     "submit": "Anmelden",
-    "forgotPassword": "Passwort vergessen?"
+    "forgotPassword": "Passwort vergessen?",
+    "error": {
+      "invalidCredentials": "Ungültige E-Mail oder Passwort",
+      "tooManyRequests": "Zu viele Fehlversuche. Bitte später erneut versuchen.",
+      "accountDeactivated": "Ihr Konto wurde deaktiviert. Bitte kontaktieren Sie einen Administrator.",
+      "accountNotFound": "Benutzerkonto nicht gefunden. Bitte kontaktieren Sie einen Administrator.",
+      "generic": "Ein Fehler ist aufgetreten. Bitte erneut versuchen."
+    }
   }
 }
-

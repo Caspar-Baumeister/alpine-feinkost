@@ -9,12 +9,14 @@ import {
   serverTimestamp,
   query,
   orderBy,
-  where
+  where,
+  runTransaction
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { Packlist, PacklistStatus, PacklistItem } from './types'
+import { Packlist, PacklistStatus, PacklistItem, Product } from './types'
 
 const COLLECTION = 'packlists'
+const PRODUCTS_COLLECTION = 'products'
 
 function timestampToDate(timestamp: Timestamp | null | undefined): Date | null {
   return timestamp ? timestamp.toDate() : null
@@ -174,3 +176,257 @@ export async function updatePacklist(
   await updateDoc(docRef, updateData)
 }
 
+// ========================================
+// Stock-safe operations with transactions
+// ========================================
+
+interface StartSellingItem {
+  productId: string
+  startQuantity: number
+}
+
+/**
+ * Start selling a packlist:
+ * - Sets startQuantity for each item
+ * - Changes status to 'currently_selling'
+ * - Subtracts startQuantity from each product's totalStock
+ */
+export async function startSellingPacklist(
+  id: string,
+  itemsWithStartQuantity: StartSellingItem[]
+): Promise<void> {
+  const packlistRef = doc(db, COLLECTION, id)
+
+  await runTransaction(db, async (transaction) => {
+    // Read the packlist
+    const packlistSnap = await transaction.get(packlistRef)
+    if (!packlistSnap.exists()) {
+      throw new Error('Packlist not found')
+    }
+
+    const packlistData = packlistSnap.data()
+    const currentStatus = packlistData.status as PacklistStatus
+
+    if (currentStatus !== 'open') {
+      throw new Error(`Cannot start selling: packlist status is '${currentStatus}', expected 'open'`)
+    }
+
+    const existingItems = packlistData.items as Record<string, unknown>[]
+
+    // Read all referenced products and prepare stock updates
+    const productReads: Map<string, number> = new Map()
+
+    for (const startItem of itemsWithStartQuantity) {
+      const productRef = doc(db, PRODUCTS_COLLECTION, startItem.productId)
+      const productSnap = await transaction.get(productRef)
+
+      if (!productSnap.exists()) {
+        throw new Error(`Product ${startItem.productId} not found`)
+      }
+
+      const productData = productSnap.data()
+      const currentStock = productData.totalStock as number ?? 0
+      const newStock = currentStock - startItem.startQuantity
+
+      if (newStock < 0) {
+        console.warn(`Product ${startItem.productId} will have negative stock: ${newStock}`)
+      }
+
+      productReads.set(startItem.productId, newStock)
+    }
+
+    // Update items with startQuantity
+    const updatedItems = existingItems.map((item) => {
+      const startItem = itemsWithStartQuantity.find((si) => si.productId === item.productId)
+      if (startItem) {
+        return {
+          ...item,
+          startQuantity: startItem.startQuantity
+        }
+      }
+      return {
+        ...item,
+        startQuantity: item.plannedQuantity // fallback to plannedQuantity
+      }
+    })
+
+    // Write: update each product's stock
+    for (const [productId, newStock] of productReads.entries()) {
+      const productRef = doc(db, PRODUCTS_COLLECTION, productId)
+      transaction.update(productRef, {
+        totalStock: newStock,
+        updatedAt: serverTimestamp()
+      })
+    }
+
+    // Write: update the packlist
+    transaction.update(packlistRef, {
+      status: 'currently_selling',
+      items: updatedItems,
+      updatedAt: serverTimestamp()
+    })
+  })
+}
+
+interface FinishSellingItem {
+  productId: string
+  endQuantity: number
+}
+
+/**
+ * Finish selling a packlist:
+ * - Sets endQuantity for each item
+ * - Sets reportedCash
+ * - Changes status to 'sold'
+ * - No stock changes (admin will handle returns)
+ */
+export async function finishSellingPacklist(
+  id: string,
+  itemsWithEndQuantity: FinishSellingItem[],
+  reportedCash: number
+): Promise<void> {
+  const packlistRef = doc(db, COLLECTION, id)
+
+  await runTransaction(db, async (transaction) => {
+    const packlistSnap = await transaction.get(packlistRef)
+    if (!packlistSnap.exists()) {
+      throw new Error('Packlist not found')
+    }
+
+    const packlistData = packlistSnap.data()
+    const currentStatus = packlistData.status as PacklistStatus
+
+    if (currentStatus !== 'currently_selling') {
+      throw new Error(`Cannot finish selling: packlist status is '${currentStatus}', expected 'currently_selling'`)
+    }
+
+    const existingItems = packlistData.items as Record<string, unknown>[]
+
+    // Update items with endQuantity
+    const updatedItems = existingItems.map((item) => {
+      const endItem = itemsWithEndQuantity.find((ei) => ei.productId === item.productId)
+      return {
+        ...item,
+        endQuantity: endItem?.endQuantity ?? 0
+      }
+    })
+
+    // Write: update the packlist
+    transaction.update(packlistRef, {
+      status: 'sold',
+      items: updatedItems,
+      reportedCash,
+      updatedAt: serverTimestamp()
+    })
+  })
+}
+
+/**
+ * Complete a packlist (admin action):
+ * - Computes soldQuantity, expectedCash, difference
+ * - Adds endQuantity back to each product's totalStock (returned items)
+ * - Changes status to 'completed'
+ */
+export async function completePacklist(id: string): Promise<void> {
+  const packlistRef = doc(db, COLLECTION, id)
+
+  await runTransaction(db, async (transaction) => {
+    // Read the packlist
+    const packlistSnap = await transaction.get(packlistRef)
+    if (!packlistSnap.exists()) {
+      throw new Error('Packlist not found')
+    }
+
+    const packlistData = packlistSnap.data()
+    const currentStatus = packlistData.status as PacklistStatus
+
+    if (currentStatus !== 'sold') {
+      throw new Error(`Cannot complete: packlist status is '${currentStatus}', expected 'sold'`)
+    }
+
+    const items = packlistData.items as Record<string, unknown>[]
+    const changeAmount = packlistData.changeAmount as number ?? 0
+    const reportedCash = packlistData.reportedCash as number ?? 0
+
+    // Read all products to get current stock and add back returned quantities
+    const productUpdates: Map<string, number> = new Map()
+
+    for (const item of items) {
+      const productId = item.productId as string
+      const endQuantity = (item.endQuantity as number) ?? 0
+
+      if (endQuantity > 0) {
+        const productRef = doc(db, PRODUCTS_COLLECTION, productId)
+        const productSnap = await transaction.get(productRef)
+
+        if (productSnap.exists()) {
+          const productData = productSnap.data()
+          const currentStock = productData.totalStock as number ?? 0
+          productUpdates.set(productId, currentStock + endQuantity)
+        }
+      }
+    }
+
+    // Calculate expected cash
+    let expectedCash = changeAmount
+    for (const item of items) {
+      const startQty = (item.startQuantity as number) ?? (item.plannedQuantity as number)
+      const endQty = (item.endQuantity as number) ?? 0
+      const soldQty = startQty - endQty
+      const price = (item.specialPrice as number) ?? (item.basePrice as number)
+      expectedCash += soldQty * price
+    }
+
+    const difference = reportedCash - expectedCash
+
+    // Write: update each product's stock (add back returned quantities)
+    for (const [productId, newStock] of productUpdates.entries()) {
+      const productRef = doc(db, PRODUCTS_COLLECTION, productId)
+      transaction.update(productRef, {
+        totalStock: newStock,
+        updatedAt: serverTimestamp()
+      })
+    }
+
+    // Write: update the packlist
+    transaction.update(packlistRef, {
+      status: 'completed',
+      expectedCash,
+      difference,
+      closedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    })
+  })
+}
+
+/**
+ * Get multiple products by their IDs
+ */
+export async function getProductsForPacklist(productIds: string[]): Promise<Map<string, Product>> {
+  const products = new Map<string, Product>()
+
+  for (const productId of productIds) {
+    const productRef = doc(db, PRODUCTS_COLLECTION, productId)
+    const productSnap = await getDoc(productRef)
+
+    if (productSnap.exists()) {
+      const data = productSnap.data()
+      products.set(productId, {
+        id: productId,
+        name: data.name as string,
+        sku: data.sku as string || '',
+        unitType: data.unitType as 'piece' | 'weight',
+        unitLabel: data.unitLabel as string || (data.unitType === 'piece' ? 'Stück' : 'kg'),
+        basePrice: data.basePrice as number,
+        description: data.description as string || '',
+        imagePath: (data.imagePath as string) || null,
+        isActive: data.isActive as boolean ?? true,
+        totalStock: data.totalStock as number ?? 0,
+        createdAt: timestampToDate(data.createdAt as Timestamp | null),
+        updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
+      })
+    }
+  }
+
+  return products
+}
