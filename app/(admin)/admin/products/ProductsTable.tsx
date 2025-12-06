@@ -34,6 +34,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { StatusBadge } from '@/components/status-badge'
+import { ProductDetailDialog } from '@/components/product-detail-dialog'
 import { Product, createProduct, updateProduct } from '@/lib/firestore'
 import { uploadProductImageWithUrl, getProductImageUrl, deleteProductImage } from '@/lib/storage/products'
 
@@ -50,6 +51,10 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Product detail dialog state
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   // Form state
   const [name, setName] = useState('')
@@ -135,6 +140,11 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
   const openCreateDialog = () => {
     resetForm()
     setIsDialogOpen(true)
+  }
+
+  const openProductDetail = (product: Product) => {
+    setDetailProduct(product)
+    setIsDetailOpen(true)
   }
 
   const handleUnitTypeChange = (value: 'piece' | 'weight') => {
@@ -458,7 +468,11 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
                   const imageUrl = imageUrls.get(product.id)
 
                   return (
-                    <TableRow key={product.id}>
+                    <TableRow
+                      key={product.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => openProductDetail(product)}
+                    >
                       <TableCell>
                         <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center overflow-hidden">
                           {imageUrl ? (
@@ -489,7 +503,10 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => openEditDialog(product)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openEditDialog(product)
+                          }}
                         >
                           <Pencil className="h-4 w-4 mr-1" />
                           {tActions('edit')}
@@ -503,6 +520,13 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
           </Table>
         </CardContent>
       </Card>
+
+      {/* Product Detail Dialog */}
+      <ProductDetailDialog
+        product={detailProduct}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
     </div>
   )
 }

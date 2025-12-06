@@ -29,10 +29,13 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { StatusBadge } from '@/components/status-badge'
+import { ProductDetailDialog } from '@/components/product-detail-dialog'
 import {
   Packlist,
+  Product,
   startSellingPacklist,
-  finishSellingPacklist
+  finishSellingPacklist,
+  getProduct
 } from '@/lib/firestore'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
@@ -68,6 +71,26 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   const [finalCash, setFinalCash] = useState<string>(
     packlist.reportedCash?.toString() || ''
   )
+
+  // Product detail dialog state
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false)
+
+  const openProductDetail = async (productId: string) => {
+    setIsLoadingProduct(true)
+    try {
+      const product = await getProduct(productId)
+      if (product) {
+        setDetailProduct(product)
+        setIsDetailOpen(true)
+      }
+    } catch (err) {
+      console.error('Failed to load product:', err)
+    } finally {
+      setIsLoadingProduct(false)
+    }
+  }
 
   const updateLineItemState = (
     productId: string,

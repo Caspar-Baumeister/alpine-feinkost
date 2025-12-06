@@ -1,0 +1,2 @@
+export { ProductDetailDialog } from './ProductDetailDialog'
+
