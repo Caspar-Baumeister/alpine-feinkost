@@ -2,10 +2,11 @@
 
 import { ReactNode, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'firebase/auth'
-import { ClipboardList, Mountain, LogOut, Loader2, LayoutDashboard } from 'lucide-react'
+import { ClipboardList, LogOut, Loader2, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { auth } from '@/lib/firebase'
 import { useViewModeStore } from '@/stores/useViewModeStore'
@@ -100,7 +101,9 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
       >
         {/* Logo */}
         <div className={styles.logoContainer}>
-          <Mountain className="h-6 w-6 text-emerald-500" />
+          <div className="h-9 w-9 rounded-lg bg-white p-0.5 flex-shrink-0">
+            <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={36} height={36} className="w-full h-full object-contain" />
+          </div>
           <span className={styles.logoText}>{t('app.title')}</span>
         </div>
 

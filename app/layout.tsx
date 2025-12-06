@@ -17,7 +17,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Alpine Feinkost - Marktmanagement',
-  description: 'Verwaltung von Wochenendmärkten und Packlisten'
+  description: 'Verwaltung von Wochenendmärkten und Packlisten',
+  icons: {
+    icon: '/alpinefeinkostlabel.png',
+    shortcut: '/alpinefeinkostlabel.png',
+    apple: '/alpinefeinkostlabel.png'
+  }
 }
 
 export default async function RootLayout({

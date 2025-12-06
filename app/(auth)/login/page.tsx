@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { Mountain, Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 import { auth } from '@/lib/firebase'
 import { getUserByUid } from '@/lib/firestore/users'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
@@ -144,15 +145,21 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 items-center text-center pb-6">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-              <Mountain className="h-7 w-7 text-emerald-500" />
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-24 w-24 rounded-2xl bg-white p-2 shadow-lg">
+              <Image
+                src="/alpinefeinkostlabel.png"
+                alt="Alpine Feinkost"
+                width={96}
+                height={96}
+                className="w-full h-full object-contain"
+              />
             </div>
-            <div className="text-left">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-blue-500 bg-clip-text text-transparent">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-blue-500 bg-clip-text text-transparent">
                 {tApp('title')}
               </h1>
-              <p className="text-xs text-muted-foreground">{tApp('subtitle')}</p>
+              <p className="text-sm text-muted-foreground">{tApp('subtitle')}</p>
             </div>
           </div>
         </CardHeader>

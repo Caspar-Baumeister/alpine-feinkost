@@ -2,6 +2,7 @@
 
 import { ReactNode, useState, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'firebase/auth'
@@ -17,8 +18,6 @@ import {
   ChevronRight,
   LogOut,
   Menu,
-  Settings,
-  Mountain,
   Loader2,
   BarChart3,
   UserCircle
@@ -218,7 +217,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
         >
           {/* Logo */}
           <div className={styles.logoContainer}>
-            <Mountain className="h-8 w-8 text-emerald-500 flex-shrink-0" />
+            <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
+              <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" />
+            </div>
             {!isCollapsed && (
               <span className={cn('ml-3', styles.logoText)}>
                 {t('app.title')}
@@ -280,7 +281,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
                     {/* Drawer Header */}
                     <SheetHeader className="p-0">
                       <div className={styles.logoContainer}>
-                        <Mountain className="h-8 w-8 text-emerald-500 flex-shrink-0" />
+                        <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
+                          <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" />
+                        </div>
                         <SheetTitle className={cn('ml-3', styles.logoText)}>
                           {t('app.title')}
                         </SheetTitle>
@@ -336,7 +339,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
               {/* Mobile Logo */}
               <div className="flex items-center gap-2 lg:hidden">
-                <Mountain className="h-6 w-6 text-emerald-500" />
+                <div className="h-8 w-8 rounded-md bg-white p-0.5 flex-shrink-0">
+                  <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={32} height={32} className="w-full h-full object-contain" />
+                </div>
                 <span className={cn('text-lg font-semibold', styles.logoText)}>
                   {t('app.title')}
                 </span>
