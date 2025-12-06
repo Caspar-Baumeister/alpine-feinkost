@@ -19,7 +19,8 @@ import {
   Menu,
   Settings,
   Mountain,
-  Loader2
+  Loader2,
+  BarChart3
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { auth } from '@/lib/firebase'
@@ -70,6 +71,7 @@ const navItems: NavItem[] = [
   { href: '/admin/pos', labelKey: 'nav.pos', icon: Store },
   { href: '/admin/packlists', labelKey: 'nav.packlists', icon: ClipboardList },
   { href: '/admin/templates', labelKey: 'nav.templates', icon: FileText },
+  { href: '/admin/statistics', labelKey: 'nav.statistics', icon: BarChart3 },
   { href: '/admin/settings/users', labelKey: 'nav.users', icon: Users }
 ]
 
