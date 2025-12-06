@@ -22,6 +22,19 @@
     "profile": "Profile",
     "settings": "Settings"
   },
+  "viewSwitch": {
+    "adminView": "Admin View",
+    "workerView": "Worker View",
+    "switchToWorker": "Switch to Worker View",
+    "switchToAdmin": "Switch to Admin View"
+  },
+  "accessDenied": {
+    "title": "Access Denied",
+    "message": "You do not have permission to access this page.",
+    "goToWorker": "Go to Worker Dashboard",
+    "goToAdmin": "Go to Admin Dashboard",
+    "goToLogin": "Go to Login"
+  },
   "status": {
     "open": "Open",
     "currentlySelling": "Currently Selling",
@@ -202,14 +215,17 @@
       "name": "Name",
       "email": "Email",
       "role": "Role",
+      "roleSuperadmin": "Superadmin",
       "roleAdmin": "Administrator",
       "roleWorker": "Worker",
       "locale": "Language",
       "active": "Active"
     },
     "note": {
-      "firebaseAuth": "Note: The user must also be created in Firebase Authentication."
-    }
+      "firebaseAuth": "Users are created in Firebase Console. Only existing users can be edited here.",
+      "cannotDeactivateSelf": "You cannot deactivate your own account."
+    },
+    "noUsers": "No users found"
   },
   "worker": {
     "dashboard": {

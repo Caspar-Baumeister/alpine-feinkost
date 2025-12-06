@@ -5,6 +5,7 @@ export * from './types'
 export {
   getUserByUid,
   listUsers,
+  listActiveUsers,
   upsertUser,
   setUserRole,
   deactivateUser

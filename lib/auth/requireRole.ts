@@ -1,27 +1,22 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from './getCurrentUser'
-import { AppUser, UserRole } from './types'
+import { AppUser, UserRole, canAccessAdminRoutes, canAccessWorkerRoutes } from './types'
 
 /**
  * Require a specific role to access a page
  * Redirects to login if not authenticated
  * Redirects to appropriate dashboard if wrong role
- * 
- * TODO: Implement real role checking with Firebase
- * - Verify token/session
- * - Check role in Firestore user document
  */
 export async function requireRole(requiredRole: UserRole): Promise<AppUser> {
   const user = await getCurrentUser()
 
   if (!user) {
-    // TODO: Implement proper redirect to login with return URL
     redirect('/login')
   }
 
   if (user.role !== requiredRole) {
     // Redirect to appropriate dashboard based on actual role
-    if (user.role === 'admin') {
+    if (canAccessAdminRoutes(user.role)) {
       redirect('/admin')
     } else {
       redirect('/app')
@@ -32,21 +27,48 @@ export async function requireRole(requiredRole: UserRole): Promise<AppUser> {
 }
 
 /**
- * Require admin role
+ * Require superadmin role
+ */
+export async function requireSuperadmin(): Promise<AppUser> {
+  return requireRole('superadmin')
+}
+
+/**
+ * Require admin role (also allows superadmin)
  */
 export async function requireAdmin(): Promise<AppUser> {
-  return requireRole('admin')
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  if (!canAccessAdminRoutes(user.role)) {
+    redirect('/app')
+  }
+
+  return user
 }
 
 /**
- * Require worker role
+ * Require worker role (allows any role)
  */
 export async function requireWorker(): Promise<AppUser> {
-  return requireRole('worker')
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  if (!canAccessWorkerRoutes(user.role)) {
+    redirect('/login')
+  }
+
+  return user
 }
 
 /**
- * Require any authenticated user (admin or worker)
+ * Require any authenticated user
  */
 export async function requireAuth(): Promise<AppUser> {
   const user = await getCurrentUser()
@@ -57,4 +79,3 @@ export async function requireAuth(): Promise<AppUser> {
 
   return user
 }
-

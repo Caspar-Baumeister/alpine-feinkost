@@ -48,6 +48,15 @@ export async function listUsers(): Promise<AppUser[]> {
   return snapshot.docs.map((d) => docToUser(d.id, d.data()))
 }
 
+export async function listActiveUsers(): Promise<AppUser[]> {
+  const colRef = collection(db, COLLECTION)
+  const snapshot = await getDocs(colRef)
+
+  return snapshot.docs
+    .map((d) => docToUser(d.id, d.data()))
+    .filter((user) => user.active)
+}
+
 export async function upsertUser(user: Omit<AppUser, 'createdAt' | 'updatedAt'>): Promise<void> {
   const docRef = doc(db, COLLECTION, user.uid)
   const existing = await getDoc(docRef)

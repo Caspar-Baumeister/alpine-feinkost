@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -20,11 +20,13 @@ import {
   Settings,
   Mountain,
   Loader2,
-  BarChart3
+  BarChart3,
+  UserCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { auth } from '@/lib/firebase'
 import { useSidebarStore } from '@/stores/useSidebarStore'
+import { useViewModeStore } from '@/stores/useViewModeStore'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -50,7 +52,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ViewSwitcher } from '@/components/view-switcher'
 import { AppUser } from '@/lib/firestore/types'
+import { canAccessStatistics, canAccessUserManagement, canSwitchToWorkerView } from '@/lib/auth/types'
 import styles from './AdminShell.module.css'
 
 interface AdminShellProps {
@@ -62,17 +66,18 @@ interface NavItem {
   href: string
   labelKey: string
   icon: typeof LayoutDashboard
+  superadminOnly?: boolean
 }
 
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   { href: '/admin', labelKey: 'nav.dashboard', icon: LayoutDashboard },
   { href: '/admin/lagerbestand', labelKey: 'nav.lagerbestand', icon: Package },
   { href: '/admin/products', labelKey: 'nav.products', icon: ShoppingBag },
   { href: '/admin/pos', labelKey: 'nav.pos', icon: Store },
   { href: '/admin/packlists', labelKey: 'nav.packlists', icon: ClipboardList },
   { href: '/admin/templates', labelKey: 'nav.templates', icon: FileText },
-  { href: '/admin/statistics', labelKey: 'nav.statistics', icon: BarChart3 },
-  { href: '/admin/settings/users', labelKey: 'nav.users', icon: Users }
+  { href: '/admin/statistics', labelKey: 'nav.statistics', icon: BarChart3, superadminOnly: true },
+  { href: '/admin/settings/users', labelKey: 'nav.users', icon: Users, superadminOnly: true }
 ]
 
 export function AdminShell({ children, user }: AdminShellProps) {
@@ -80,8 +85,22 @@ export function AdminShell({ children, user }: AdminShellProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { isCollapsed, toggleSidebar } = useSidebarStore()
+  const { viewMode, setViewMode } = useViewModeStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+
+  // Filter navigation items based on user role
+  const navItems = useMemo(() => {
+    return allNavItems.filter((item) => {
+      if (item.superadminOnly) {
+        return user.role === 'superadmin'
+      }
+      return true
+    })
+  }, [user.role])
+
+  // Check if user can switch views
+  const canSwitch = canSwitchToWorkerView(user.role)
 
   const isActive = (href: string) => {
     if (href === '/admin') {
@@ -117,6 +136,16 @@ export function AdminShell({ children, user }: AdminShellProps) {
     } catch (error) {
       console.error('Sign out error:', error)
       setIsSigningOut(false)
+    }
+  }
+
+  const handleViewSwitch = () => {
+    if (viewMode === 'admin') {
+      setViewMode('worker')
+      router.push('/app')
+    } else {
+      setViewMode('admin')
+      router.push('/admin')
     }
   }
 
@@ -278,6 +307,19 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
                     {/* Drawer Footer */}
                     <div className={styles.drawerFooter}>
+                      {canSwitch && (
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start mb-2"
+                          onClick={() => {
+                            handleNavClick()
+                            handleViewSwitch()
+                          }}
+                        >
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          {t('viewSwitch.switchToWorker')}
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
@@ -302,6 +344,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+              {/* View Switcher - only for admin/superadmin */}
+              {canSwitch && (
+                <ViewSwitcher
+                  currentView="admin"
+                  onSwitch={handleViewSwitch}
+                />
+              )}
+
               {/* Theme Toggle */}
               <ThemeToggle />
 
@@ -333,11 +383,15 @@ export function AdminShell({ children, user }: AdminShellProps) {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      {t('user.settings')}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {canSwitch && (
+                      <>
+                        <DropdownMenuItem onClick={handleViewSwitch}>
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          {t('viewSwitch.switchToWorker')}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={handleSignOut}

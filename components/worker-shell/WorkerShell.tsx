@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'firebase/auth'
-import { ClipboardList, Mountain, LogOut, Settings, Loader2 } from 'lucide-react'
+import { ClipboardList, Mountain, LogOut, Loader2, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { auth } from '@/lib/firebase'
+import { useViewModeStore } from '@/stores/useViewModeStore'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -20,7 +21,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ViewSwitcher } from '@/components/view-switcher'
 import { AppUser } from '@/lib/firestore/types'
+import { canSwitchToWorkerView } from '@/lib/auth/types'
 import styles from './WorkerShell.module.css'
 
 interface WorkerShellProps {
@@ -32,7 +35,11 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
   const t = useTranslations()
   const pathname = usePathname()
   const router = useRouter()
+  const { setViewMode } = useViewModeStore()
   const [isSigningOut, setIsSigningOut] = useState(false)
+
+  // Check if user can switch views (admin or superadmin)
+  const canSwitch = canSwitchToWorkerView(user.role)
 
   const getInitials = (name: string) => {
     return name
@@ -66,6 +73,11 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
     }
   }
 
+  const handleViewSwitch = () => {
+    setViewMode('admin')
+    router.push('/admin')
+  }
+
   if (isSigningOut) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -94,6 +106,14 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
 
         {/* Right Side */}
         <div className="flex items-center gap-2">
+          {/* View Switcher - only for admin/superadmin */}
+          {canSwitch && (
+            <ViewSwitcher
+              currentView="worker"
+              onSwitch={handleViewSwitch}
+            />
+          )}
+
           {/* Theme Toggle */}
           <ThemeToggle />
 
@@ -119,11 +139,15 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                {t('user.settings')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              {canSwitch && (
+                <>
+                  <DropdownMenuItem onClick={handleViewSwitch}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    {t('viewSwitch.switchToAdmin')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={handleSignOut}

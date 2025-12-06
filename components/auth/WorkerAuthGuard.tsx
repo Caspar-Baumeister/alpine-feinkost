@@ -2,8 +2,10 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Loader2, ShieldX } from 'lucide-react'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import { canAccessWorkerRoutes } from '@/lib/auth/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -13,6 +15,7 @@ interface WorkerAuthGuardProps {
 
 export function WorkerAuthGuard({ children }: WorkerAuthGuardProps) {
   const router = useRouter()
+  const t = useTranslations('accessDenied')
   const { user, firebaseUser, isLoading, error } = useCurrentUser()
   const [hasRedirected, setHasRedirected] = useState(false)
 
@@ -68,8 +71,8 @@ export function WorkerAuthGuard({ children }: WorkerAuthGuardProps) {
     )
   }
 
-  // Wrong role - workers and admins can access worker area
-  if (user.role !== 'worker' && user.role !== 'admin') {
+  // Check if user can access worker routes (any authenticated user)
+  if (!canAccessWorkerRoutes(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="max-w-md w-full">
@@ -79,13 +82,13 @@ export function WorkerAuthGuard({ children }: WorkerAuthGuardProps) {
                 <ShieldX className="h-8 w-8 text-destructive" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Access Denied</h2>
+                <h2 className="text-xl font-semibold">{t('title')}</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  You don&apos;t have permission to access this area.
+                  {t('message')}
                 </p>
               </div>
               <Button onClick={() => router.replace('/login')} variant="outline">
-                Back to Login
+                {t('goToLogin')}
               </Button>
             </div>
           </CardContent>

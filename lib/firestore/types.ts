@@ -1,5 +1,5 @@
 // ===== Common Types =====
-export type AppRole = 'admin' | 'worker'
+export type AppRole = 'superadmin' | 'admin' | 'worker'
 export type AppLocale = 'de' | 'en'
 export type ProductUnitType = 'piece' | 'weight'
 export type PacklistStatus = 'open' | 'currently_selling' | 'sold' | 'completed'

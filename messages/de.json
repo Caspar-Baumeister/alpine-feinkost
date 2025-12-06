@@ -22,6 +22,19 @@
     "profile": "Profil",
     "settings": "Einstellungen"
   },
+  "viewSwitch": {
+    "adminView": "Admin-Ansicht",
+    "workerView": "Mitarbeiter-Ansicht",
+    "switchToWorker": "Zur Mitarbeiter-Ansicht wechseln",
+    "switchToAdmin": "Zur Admin-Ansicht wechseln"
+  },
+  "accessDenied": {
+    "title": "Zugriff verweigert",
+    "message": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen.",
+    "goToWorker": "Zum Mitarbeiter-Dashboard",
+    "goToAdmin": "Zum Admin-Dashboard",
+    "goToLogin": "Zur Anmeldung"
+  },
   "status": {
     "open": "Offen",
     "currentlySelling": "Aktuell im Verkauf",
@@ -202,14 +215,17 @@
       "name": "Name",
       "email": "E-Mail",
       "role": "Rolle",
+      "roleSuperadmin": "Superadmin",
       "roleAdmin": "Administrator",
       "roleWorker": "Mitarbeiter",
       "locale": "Sprache",
       "active": "Aktiv"
     },
     "note": {
-      "firebaseAuth": "Hinweis: Der Benutzer muss auch in Firebase Authentication angelegt werden."
-    }
+      "firebaseAuth": "Benutzer werden in Firebase Console erstellt. Hier können nur bestehende Benutzer bearbeitet werden.",
+      "cannotDeactivateSelf": "Sie können Ihren eigenen Account nicht deaktivieren."
+    },
+    "noUsers": "Keine Benutzer vorhanden"
   },
   "worker": {
     "dashboard": {

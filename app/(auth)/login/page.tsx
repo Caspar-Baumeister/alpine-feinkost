@@ -31,7 +31,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (!isCheckingAuth && user && !hasRedirected) {
       setHasRedirected(true)
-      const destination = user.role === 'admin' ? '/admin' : '/app'
+      // Superadmin and admin go to admin dashboard, workers go to worker app
+      const destination = user.role === 'superadmin' || user.role === 'admin' ? '/admin' : '/app'
       router.replace(destination)
     }
   }, [user, isCheckingAuth, router, hasRedirected])
@@ -70,8 +71,8 @@ export default function LoginPage() {
       // Mark as redirected to prevent double navigation
       setHasRedirected(true)
 
-      // Redirect based on role
-      const destination = appUser.role === 'admin' ? '/admin' : '/app'
+      // Redirect based on role - superadmin and admin go to admin dashboard
+      const destination = appUser.role === 'superadmin' || appUser.role === 'admin' ? '/admin' : '/app'
       console.log('Redirecting to:', destination)
       router.replace(destination)
 
@@ -184,16 +185,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">{t('password')}</Label>
-                <button
-                  type="button"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                >
-                  {t('forgotPassword')}
-                </button>
-              </div>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input

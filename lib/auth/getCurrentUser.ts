@@ -9,13 +9,14 @@ import { AppUser } from './types'
  */
 export async function getCurrentUser(): Promise<AppUser | null> {
   // TODO: Replace with real Firebase authentication
-  // For now, return a mock admin user for development
+  // For now, return a mock superadmin user for development
   const mockUser: AppUser = {
     uid: 'mock-admin-uid-123',
     email: 'admin@alpine-feinkost.de',
     displayName: 'Max Mustermann',
-    role: 'admin',
-    locale: 'de'
+    role: 'superadmin',
+    locale: 'de',
+    active: true
   }
 
   return mockUser
@@ -30,7 +31,7 @@ export async function getMockWorkerUser(): Promise<AppUser> {
     email: 'worker@alpine-feinkost.de',
     displayName: 'Anna Arbeiter',
     role: 'worker',
-    locale: 'de'
+    locale: 'de',
+    active: true
   }
 }
-
