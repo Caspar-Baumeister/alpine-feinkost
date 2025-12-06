@@ -345,16 +345,16 @@ export function PacklistForm({
 
       {/* Line Items */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg">{t('form.lineItems')}</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {/* Template Selector */}
             <Select
               value={selectedTemplateId}
               onValueChange={handleTemplateSelect}
             >
-              <SelectTrigger className="w-[200px]">
-                <FileText className="h-4 w-4 mr-2" />
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
                 <SelectValue placeholder={t('form.startFromTemplate')} />
               </SelectTrigger>
               <SelectContent>
@@ -369,9 +369,9 @@ export function PacklistForm({
             {/* Add Product */}
             <Popover open={productSearchOpen} onOpenChange={setProductSearchOpen}>
               <PopoverTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('form.addLine')}
+                <Button className="flex-shrink-0">
+                  <Plus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t('form.addLine')}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[300px] p-0" align="end">
@@ -405,6 +405,7 @@ export function PacklistForm({
               fügen Sie Produkte manuell hinzu.
             </div>
           ) : (
+            <div className="overflow-x-auto -mx-6 px-6">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -488,6 +489,7 @@ export function PacklistForm({
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -518,11 +520,11 @@ export function PacklistForm({
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button variant="outline" onClick={() => router.back()} disabled={isSaving}>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <Button variant="outline" onClick={() => router.back()} disabled={isSaving} className="w-full sm:w-auto">
           {tActions('cancel')}
         </Button>
-        <Button onClick={handleSubmit} disabled={isSaving || !selectedPosId}>
+        <Button onClick={handleSubmit} disabled={isSaving || !selectedPosId} className="w-full sm:w-auto">
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
