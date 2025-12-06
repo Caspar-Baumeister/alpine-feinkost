@@ -13,7 +13,8 @@ import {
   Play,
   CheckCircle,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -318,8 +319,16 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                     const state = getStateForItem(item.productId)
                     return (
                       <TableRow key={item.productId}>
-                        <TableCell className="font-medium">
-                          {item.productName}
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => openProductDetail(item.productId)}
+                            className="flex items-center gap-2 font-medium text-left hover:text-primary transition-colors"
+                            disabled={isLoadingProduct}
+                          >
+                            {item.productName}
+                            <Info className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </button>
                         </TableCell>
                         <TableCell className="text-right">
                           {item.plannedQuantity}
@@ -395,8 +404,16 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                     const state = getStateForItem(item.productId)
                     return (
                       <TableRow key={item.productId}>
-                        <TableCell className="font-medium">
-                          {item.productName}
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => openProductDetail(item.productId)}
+                            className="flex items-center gap-2 font-medium text-left hover:text-primary transition-colors"
+                            disabled={isLoadingProduct}
+                          >
+                            {item.productName}
+                            <Info className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </button>
                         </TableCell>
                         <TableCell className="text-right">
                           {item.startQuantity ?? item.plannedQuantity}
@@ -519,6 +536,13 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Product Detail Dialog */}
+      <ProductDetailDialog
+        product={detailProduct}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
     </div>
   )
 }
