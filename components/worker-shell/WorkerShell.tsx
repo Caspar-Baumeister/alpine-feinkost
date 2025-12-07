@@ -1,16 +1,9 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { signOut } from 'firebase/auth'
-import { ClipboardList, LogOut, Loader2, LayoutDashboard } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { auth } from '@/lib/firebase'
-import { useViewModeStore } from '@/stores/useViewModeStore'
+import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { ViewSwitcher } from '@/components/view-switcher'
-import { AppUser } from '@/lib/firestore/types'
 import { canSwitchToWorkerView } from '@/lib/auth/types'
+import { auth } from '@/lib/firebase'
+import { AppUser } from '@/lib/firestore/types'
+import { cn } from '@/lib/utils'
+import { useViewModeStore } from '@/stores/useViewModeStore'
+import { signOut } from 'firebase/auth'
+import { ClipboardList, LayoutDashboard, Loader2, LogOut } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { ReactNode, useState } from 'react'
 import styles from './WorkerShell.module.css'
 
 interface WorkerShellProps {
@@ -102,7 +102,7 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
         {/* Logo */}
         <div className={styles.logoContainer}>
           <div className="h-9 w-9 rounded-lg bg-white p-0.5 flex-shrink-0">
-            <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={36} height={36} className="w-full h-full object-contain" />
+            <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={36} height={36} className="w-full h-full object-contain" unoptimized />
           </div>
           <span className={styles.logoText}>{t('app.title')}</span>
         </div>

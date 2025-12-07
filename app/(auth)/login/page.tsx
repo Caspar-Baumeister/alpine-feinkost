@@ -153,6 +153,7 @@ export default function LoginPage() {
                 width={96}
                 height={96}
                 className="w-full h-full object-contain"
+                unoptimized
               />
             </div>
             <div className="text-center">

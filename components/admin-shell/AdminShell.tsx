@@ -1,32 +1,9 @@
 'use client'
 
-import { ReactNode, useState, useMemo } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { signOut } from 'firebase/auth'
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingBag,
-  Store,
-  ClipboardList,
-  FileText,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  Menu,
-  Loader2,
-  BarChart3,
-  UserCircle
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { auth } from '@/lib/firebase'
-import { useSidebarStore } from '@/stores/useSidebarStore'
-import { useViewModeStore } from '@/stores/useViewModeStore'
+import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,24 +13,47 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
-import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { LanguageSwitcher } from '@/components/language-switcher/LanguageSwitcher'
-import { ThemeToggle } from '@/components/theme-toggle'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { ViewSwitcher } from '@/components/view-switcher'
+import { canSwitchToWorkerView } from '@/lib/auth/types'
+import { auth } from '@/lib/firebase'
 import { AppUser } from '@/lib/firestore/types'
-import { canAccessStatistics, canAccessUserManagement, canSwitchToWorkerView } from '@/lib/auth/types'
+import { cn } from '@/lib/utils'
+import { useSidebarStore } from '@/stores/useSidebarStore'
+import { useViewModeStore } from '@/stores/useViewModeStore'
+import { signOut } from 'firebase/auth'
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  FileText,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  Package,
+  ShoppingBag,
+  Store,
+  UserCircle,
+  Users
+} from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { ReactNode, useMemo, useState } from 'react'
 import styles from './AdminShell.module.css'
 
 interface AdminShellProps {
@@ -218,7 +218,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
           {/* Logo */}
           <div className={styles.logoContainer}>
             <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
-              <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" />
+              <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" unoptimized />
             </div>
             {!isCollapsed && (
               <span className={cn('ml-3', styles.logoText)}>
@@ -282,7 +282,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                     <SheetHeader className="p-0">
                       <div className={styles.logoContainer}>
                         <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
-                          <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" />
+                          <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" unoptimized />
                         </div>
                         <SheetTitle className={cn('ml-3', styles.logoText)}>
                           {t('app.title')}
@@ -340,7 +340,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
               {/* Mobile Logo */}
               <div className="flex items-center gap-2 lg:hidden">
                 <div className="h-8 w-8 rounded-md bg-white p-0.5 flex-shrink-0">
-                  <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={32} height={32} className="w-full h-full object-contain" />
+                  <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={32} height={32} className="w-full h-full object-contain" unoptimized />
                 </div>
                 <span className={cn('text-lg font-semibold', styles.logoText)}>
                   {t('app.title')}
