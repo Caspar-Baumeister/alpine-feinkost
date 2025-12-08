@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Loader2, Check, Tag } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { LagerbestandTable } from './LagerbestandTable'
-import { listProducts, listLabels, Product, Label } from '@/lib/firestore'
+import type { Product, Label } from '@/lib/firestore'
+import { listProducts, listLabels } from '@/lib/firestore'
+import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -21,6 +23,7 @@ import { cn } from '@/lib/utils'
 
 export default function LagerbestandPage() {
   const t = useTranslations('lagerbestand')
+  const locale = useLocale()
   const [products, setProducts] = useState<Product[]>([])
   const [labels, setLabels] = useState<Label[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -80,12 +83,12 @@ export default function LagerbestandPage() {
                 <span className="flex gap-2 flex-wrap items-center text-left">
                   {labelFilter.length === 0
                     ? t('filters.allLabels')
-                    : labelFilter.map((id) => {
-                        const lbl = labels.find((l) => l.id === id)
+                    : labelFilter.map((slug) => {
+                        const lbl = labels.find((l) => l.slug === slug)
                         return (
-                          <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
+                          <span key={slug} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
                             <Tag className="h-3 w-3" />
-                            {lbl?.name || id}
+                            {lbl ? getLabelDisplayName(lbl, locale) : slug}
                           </span>
                         )
                       })}
@@ -104,20 +107,20 @@ export default function LagerbestandPage() {
                       {t('filters.allLabels')}
                     </CommandItem>
                     {labels.map((label) => {
-                      const selected = labelFilter.includes(label.id)
+                      const selected = labelFilter.includes(label.slug)
                       return (
                         <CommandItem
                           key={label.id}
                           onSelect={() =>
                             setLabelFilter((prev) =>
-                              prev.includes(label.id)
-                                ? prev.filter((l) => l !== label.id)
-                                : [...prev, label.id]
+                              prev.includes(label.slug)
+                                ? prev.filter((l) => l !== label.slug)
+                                : [...prev, label.slug]
                             )
                           }
                         >
                           <Check className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
-                          {label.name}
+                          {getLabelDisplayName(label, locale)}
                         </CommandItem>
                       )
                     })}

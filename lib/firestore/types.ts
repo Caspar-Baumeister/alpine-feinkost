@@ -21,7 +21,7 @@ export type Product = {
   id: string
   name: string
   sku: string
-  labels: string[]           // Array of label IDs
+  labels: string[]           // Array of label slugs
   unitType: ProductUnitType
   unitLabel: string
   basePrice: number
@@ -37,7 +37,9 @@ export type Product = {
 // ===== Label =====
 export type Label = {
   id: string
-  name: string
+  slug: string
+  nameEn: string
+  nameDe: string
   createdAt: Date | null
   updatedAt: Date | null
 }

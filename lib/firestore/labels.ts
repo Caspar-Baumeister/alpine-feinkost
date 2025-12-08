@@ -5,7 +5,10 @@ import {
   orderBy,
   query,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  where,
+  getDocs as getDocsRaw,
+  limit
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Label } from './types'
@@ -19,7 +22,9 @@ function timestampToDate(timestamp: Timestamp | null): Date | null {
 function docToLabel(id: string, data: Record<string, unknown>): Label {
   return {
     id,
-    name: data.name as string,
+    slug: data.slug as string,
+    nameEn: data.nameEn as string,
+    nameDe: data.nameDe as string,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
   }
@@ -27,15 +32,26 @@ function docToLabel(id: string, data: Record<string, unknown>): Label {
 
 export async function listLabels(): Promise<Label[]> {
   const colRef = collection(db, COLLECTION)
-  const q = query(colRef, orderBy('name', 'asc'))
+  const q = query(colRef, orderBy('nameEn', 'asc'))
   const snapshot = await getDocs(q)
   return snapshot.docs.map((d) => docToLabel(d.id, d.data()))
 }
 
-export async function createLabel(name: string): Promise<string> {
+export async function getLabelBySlug(slug: string): Promise<Label | null> {
+  const colRef = collection(db, COLLECTION)
+  const q = query(colRef, where('slug', '==', slug), limit(1))
+  const snapshot = await getDocsRaw(q)
+  if (snapshot.empty) return null
+  const doc = snapshot.docs[0]
+  return docToLabel(doc.id, doc.data())
+}
+
+export async function createLabel(data: { slug: string; nameEn: string; nameDe: string }): Promise<string> {
   const colRef = collection(db, COLLECTION)
   const docRef = await addDoc(colRef, {
-    name,
+    slug: data.slug,
+    nameEn: data.nameEn,
+    nameDe: data.nameDe,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Loader2 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { ProductsTable } from './ProductsTable'
@@ -20,10 +20,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { Check, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 
 export default function ProductsPage() {
   const t = useTranslations('products')
   const tCommon = useTranslations('common')
+  const locale = useLocale()
+  const { user } = useCurrentUser()
   const [products, setProducts] = useState<Product[]>([])
   const [labels, setLabels] = useState<Label[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -84,12 +87,12 @@ export default function ProductsPage() {
                 <span className="flex gap-2 flex-wrap items-center text-left">
                   {labelFilter.length === 0
                     ? t('filters.allLabels')
-                    : labelFilter.map((id) => {
-                        const lbl = labels.find((l) => l.id === id)
+                    : labelFilter.map((slug) => {
+                        const lbl = labels.find((l) => l.slug === slug)
                         return (
-                          <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
+                          <span key={slug} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
                             <Tag className="h-3 w-3" />
-                            {lbl?.name || id}
+                            {lbl ? (locale === 'de' ? lbl.nameDe : lbl.nameEn) : slug}
                           </span>
                         )
                       })}
@@ -110,20 +113,20 @@ export default function ProductsPage() {
                       {t('filters.allLabels')}
                     </CommandItem>
                     {labels.map((label) => {
-                      const selected = labelFilter.includes(label.id)
+                      const selected = labelFilter.includes(label.slug)
                       return (
                         <CommandItem
                           key={label.id}
                           onSelect={() =>
                             setLabelFilter((prev) =>
-                              prev.includes(label.id)
-                                ? prev.filter((l) => l !== label.id)
-                                : [...prev, label.id]
+                              prev.includes(label.slug)
+                                ? prev.filter((l) => l !== label.slug)
+                                : [...prev, label.slug]
                             )
                           }
                         >
                           <Check className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
-                          {label.name}
+                          {locale === 'de' ? label.nameDe : label.nameEn}
                         </CommandItem>
                       )
                     })}

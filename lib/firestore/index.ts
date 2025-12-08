@@ -14,7 +14,8 @@ export {
 // Labels
 export {
   listLabels,
-  createLabel
+  createLabel,
+  getLabelBySlug
 } from './labels'
 
 // Products

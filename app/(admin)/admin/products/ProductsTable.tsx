@@ -42,7 +42,9 @@ import {
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import type { Product, Label as ProductLabel } from '@/lib/firestore'
-import { createLabel, createProduct, updateProduct } from '@/lib/firestore'
+import { createLabel, createProduct, getLabelBySlug, updateProduct } from '@/lib/firestore'
+import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
+import { slugifyLabel } from '@/lib/labels/slugify'
 import { deleteProductImage, getProductImageUrl, uploadProductImageWithUrl } from '@/lib/storage/products'
 import { cn } from '@/lib/utils'
 import { Check as CheckIcon, Loader2, Package, Pencil, Plus, Tag, Upload, X } from 'lucide-react'
@@ -60,6 +62,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const t = useTranslations('products')
   const tActions = useTranslations('actions')
   const tCommon = useTranslations('common')
+  const tLabels = useTranslations('labels')
   const locale = useLocale()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -77,13 +80,13 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [unitLabel, setUnitLabel] = useState('kg')
   const [basePrice, setBasePrice] = useState('')
   const [description, setDescription] = useState('')
-  const [totalStock, setTotalStock] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [labelIds, setLabelIds] = useState<string[]>([])
 
   // Label creation dialog
   const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false)
-  const [newLabelName, setNewLabelName] = useState('')
+  const [newLabelNameEn, setNewLabelNameEn] = useState('')
+  const [newLabelNameDe, setNewLabelNameDe] = useState('')
   const [isCreatingLabel, setIsCreatingLabel] = useState(false)
   const [labelError, setLabelError] = useState<string | null>(null)
 
@@ -131,7 +134,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setUnitLabel('kg')
     setBasePrice('')
     setDescription('')
-    setTotalStock('')
     setIsActive(true)
     setLabelIds([])
     setEditingProduct(null)
@@ -148,7 +150,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setUnitLabel(product.unitLabel)
     setBasePrice(product.basePrice.toString())
     setDescription(product.description)
-    setTotalStock(product.totalStock.toString())
     setIsActive(product.isActive)
     setLabelIds(product.labels || [])
     setExistingImagePath(product.imagePath)
@@ -182,31 +183,51 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   }
 
   const handleCreateLabel = async () => {
-    if (!newLabelName.trim()) {
-      setLabelError(locale === 'de' ? 'Bitte einen Namen eingeben' : 'Please provide a name')
+    if (!newLabelNameEn.trim() || !newLabelNameDe.trim()) {
+      setLabelError(locale === 'de' ? 'Bitte beide Namen eingeben' : 'Please provide both names')
+      return
+    }
+
+    const slug = slugifyLabel(newLabelNameEn.trim())
+    const existsLocal = localLabels.some((l) => l.slug === slug)
+    if (existsLocal) {
+      setLabelError(tLabels('slugExists'))
       return
     }
 
     setLabelError(null)
     setIsCreatingLabel(true)
     try {
-      const newId = await createLabel(newLabelName.trim())
+      const existingRemote = await getLabelBySlug(slug)
+      if (existingRemote) {
+        setLabelError(tLabels('slugExists'))
+        setIsCreatingLabel(false)
+        return
+      }
+
+      const newId = await createLabel({
+        slug,
+        nameEn: newLabelNameEn.trim(),
+        nameDe: newLabelNameDe.trim()
+      })
       const newLabel: ProductLabel = {
         id: newId,
-        name: newLabelName.trim(),
+        slug,
+        nameEn: newLabelNameEn.trim(),
+        nameDe: newLabelNameDe.trim(),
         createdAt: null,
         updatedAt: null
       }
       setLocalLabels([...localLabels, newLabel])
-      setLabelIds((prev) => [...prev, newId])
+      setLabelIds((prev) => [...prev, slug])
       setIsLabelDialogOpen(false)
-      setNewLabelName('')
+      setNewLabelNameEn('')
+      setNewLabelNameDe('')
     } catch (error) {
       console.error('Failed to create label', error)
       setLabelError(error instanceof Error ? error.message : 'Error creating label')
     } finally {
       setIsCreatingLabel(false)
-      // Refresh from server to keep in sync
       onRefresh()
     }
   }
@@ -287,7 +308,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
         imagePath = null
       }
 
-      const stockValue = parseFloat(totalStock) || 0
       const productData = {
         name,
         sku,
@@ -298,8 +318,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
         description,
         imagePath,
         isActive,
-        totalStock: stockValue,
-        currentStock: stockValue // For new products, currentStock equals totalStock
+        totalStock: 0,
+        currentStock: 0
       }
 
       if (editingProduct) {
@@ -436,30 +456,16 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="basePrice">{t('form.basePrice')}</Label>
-                  <Input
-                    id="basePrice"
-                    type="number"
-                    step="0.01"
-                    value={basePrice}
-                    onChange={(e) => setBasePrice(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="totalStock">
-                    {locale === 'de' ? 'Bestand' : 'Stock'}
-                  </Label>
-                  <Input
-                    id="totalStock"
-                    type="number"
-                    step="0.1"
-                    value={totalStock}
-                    onChange={(e) => setTotalStock(e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="basePrice">{t('form.basePrice')}</Label>
+                <Input
+                  id="basePrice"
+                  type="number"
+                  step="0.01"
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
@@ -471,11 +477,11 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                         {labelIds.length === 0
                           ? t('filters.allLabels')
                           : labelIds.map((id) => {
-                            const lbl = localLabels.find((l) => l.id === id)
+                            const lbl = localLabels.find((l) => l.slug === id)
                             return (
                               <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
                                 <Tag className="h-3 w-3" />
-                                {lbl?.name || id}
+                                {lbl ? getLabelDisplayName(lbl, locale) : id}
                               </span>
                             )
                           })}
@@ -490,14 +496,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                         <CommandEmpty>{t('filters.noLabels')}</CommandEmpty>
                         <CommandGroup>
                           {localLabels.map((label) => {
-                            const selected = labelIds.includes(label.id)
+                            const selected = labelIds.includes(label.slug)
                             return (
                               <CommandItem
                                 key={label.id}
-                                onSelect={() => toggleLabelSelection(label.id)}
+                                onSelect={() => toggleLabelSelection(label.slug)}
                               >
                                 <CheckIcon className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
-                                {label.name}
+                                {getLabelDisplayName(label, locale)}
                               </CommandItem>
                             )
                           })}
@@ -510,7 +516,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                             className="text-primary"
                           >
                             <Plus className="mr-2 h-4 w-4" />
-                            {t('labels.new')}
+                            {tLabels('new')}
                           </CommandItem>
                         </CommandGroup>
                       </CommandList>
@@ -575,9 +581,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 <TableHead>{t('columns.name')}</TableHead>
                 <TableHead>{t('columns.unit')}</TableHead>
                 <TableHead className="text-right">{t('columns.basePrice')}</TableHead>
-                <TableHead className="text-right">
-                  {locale === 'de' ? 'Bestand' : 'Stock'}
-                </TableHead>
                 <TableHead>{t('columns.status')}</TableHead>
                 <TableHead className="w-[100px]">{t('columns.actions')}</TableHead>
               </TableRow>
@@ -619,9 +622,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                       <TableCell className="text-right">
                         €{product.basePrice.toFixed(2)}
                       </TableCell>
-                      <TableCell className="text-right">
-                        {product.totalStock} {product.unitLabel}
-                      </TableCell>
                       <TableCell>
                         <StatusBadge status={product.isActive ? 'active' : 'inactive'} />
                       </TableCell>
@@ -658,18 +658,26 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       <Dialog open={isLabelDialogOpen} onOpenChange={setIsLabelDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('labels.new')}</DialogTitle>
+            <DialogTitle>{tLabels('new')}</DialogTitle>
             <DialogDescription>
-              {t('labels.create')}
+              {tLabels('create')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label htmlFor="labelName">{t('labels.name')}</Label>
+              <Label htmlFor="labelNameEn">{tLabels('nameEn')}</Label>
               <TextInput
-                id="labelName"
-                value={newLabelName}
-                onChange={(e) => setNewLabelName(e.target.value)}
+                id="labelNameEn"
+                value={newLabelNameEn}
+                onChange={(e) => setNewLabelNameEn(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="labelNameDe">{tLabels('nameDe')}</Label>
+              <TextInput
+                id="labelNameDe"
+                value={newLabelNameDe}
+                onChange={(e) => setNewLabelNameDe(e.target.value)}
               />
             </div>
             {labelError && (
@@ -682,7 +690,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
             </Button>
             <Button onClick={handleCreateLabel} disabled={isCreatingLabel}>
               {isCreatingLabel && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('labels.create')}
+              {tLabels('create')}
             </Button>
           </DialogFooter>
         </DialogContent>

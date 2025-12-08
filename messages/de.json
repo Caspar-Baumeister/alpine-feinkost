@@ -130,9 +130,14 @@
   "labels": {
     "title": "Labels",
     "new": "Neues Label",
-    "name": "Label-Name",
+    "nameEn": "Label-Name (Englisch)",
+    "nameDe": "Label-Name (Deutsch)",
     "create": "Label erstellen",
-    "createSuccess": "Label erstellt"
+    "createSuccess": "Label erstellt",
+    "slugExists": "Slug existiert bereits",
+    "importFromFile": "Labels aus Datei importieren",
+    "importing": "Labels werden importiert...",
+    "importResult": "Hinzugefügt {added}, übersprungen {skipped}"
   },
   "pos": {
     "title": "Verkaufsstellen",

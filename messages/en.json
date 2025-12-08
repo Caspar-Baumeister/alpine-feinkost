@@ -130,9 +130,14 @@
   "labels": {
     "title": "Labels",
     "new": "New label",
-    "name": "Label name",
+    "nameEn": "Label name (English)",
+    "nameDe": "Label name (German)",
     "create": "Create label",
-    "createSuccess": "Label created"
+    "createSuccess": "Label created",
+    "slugExists": "Slug already exists",
+    "importFromFile": "Import labels from file",
+    "importing": "Importing labels...",
+    "importResult": "Added {added}, skipped {skipped}"
   },
   "pos": {
     "title": "Points of Sale",

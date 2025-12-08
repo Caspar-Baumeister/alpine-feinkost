@@ -76,8 +76,8 @@ export async function createProduct(
     description: data.description,
     imagePath: data.imagePath,
     isActive: data.isActive,
-    totalStock: data.totalStock,
-    currentStock: data.currentStock ?? data.totalStock, // Default to totalStock if not provided
+    totalStock: 0,
+    currentStock: 0,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
