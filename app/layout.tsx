@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Alpine Feinkost - Marktmanagement',
-  description: 'Verwaltung von Wochenendmärkten und Packlisten',
+  title: 'Alpine Feinkost | Alpenkäse Lämmle',
+  description: 'Feinster Alpenkäse für Wochenmärkte, Gastro und Genießer – plus moderne Verwaltung für unser Team.',
   icons: {
     icon: '/alpinefeinkostlabel.png',
     shortcut: '/alpinefeinkostlabel.png',

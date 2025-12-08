@@ -367,5 +367,113 @@
       "accountNotFound": "Benutzerkonto nicht gefunden. Bitte kontaktieren Sie einen Administrator.",
       "generic": "Ein Fehler ist aufgetreten. Bitte erneut versuchen."
     }
+  },
+  "marketing": {
+    "nav": {
+      "home": "Start",
+      "sortiment": "Sortiment",
+      "about": "Über uns",
+      "contact": "Kontakt & Standorte",
+      "admin": "Verwaltung",
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen"
+    },
+    "hero": {
+      "badge": "Seit 1994 auf Wochenmärkten",
+      "title": "Feinster Alpenkäse auf Ihren Märkten",
+      "subtitle": "Wir bringen handverlesene Spezialitäten aus den Alpen auf regionale Wochenmärkte – frisch, authentisch und mit viel Liebe ausgewählt.",
+      "ctaPrimary": "Sortiment entdecken",
+      "ctaSecondary": "Kontakt & Standorte",
+      "promise": "Regional, handwerklich gereift und direkt zu Ihnen"
+    },
+    "featured": {
+      "kicker": "Beliebte Auswahl",
+      "title": "Unsere Empfehlung für Sie",
+      "subtitle": "Ein kleiner Vorgeschmack auf unser Sortiment.",
+      "viewAll": "Alle Produkte ansehen",
+      "empty": "Bald finden Sie hier unsere Produkt-Highlights."
+    },
+    "products": {
+      "learnMore": "Mehr erfahren",
+      "comingSoon": "Bald bestellbar"
+    },
+    "aboutTeaser": {
+      "kicker": "Familienbetrieb",
+      "title": "Tradition aus den Alpen",
+      "body": "Wir arbeiten direkt mit ausgewählten Höfen in den Alpen zusammen und bringen deren beste Käsespezialitäten zu Ihnen.",
+      "cta": "Mehr über uns"
+    },
+    "contactTeaser": {
+      "kicker": "Märkte & Kontakt",
+      "title": "Wo Sie uns finden",
+      "body": "Besuchen Sie uns auf regionalen Wochenmärkten oder schreiben Sie uns direkt.",
+      "cta": "Kontakt aufnehmen"
+    },
+    "sortiment": {
+      "kicker": "Sortiment",
+      "title": "Ausgewählte Käsespezialitäten",
+      "subtitle": "Handverlesen, mit Sorgfalt gereift und für Marktbesucher zusammengestellt.",
+      "comingSoon": "Online-Bestellung in Vorbereitung",
+      "empty": "Noch keine Produkte verfügbar. Bitte später erneut vorbeischauen."
+    },
+    "about": {
+      "kicker": "Unsere Geschichte",
+      "title": "Alpine Feinkost – Alpenkäse Lämmle",
+      "intro": "Seit fast drei Jahrzehnten bringen wir feinste Alpenprodukte auf Wochenmärkte in Brandenburg und Berlin. Mit viel Herzblut, direktem Kontakt zu unseren Produzenten und Liebe zum Detail.",
+      "origin": {
+        "title": "Herkunft & Auswahl",
+        "body": "Wir kennen unsere Höfe, Almwirtschaften und Affineure persönlich. Jede Sorte wird sorgfältig ausgesucht, damit sie auf dem Markt den perfekten Geschmack entfaltet."
+      },
+      "craft": {
+        "title": "Handwerk & Reifung",
+        "body": "Natürliche Reifung, viel Zeit und traditionelle Techniken machen unseren Käse so besonders. Wir setzen auf schonende Lagerung und behutsamen Transport."
+      },
+      "values": {
+        "title": "Werte & Verantwortung",
+        "body": "Regionalität, faire Partnerschaften und Qualität stehen im Mittelpunkt. Wir bevorzugen kleine Betriebe und kurze Wege, damit jede Charge nachvollziehbar bleibt."
+      },
+      "promise": {
+        "title": "Unser Versprechen",
+        "body": "Ehrliche Produkte, persönlicher Service und ein Sortiment, das Sie auf jedem Marktstand entdecken können."
+      }
+    },
+    "contact": {
+      "kicker": "Kontakt",
+      "title": "Kontakt & Standorte",
+      "intro": "Sie haben Fragen, möchten vorbestellen oder uns auf einem Markt besuchen? Wir freuen uns auf Ihre Nachricht.",
+      "contactTitle": "Direkter Kontakt",
+      "contactNote": "Für Vorbestellungen oder besondere Wünsche rufen Sie uns gern an oder schreiben Sie eine E-Mail.",
+      "locationsTitle": "Märkte & Standorte",
+      "locationsIntro": "Hier treffen Sie uns regelmäßig:",
+      "marketsBadge": "Wochenmarkt",
+      "locations": {
+        "teltow": {
+          "name": "Wochenmarkt Teltow",
+          "address": "Rathausplatz, 14513 Teltow",
+          "schedule": "Samstags, 8:00–13:00 Uhr"
+        },
+        "potsdam": {
+          "name": "Wochenmarkt Potsdam Bassinplatz",
+          "address": "Bassinplatz, 14467 Potsdam",
+          "schedule": "Mittwochs & Samstags, 8:00–13:00 Uhr"
+        },
+        "berlin": {
+          "name": "Markthalle Neun, Berlin-Kreuzberg",
+          "address": "Eisenbahnstr. 42/43, 10997 Berlin",
+          "schedule": "Freitags Street Food & Samstags Wochenmarkt"
+        }
+      }
+    },
+    "footer": {
+      "tagline": "Feinster Alpenkäse für Märkte, Restaurants und Genießer in der Region.",
+      "contactTitle": "Kontakt",
+      "contactLink": "Kontakt & Standorte",
+      "linksTitle": "Schnellzugriff",
+      "sortiment": "Sortiment",
+      "about": "Über uns",
+      "contact": "Kontakt",
+      "admin": "Verwaltung",
+      "rights": "Alle Rechte vorbehalten"
+    }
   }
 }

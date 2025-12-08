@@ -368,5 +368,113 @@
       "accountNotFound": "User account not found. Please contact an administrator.",
       "generic": "An error occurred. Please try again."
     }
+  },
+  "marketing": {
+    "nav": {
+      "home": "Home",
+      "sortiment": "Products",
+      "about": "About us",
+      "contact": "Contact & Locations",
+      "admin": "Admin",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "hero": {
+      "badge": "Since 1994 on local markets",
+      "title": "Finest Alpine cheese at your markets",
+      "subtitle": "We bring hand-selected Alpine specialties to regional markets – fresh, authentic, and chosen with care.",
+      "ctaPrimary": "Explore assortment",
+      "ctaSecondary": "Contact & locations",
+      "promise": "Regional, handcrafted, delivered directly to you"
+    },
+    "featured": {
+      "kicker": "Highlights",
+      "title": "A taste of our assortment",
+      "subtitle": "A few customer favorites from our range.",
+      "viewAll": "Browse all products",
+      "empty": "Featured products will appear here soon."
+    },
+    "products": {
+      "learnMore": "Learn more",
+      "comingSoon": "Coming soon"
+    },
+    "aboutTeaser": {
+      "kicker": "Family owned",
+      "title": "Tradition from the Alps",
+      "body": "We work directly with selected farms in the Alps and bring their best cheeses to you.",
+      "cta": "Read our story"
+    },
+    "contactTeaser": {
+      "kicker": "Markets & contact",
+      "title": "Where to find us",
+      "body": "Meet us at local weekly markets or reach out directly.",
+      "cta": "Get in touch"
+    },
+    "sortiment": {
+      "kicker": "Assortment",
+      "title": "Curated cheese selection",
+      "subtitle": "Handpicked Alpine specialties for market lovers.",
+      "comingSoon": "Online ordering coming soon",
+      "empty": "No products yet. Check back shortly."
+    },
+    "about": {
+      "kicker": "Our story",
+      "title": "Alpine Feinkost – Alpenkäse Lämmle",
+      "intro": "For nearly three decades we have brought the finest Alpine products to weekly markets around Brandenburg and Berlin. With passion, close partnerships and attention to detail.",
+      "origin": {
+        "title": "Origin & selection",
+        "body": "We know our dairies, farms, and affineurs personally. Every cheese is chosen carefully so it shines at the market stand."
+      },
+      "craft": {
+        "title": "Craft & aging",
+        "body": "Natural aging, time, and traditional techniques make our cheese special. Gentle storage and careful transport preserve full flavor."
+      },
+      "values": {
+        "title": "Values & responsibility",
+        "body": "Regional sourcing, fair partnerships, and quality first. We prefer small producers and short routes to keep every batch traceable."
+      },
+      "promise": {
+        "title": "Our promise",
+        "body": "Honest products, personal service, and an assortment you can discover at every market stand."
+      }
+    },
+    "contact": {
+      "kicker": "Contact",
+      "title": "Contact & Locations",
+      "intro": "Questions, pre-orders, or want to meet us at a market? We look forward to hearing from you.",
+      "contactTitle": "Direct contact",
+      "contactNote": "For pre-orders or special wishes, feel free to call or email us.",
+      "locationsTitle": "Markets & locations",
+      "locationsIntro": "Find us regularly at these markets:",
+      "marketsBadge": "Market day",
+      "locations": {
+        "teltow": {
+          "name": "Weekly market Teltow",
+          "address": "Rathausplatz, 14513 Teltow",
+          "schedule": "Saturdays, 8:00–13:00"
+        },
+        "potsdam": {
+          "name": "Weekly market Potsdam Bassinplatz",
+          "address": "Bassinplatz, 14467 Potsdam",
+          "schedule": "Wednesdays & Saturdays, 8:00–13:00"
+        },
+        "berlin": {
+          "name": "Markthalle Neun, Berlin-Kreuzberg",
+          "address": "Eisenbahnstr. 42/43, 10997 Berlin",
+          "schedule": "Fridays street food & Saturdays market"
+        }
+      }
+    },
+    "footer": {
+      "tagline": "Finest Alpine cheese for markets, restaurants, and food lovers.",
+      "contactTitle": "Contact",
+      "contactLink": "Contact & Locations",
+      "linksTitle": "Quick links",
+      "sortiment": "Products",
+      "about": "About us",
+      "contact": "Contact",
+      "admin": "Admin",
+      "rights": "All rights reserved"
+    }
   }
 }
