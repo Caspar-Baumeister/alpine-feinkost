@@ -490,6 +490,7 @@ export async function getProductsForPacklist(productIds: string[]): Promise<Map<
         id: productId,
         name: data.name as string,
         sku: data.sku as string || '',
+        labels: (data.labels as string[]) ?? [],
         unitType: data.unitType as 'piece' | 'weight',
         unitLabel: data.unitLabel as string || (data.unitType === 'piece' ? 'Stück' : 'kg'),
         basePrice: data.basePrice as number,

@@ -21,6 +21,7 @@ export type Product = {
   id: string
   name: string
   sku: string
+  labels: string[]           // Array of label IDs
   unitType: ProductUnitType
   unitLabel: string
   basePrice: number
@@ -29,6 +30,14 @@ export type Product = {
   isActive: boolean
   totalStock: number      // Total inventory owned (not yet sold)
   currentStock: number    // What's physically in warehouse (not assigned to open/in-progress packlists)
+  createdAt: Date | null
+  updatedAt: Date | null
+}
+
+// ===== Label =====
+export type Label = {
+  id: string
+  name: string
   createdAt: Date | null
   updatedAt: Date | null
 }

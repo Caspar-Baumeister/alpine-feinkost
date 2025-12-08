@@ -69,6 +69,13 @@
     "description": "Overview of all products and their stock",
     "viewTotal": "Total",
     "viewCurrent": "Current",
+    "filters": {
+      "labels": "Labels",
+      "allLabels": "All labels",
+      "search": "Search products...",
+      "searchLabels": "Search labels...",
+      "noLabels": "No labels found"
+    },
     "columns": {
       "product": "Product",
       "unit": "Unit",
@@ -88,6 +95,13 @@
     "description": "Manage all products",
     "addProduct": "Add Product",
     "editProduct": "Edit Product",
+    "filters": {
+      "labels": "Labels",
+      "allLabels": "All labels",
+      "search": "Search products...",
+      "searchLabels": "Search labels...",
+      "noLabels": "No labels found"
+    },
     "columns": {
       "name": "Name",
       "unit": "Unit",
@@ -109,8 +123,16 @@
       "stock": "Stock",
       "image": "Product Image",
       "uploadImage": "Upload Image",
-      "removeImage": "Remove Image"
+      "removeImage": "Remove Image",
+      "labels": "Labels"
     }
+  },
+  "labels": {
+    "title": "Labels",
+    "new": "New label",
+    "name": "Label name",
+    "create": "Create label",
+    "createSuccess": "Label created"
   },
   "pos": {
     "title": "Points of Sale",
@@ -291,6 +313,7 @@
     "search": "Search...",
     "loading": "Loading...",
     "noResults": "No results",
+    "noFilteredResults": "No products match your filters.",
     "selectPlaceholder": "Select...",
     "language": "Language",
     "german": "Deutsch",
@@ -308,6 +331,7 @@
     "note": "Note",
     "users": "Users",
     "assigned": "Assigned",
+    "noFilteredResults": "No products match your filters.",
     "error": {
       "generic": "An error occurred",
       "negativeQuantity": "Quantities cannot be negative",

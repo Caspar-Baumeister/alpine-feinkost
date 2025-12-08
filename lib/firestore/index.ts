@@ -11,6 +11,12 @@ export {
   deactivateUser
 } from './users'
 
+// Labels
+export {
+  listLabels,
+  createLabel
+} from './labels'
+
 // Products
 export {
   listProducts,

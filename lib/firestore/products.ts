@@ -1,16 +1,16 @@
+import { db } from '@/lib/firebase'
 import {
+  Timestamp,
+  addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
-  addDoc,
-  updateDoc,
-  Timestamp,
-  serverTimestamp,
+  orderBy,
   query,
-  orderBy
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { Product } from './types'
 
 const COLLECTION = 'products'
@@ -23,11 +23,13 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
   const totalStock = data.totalStock as number ?? 0
   // If currentStock is not set, default to totalStock (for backwards compatibility)
   const currentStock = data.currentStock as number ?? totalStock
+  const labels = (data.labels as string[]) ?? []
 
   return {
     id,
     name: data.name as string,
     sku: data.sku as string || '',
+    labels,
     unitType: data.unitType as 'piece' | 'weight',
     unitLabel: data.unitLabel as string || (data.unitType === 'piece' ? 'Stück' : 'kg'),
     basePrice: data.basePrice as number,
@@ -67,6 +69,7 @@ export async function createProduct(
   const docRef = await addDoc(colRef, {
     name: data.name,
     sku: data.sku,
+    labels: data.labels || [],
     unitType: data.unitType,
     unitLabel: data.unitLabel,
     basePrice: data.basePrice,

@@ -69,6 +69,13 @@
     "description": "Übersicht über alle Produkte und deren Bestand",
     "viewTotal": "Gesamt",
     "viewCurrent": "Aktuell",
+    "filters": {
+      "labels": "Labels",
+      "allLabels": "Alle Labels",
+      "search": "Produkte suchen...",
+      "searchLabels": "Labels suchen...",
+      "noLabels": "Keine Labels gefunden"
+    },
     "columns": {
       "product": "Produkt",
       "unit": "Einheit",
@@ -88,6 +95,13 @@
     "description": "Verwalten Sie alle Produkte",
     "addProduct": "Produkt hinzufügen",
     "editProduct": "Produkt bearbeiten",
+    "filters": {
+      "labels": "Labels",
+      "allLabels": "Alle Labels",
+      "search": "Produkte suchen...",
+      "searchLabels": "Labels suchen...",
+      "noLabels": "Keine Labels gefunden"
+    },
     "columns": {
       "name": "Name",
       "unit": "Einheit",
@@ -109,8 +123,16 @@
       "stock": "Bestand",
       "image": "Produktbild",
       "uploadImage": "Bild hochladen",
-      "removeImage": "Bild entfernen"
+      "removeImage": "Bild entfernen",
+      "labels": "Labels"
     }
+  },
+  "labels": {
+    "title": "Labels",
+    "new": "Neues Label",
+    "name": "Label-Name",
+    "create": "Label erstellen",
+    "createSuccess": "Label erstellt"
   },
   "pos": {
     "title": "Verkaufsstellen",
@@ -291,6 +313,7 @@
     "search": "Suchen...",
     "loading": "Laden...",
     "noResults": "Keine Ergebnisse",
+    "noFilteredResults": "Keine Produkte entsprechen den Filtern.",
     "selectPlaceholder": "Auswählen...",
     "language": "Sprache",
     "german": "Deutsch",

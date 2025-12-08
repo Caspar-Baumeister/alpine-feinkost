@@ -1,11 +1,37 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
-import Image from 'next/image'
-import { Plus, Pencil, Package, Loader2, Upload, X } from 'lucide-react'
+import { ProductDetailDialog } from '@/components/product-detail-dialog'
+import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Input, Input as TextInput } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import {
   Table,
   TableBody,
@@ -14,38 +40,26 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { StatusBadge } from '@/components/status-badge'
-import { ProductDetailDialog } from '@/components/product-detail-dialog'
-import { Product, createProduct, updateProduct } from '@/lib/firestore'
-import { uploadProductImageWithUrl, getProductImageUrl, deleteProductImage } from '@/lib/storage/products'
+import type { Product, Label as ProductLabel } from '@/lib/firestore'
+import { createLabel, createProduct, updateProduct } from '@/lib/firestore'
+import { deleteProductImage, getProductImageUrl, uploadProductImageWithUrl } from '@/lib/storage/products'
+import { cn } from '@/lib/utils'
+import { Check as CheckIcon, Loader2, Package, Pencil, Plus, Tag, Upload, X } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 
 interface ProductsTableProps {
-  initialData: Product[]
-  onDataChange: () => void
+  products: Product[]
+  labels: ProductLabel[]
+  onRefresh: () => void
 }
 
-export function ProductsTable({ initialData, onDataChange }: ProductsTableProps) {
+export function ProductsTable({ products, labels, onRefresh }: ProductsTableProps) {
   const t = useTranslations('products')
   const tActions = useTranslations('actions')
+  const tCommon = useTranslations('common')
   const locale = useLocale()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -65,6 +79,15 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
   const [description, setDescription] = useState('')
   const [totalStock, setTotalStock] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [labelIds, setLabelIds] = useState<string[]>([])
+
+  // Label creation dialog
+  const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false)
+  const [newLabelName, setNewLabelName] = useState('')
+  const [isCreatingLabel, setIsCreatingLabel] = useState(false)
+  const [labelError, setLabelError] = useState<string | null>(null)
+
+  const [localLabels, setLocalLabels] = useState<ProductLabel[]>(labels)
 
   // Image state
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -80,7 +103,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
     const loadImageUrls = async () => {
       const urls = new Map<string, string>()
 
-      for (const product of initialData) {
+      for (const product of products) {
         if (product.imagePath) {
           try {
             const url = await getProductImageUrl(product.imagePath)
@@ -95,7 +118,11 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
     }
 
     loadImageUrls()
-  }, [initialData])
+  }, [products])
+
+  useEffect(() => {
+    setLocalLabels(labels)
+  }, [labels])
 
   const resetForm = () => {
     setName('')
@@ -106,6 +133,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
     setDescription('')
     setTotalStock('')
     setIsActive(true)
+    setLabelIds([])
     setEditingProduct(null)
     setImageFile(null)
     setImagePreview(null)
@@ -122,6 +150,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
     setDescription(product.description)
     setTotalStock(product.totalStock.toString())
     setIsActive(product.isActive)
+    setLabelIds(product.labels || [])
     setExistingImagePath(product.imagePath)
 
     // Load existing image preview
@@ -150,6 +179,42 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
   const handleUnitTypeChange = (value: 'piece' | 'weight') => {
     setUnitType(value)
     setUnitLabel(value === 'piece' ? 'Stück' : 'kg')
+  }
+
+  const handleCreateLabel = async () => {
+    if (!newLabelName.trim()) {
+      setLabelError(locale === 'de' ? 'Bitte einen Namen eingeben' : 'Please provide a name')
+      return
+    }
+
+    setLabelError(null)
+    setIsCreatingLabel(true)
+    try {
+      const newId = await createLabel(newLabelName.trim())
+      const newLabel: ProductLabel = {
+        id: newId,
+        name: newLabelName.trim(),
+        createdAt: null,
+        updatedAt: null
+      }
+      setLocalLabels([...localLabels, newLabel])
+      setLabelIds((prev) => [...prev, newId])
+      setIsLabelDialogOpen(false)
+      setNewLabelName('')
+    } catch (error) {
+      console.error('Failed to create label', error)
+      setLabelError(error instanceof Error ? error.message : 'Error creating label')
+    } finally {
+      setIsCreatingLabel(false)
+      // Refresh from server to keep in sync
+      onRefresh()
+    }
+  }
+
+  const toggleLabelSelection = (id: string) => {
+    setLabelIds((prev) =>
+      prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id]
+    )
   }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,6 +291,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
       const productData = {
         name,
         sku,
+        labels: labelIds,
         unitType,
         unitLabel,
         basePrice: parseFloat(basePrice) || 0,
@@ -251,7 +317,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
 
       setIsDialogOpen(false)
       resetForm()
-      onDataChange()
+      onRefresh()
     } catch (error) {
       console.error('Failed to save product:', error)
     } finally {
@@ -292,6 +358,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
                         alt="Preview"
                         fill
                         className="object-cover"
+
                       />
                       <button
                         type="button"
@@ -396,6 +463,63 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
               </div>
 
               <div className="space-y-2">
+                <Label>{t('form.labels')}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span className="flex gap-2 flex-wrap items-center text-left">
+                        {labelIds.length === 0
+                          ? t('filters.allLabels')
+                          : labelIds.map((id) => {
+                            const lbl = localLabels.find((l) => l.id === id)
+                            return (
+                              <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
+                                <Tag className="h-3 w-3" />
+                                {lbl?.name || id}
+                              </span>
+                            )
+                          })}
+                      </span>
+                      <Plus className="h-4 w-4 opacity-70" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[260px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder={t('filters.searchLabels')} />
+                      <CommandList>
+                        <CommandEmpty>{t('filters.noLabels')}</CommandEmpty>
+                        <CommandGroup>
+                          {localLabels.map((label) => {
+                            const selected = labelIds.includes(label.id)
+                            return (
+                              <CommandItem
+                                key={label.id}
+                                onSelect={() => toggleLabelSelection(label.id)}
+                              >
+                                <CheckIcon className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
+                                {label.name}
+                              </CommandItem>
+                            )
+                          })}
+                        </CommandGroup>
+                        <CommandGroup>
+                          <CommandItem
+                            onSelect={() => {
+                              setIsLabelDialogOpen(true)
+                            }}
+                            className="text-primary"
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            {t('labels.new')}
+                          </CommandItem>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="description">{t('form.description')}</Label>
                 <Textarea
                   id="description"
@@ -459,14 +583,14 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
               </TableRow>
             </TableHeader>
             <TableBody>
-              {initialData.length === 0 ? (
+              {products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    {locale === 'de' ? 'Keine Produkte vorhanden' : 'No products found'}
+                    {tCommon('noFilteredResults')}
                   </TableCell>
                 </TableRow>
               ) : (
-                initialData.map((product) => {
+                products.map((product) => {
                   const imageUrl = imageUrls.get(product.id)
 
                   return (
@@ -529,6 +653,40 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
       />
+
+      {/* Create Label Dialog */}
+      <Dialog open={isLabelDialogOpen} onOpenChange={setIsLabelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('labels.new')}</DialogTitle>
+            <DialogDescription>
+              {t('labels.create')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="labelName">{t('labels.name')}</Label>
+              <TextInput
+                id="labelName"
+                value={newLabelName}
+                onChange={(e) => setNewLabelName(e.target.value)}
+              />
+            </div>
+            {labelError && (
+              <p className="text-sm text-destructive">{labelError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsLabelDialogOpen(false)}>
+              {tActions('cancel')}
+            </Button>
+            <Button onClick={handleCreateLabel} disabled={isCreatingLabel}>
+              {isCreatingLabel && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t('labels.create')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
