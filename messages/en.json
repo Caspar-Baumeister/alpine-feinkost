@@ -76,6 +76,11 @@
       "currentStock": "Current Stock",
       "lastUpdated": "Last Updated",
       "actions": "Actions"
+    },
+    "adjustDialog": {
+      "title": "Adjust Stock",
+      "newTotalStock": "New Total Stock",
+      "hint": "Note: Changes to total stock will also be applied to current stock."
     }
   },
   "products": {

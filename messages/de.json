@@ -76,6 +76,11 @@
       "currentStock": "Aktueller Bestand",
       "lastUpdated": "Zuletzt aktualisiert",
       "actions": "Aktionen"
+    },
+    "adjustDialog": {
+      "title": "Bestand anpassen",
+      "newTotalStock": "Neuer Gesamtbestand",
+      "hint": "Hinweis: Änderungen am Gesamtbestand werden auch auf den aktuellen Bestand angewendet."
     }
   },
   "products": {

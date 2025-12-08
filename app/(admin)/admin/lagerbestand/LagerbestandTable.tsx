@@ -58,6 +58,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
 
   const openAdjustDialog = (product: Product) => {
     setEditingProduct(product)
+    // When adjusting stock, we adjust totalStock (which also adjusts currentStock by the same delta)
     setNewStock(product.totalStock.toString())
   }
 
@@ -94,30 +95,33 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.unitLabel}</TableCell>
-                    <TableCell className="text-right">
-                      {product.totalStock} {product.unitLabel}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {product.updatedAt
-                        ? format(new Date(product.updatedAt), 'dd.MM.yyyy', { locale: de })
-                        : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openAdjustDialog(product)}
-                      >
-                        <Pencil className="h-4 w-4 mr-1" />
-                        {tActions('adjust')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                products.map((product) => {
+                  const stockValue = view === 'total' ? product.totalStock : product.currentStock
+                  return (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>{product.unitLabel}</TableCell>
+                      <TableCell className="text-right">
+                        {stockValue} {product.unitLabel}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {product.updatedAt
+                          ? format(new Date(product.updatedAt), 'dd.MM.yyyy', { locale: de })
+                          : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openAdjustDialog(product)}
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          {tActions('adjust')}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
               )}
             </TableBody>
           </Table>
@@ -128,11 +132,22 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
       <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Bestand anpassen: {editingProduct?.name}</DialogTitle>
+            <DialogTitle>{t('adjustDialog.title')}: {editingProduct?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Show current values */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">{t('columns.totalStock')}:</span>
+                <span className="ml-2 font-medium">{editingProduct?.totalStock} {editingProduct?.unitLabel}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">{t('columns.currentStock')}:</span>
+                <span className="ml-2 font-medium">{editingProduct?.currentStock} {editingProduct?.unitLabel}</span>
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label htmlFor="newStock">Neuer Bestand ({editingProduct?.unitLabel})</Label>
+              <Label htmlFor="newStock">{t('adjustDialog.newTotalStock')} ({editingProduct?.unitLabel})</Label>
               <Input
                 id="newStock"
                 type="number"
@@ -140,6 +155,9 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                 value={newStock}
                 onChange={(e) => setNewStock(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                {t('adjustDialog.hint')}
+              </p>
             </div>
           </div>
           <DialogFooter>

@@ -222,6 +222,7 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
         imagePath = null
       }
 
+      const stockValue = parseFloat(totalStock) || 0
       const productData = {
         name,
         sku,
@@ -231,7 +232,8 @@ export function ProductsTable({ initialData, onDataChange }: ProductsTableProps)
         description,
         imagePath,
         isActive,
-        totalStock: parseFloat(totalStock) || 0
+        totalStock: stockValue,
+        currentStock: stockValue // For new products, currentStock equals totalStock
       }
 
       if (editingProduct) {

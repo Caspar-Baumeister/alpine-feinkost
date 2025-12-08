@@ -27,7 +27,8 @@ export type Product = {
   description: string
   imagePath: string | null
   isActive: boolean
-  totalStock: number
+  totalStock: number      // Total inventory owned (not yet sold)
+  currentStock: number    // What's physically in warehouse (not assigned to open/in-progress packlists)
   createdAt: Date | null
   updatedAt: Date | null
 }

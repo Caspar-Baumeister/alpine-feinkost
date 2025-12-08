@@ -20,6 +20,10 @@ function timestampToDate(timestamp: Timestamp | null): Date | null {
 }
 
 function docToProduct(id: string, data: Record<string, unknown>): Product {
+  const totalStock = data.totalStock as number ?? 0
+  // If currentStock is not set, default to totalStock (for backwards compatibility)
+  const currentStock = data.currentStock as number ?? totalStock
+
   return {
     id,
     name: data.name as string,
@@ -30,7 +34,8 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
     description: data.description as string || '',
     imagePath: (data.imagePath as string) || null,
     isActive: data.isActive as boolean ?? true,
-    totalStock: data.totalStock as number ?? 0,
+    totalStock,
+    currentStock,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
   }
@@ -69,6 +74,7 @@ export async function createProduct(
     imagePath: data.imagePath,
     isActive: data.isActive,
     totalStock: data.totalStock,
+    currentStock: data.currentStock ?? data.totalStock, // Default to totalStock if not provided
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
@@ -87,11 +93,47 @@ export async function updateProduct(
   })
 }
 
-export async function updateProductStock(id: string, totalStock: number): Promise<void> {
+/**
+ * Update product stock values.
+ * When updating totalStock manually (e.g., physical inventory count),
+ * we also adjust currentStock by the same delta to keep them in sync.
+ */
+export async function updateProductStock(
+  id: string,
+  totalStock: number,
+  currentStock?: number
+): Promise<void> {
   const docRef = doc(db, COLLECTION, id)
-  await updateDoc(docRef, {
-    totalStock,
-    updatedAt: serverTimestamp()
-  })
+
+  // If currentStock is provided, use it directly
+  if (currentStock !== undefined) {
+    await updateDoc(docRef, {
+      totalStock,
+      currentStock,
+      updatedAt: serverTimestamp()
+    })
+  } else {
+    // Otherwise, get current values and adjust currentStock by the same delta
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      const oldTotalStock = data.totalStock as number ?? 0
+      const oldCurrentStock = data.currentStock as number ?? oldTotalStock
+      const delta = totalStock - oldTotalStock
+      const newCurrentStock = oldCurrentStock + delta
+
+      await updateDoc(docRef, {
+        totalStock,
+        currentStock: newCurrentStock,
+        updatedAt: serverTimestamp()
+      })
+    } else {
+      await updateDoc(docRef, {
+        totalStock,
+        currentStock: totalStock,
+        updatedAt: serverTimestamp()
+      })
+    }
+  }
 }
 

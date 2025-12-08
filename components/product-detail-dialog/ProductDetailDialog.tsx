@@ -147,15 +147,31 @@ export function ProductDetailDialog({
                 </div>
               </div>
 
-              {/* Stock */}
+              {/* Total Stock */}
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                 <Package className="h-5 w-5 text-amber-500 mt-0.5" />
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {locale === 'de' ? 'Lagerbestand' : 'Stock'}
+                    {locale === 'de' ? 'Gesamtbestand' : 'Total Stock'}
                   </p>
                   <p className="text-lg font-semibold">
                     {product.totalStock} {product.unitLabel}
+                  </p>
+                </div>
+              </div>
+
+              {/* Current Stock */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <Package className="h-5 w-5 text-emerald-500 mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {locale === 'de' ? 'Aktueller Bestand' : 'Current Stock'}
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {product.currentStock} {product.unitLabel}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {locale === 'de' ? 'Verfügbar im Lager' : 'Available in warehouse'}
                   </p>
                 </div>
               </div>
