@@ -67,6 +67,7 @@ export type Packlist = {
   assignedUserIds: string[]
   changeAmount: number
   note: string
+  workerNote: string | null    // Note from worker when finishing sales
   templateId: string | null
   reportedCash: number | null
   expectedCash: number | null

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
+import { de, enUS } from 'date-fns/locale'
 import {
   CalendarDays,
   Plus,
@@ -12,7 +12,8 @@ import {
   FileText,
   Save,
   Check,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -89,8 +90,18 @@ export function PacklistForm({
 }: PacklistFormProps) {
   const t = useTranslations('packlists')
   const tActions = useTranslations('actions')
+  const tValidation = useTranslations('common.validation')
   const router = useRouter()
+  const locale = useLocale()
+  const dateLocale = locale === 'de' ? de : enUS
   const { user: currentUser } = useCurrentUser()
+
+  // Create a map of productId -> product for easy lookup of currentStock
+  const productsMap = useMemo(() => {
+    const map = new Map<string, Product>()
+    products.forEach((p) => map.set(p.id, p))
+    return map
+  }, [products])
 
   // Form state
   const [selectedPosId, setSelectedPosId] = useState<string>('')
@@ -168,13 +179,33 @@ export function PacklistForm({
     }
   }
 
+  // Helper to check if a line item exceeds current stock
+  const getStockWarning = (item: LineItem): { exceeds: boolean; available: number } => {
+    const product = productsMap.get(item.productId)
+    if (!product) return { exceeds: false, available: 0 }
+    const available = product.currentStock
+    return {
+      exceeds: item.plannedQuantity > available,
+      available
+    }
+  }
+
+  // Clip a line item quantity to available stock
+  const clipToAvailableStock = (itemId: string) => {
+    const item = lineItems.find((i) => i.id === itemId)
+    if (!item) return
+    const product = productsMap.get(item.productId)
+    if (!product) return
+    updateLineItem(itemId, { plannedQuantity: product.currentStock })
+  }
+
   const handleSubmit = async () => {
     if (!currentUser || !selectedPosId || !selectedDate) return
 
     setIsSaving(true)
 
     try {
-      // Convert line items to PacklistItem format
+      // Convert line items to PacklistItem format, normalizing empty/undefined quantities to 0
       const items: PacklistItem[] = lineItems.map((item) => ({
         productId: item.productId,
         productName: item.productName,
@@ -182,7 +213,7 @@ export function PacklistForm({
         unitLabel: item.unitLabel,
         basePrice: item.basePrice,
         specialPrice: item.specialPrice,
-        plannedQuantity: item.plannedQuantity,
+        plannedQuantity: item.plannedQuantity || 0, // Normalize empty to 0
         startQuantity: null,
         endQuantity: null,
         note: item.note
@@ -197,6 +228,7 @@ export function PacklistForm({
         assignedUserIds,
         changeAmount: parseFloat(changeAmount) || 0,
         note,
+        workerNote: null,
         templateId: selectedTemplateId || null,
         reportedCash: null,
         expectedCash: null,
@@ -275,9 +307,9 @@ export function PacklistForm({
                   >
                     <CalendarDays className="mr-2 h-4 w-4" />
                     {selectedDate ? (
-                      format(selectedDate, 'PPP', { locale: de })
+                      format(selectedDate, 'PPP', { locale: dateLocale })
                     ) : (
-                      'Datum wählen'
+                      locale === 'de' ? 'Datum wählen' : 'Select date'
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -286,7 +318,7 @@ export function PacklistForm({
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
-                    locale={de}
+                    locale={dateLocale}
                   />
                 </PopoverContent>
               </Popover>
@@ -422,24 +454,46 @@ export function PacklistForm({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lineItems.map((item) => (
+                {lineItems.map((item) => {
+                  const stockWarning = getStockWarning(item)
+                  return (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
                       {item.productName}
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={item.plannedQuantity}
-                        onChange={(e) =>
-                          updateLineItem(item.id, {
-                            plannedQuantity: parseFloat(e.target.value) || 0
-                          })
-                        }
-                        className="w-full"
-                      />
+                      <div className="space-y-1">
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={item.plannedQuantity}
+                          onChange={(e) =>
+                            updateLineItem(item.id, {
+                              plannedQuantity: parseFloat(e.target.value) || 0
+                            })
+                          }
+                          className={cn(
+                            'w-full',
+                            stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive'
+                          )}
+                        />
+                        {stockWarning.exceeds && (
+                          <div className="flex flex-col gap-1">
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              {tValidation('notEnoughStock', { available: stockWarning.available })}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => clipToAvailableStock(item.id)}
+                              className="text-xs text-primary hover:underline text-left"
+                            >
+                              {tValidation('setToAvailable')}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {item.unitLabel}
@@ -486,7 +540,8 @@ export function PacklistForm({
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                  )
+                })}
               </TableBody>
             </Table>
             </div>

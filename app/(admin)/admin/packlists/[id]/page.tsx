@@ -282,6 +282,23 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
         </Card>
       )}
 
+      {/* Worker Note */}
+      {packlist.workerNote && (
+        <Card className="border-amber-500/30">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-amber-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                  {locale === 'de' ? 'Notiz vom Mitarbeiter' : 'Note from Worker'}
+                </p>
+                <p className="mt-1">{packlist.workerNote}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Items Table */}
       <Card>
         <CardHeader>

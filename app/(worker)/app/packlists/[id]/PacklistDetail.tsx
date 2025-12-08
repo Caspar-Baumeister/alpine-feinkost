@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -55,6 +57,7 @@ interface LineItemState {
 export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   const t = useTranslations('worker.packlist')
   const tPacklists = useTranslations('packlists')
+  const tValidation = useTranslations('common.validation')
   const router = useRouter()
   const locale = useLocale()
   const dateLocale = locale === 'de' ? de : enUS
@@ -71,6 +74,9 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   )
   const [finalCash, setFinalCash] = useState<string>(
     packlist.reportedCash?.toString() || ''
+  )
+  const [workerNote, setWorkerNote] = useState<string>(
+    packlist.workerNote || ''
   )
 
   // Product detail dialog state
@@ -114,6 +120,33 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
     )
   }
 
+  // Get validation warnings for an end quantity
+  const getEndQuantityWarning = (productId: string): { type: 'exceeds' | 'negative' | null; maxValue: number } => {
+    const state = getStateForItem(productId)
+    const item = packlist.items.find((i) => i.productId === productId)
+    const startQty = item?.startQuantity ?? item?.plannedQuantity ?? 0
+
+    if (state.endQuantity < 0) {
+      return { type: 'negative', maxValue: startQty }
+    }
+    if (state.endQuantity > startQty) {
+      return { type: 'exceeds', maxValue: startQty }
+    }
+    return { type: null, maxValue: startQty }
+  }
+
+  // Clip end quantity to start amount
+  const clipToStartAmount = (productId: string) => {
+    const item = packlist.items.find((i) => i.productId === productId)
+    const startQty = item?.startQuantity ?? item?.plannedQuantity ?? 0
+    updateLineItemState(productId, 'endQuantity', startQty)
+  }
+
+  // Clip end quantity to zero
+  const clipToZero = (productId: string) => {
+    updateLineItemState(productId, 'endQuantity', 0)
+  }
+
   const handleStartSelling = async () => {
     setIsSaving(true)
     setError(null)
@@ -154,12 +187,26 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
     setError(null)
 
     try {
-      // Validate quantities
-      const hasNegative = lineItemStates.some((s) => s.endQuantity < 0)
-      if (hasNegative) {
-        setError(locale === 'de' ? 'Mengen dürfen nicht negativ sein' : 'Quantities cannot be negative')
-        setIsSaving(false)
-        return
+      // Validate quantities - check negative and exceeds start
+      for (const state of lineItemStates) {
+        const item = packlist.items.find((i) => i.productId === state.productId)
+        const startQty = item?.startQuantity ?? item?.plannedQuantity ?? 0
+
+        if (state.endQuantity < 0) {
+          setError(locale === 'de' ? 'Mengen dürfen nicht negativ sein' : 'Quantities cannot be negative')
+          setIsSaving(false)
+          return
+        }
+
+        if (state.endQuantity > startQty) {
+          setError(
+            locale === 'de'
+              ? `Restbestand für "${item?.productName}" kann nicht größer als die Ausgangsmenge (${startQty}) sein`
+              : `Remaining quantity for "${item?.productName}" cannot exceed starting amount (${startQty})`
+          )
+          setIsSaving(false)
+          return
+        }
       }
 
       const reportedCash = parseFloat(finalCash) || 0
@@ -169,14 +216,15 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
         return
       }
 
-      // Call the stock-safe helper
+      // Normalize empty quantities to 0 and call the stock-safe helper
       await finishSellingPacklist(
         packlist.id,
         lineItemStates.map((s) => ({
           productId: s.productId,
-          endQuantity: s.endQuantity
+          endQuantity: s.endQuantity || 0 // Normalize empty to 0
         })),
-        reportedCash
+        reportedCash,
+        workerNote.trim() || undefined // Pass worker note if provided
       )
 
       onUpdate()
@@ -402,6 +450,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                 <TableBody>
                   {packlist.items.map((item) => {
                     const state = getStateForItem(item.productId)
+                    const warning = getEndQuantityWarning(item.productId)
                     return (
                       <TableRow key={item.productId}>
                         <TableCell>
@@ -419,21 +468,56 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                           {item.startQuantity ?? item.plannedQuantity}
                         </TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            value={state.endQuantity}
-                            onChange={(e) =>
-                              updateLineItemState(
-                                item.productId,
-                                'endQuantity',
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            className="text-right"
-                            disabled={packlist.status !== 'currently_selling' || isSaving}
-                          />
+                          <div className="space-y-1">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              value={state.endQuantity}
+                              onChange={(e) =>
+                                updateLineItemState(
+                                  item.productId,
+                                  'endQuantity',
+                                  parseFloat(e.target.value) || 0
+                                )
+                              }
+                              className={cn(
+                                'text-right',
+                                warning.type && 'border-destructive text-destructive focus-visible:ring-destructive'
+                              )}
+                              disabled={packlist.status !== 'currently_selling' || isSaving}
+                            />
+                            {warning.type === 'exceeds' && (
+                              <div className="flex flex-col gap-1">
+                                <p className="text-xs text-destructive flex items-center gap-1">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {tValidation('remainingExceedsStart', { max: warning.maxValue })}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => clipToStartAmount(item.productId)}
+                                  className="text-xs text-primary hover:underline text-left"
+                                >
+                                  {tValidation('setToStartAmount')}
+                                </button>
+                              </div>
+                            )}
+                            {warning.type === 'negative' && (
+                              <div className="flex flex-col gap-1">
+                                <p className="text-xs text-destructive flex items-center gap-1">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {tValidation('cannotBeNegative')}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => clipToZero(item.productId)}
+                                  className="text-xs text-primary hover:underline text-left"
+                                >
+                                  {tValidation('setToZero')}
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
                           {item.unitLabel}
@@ -463,6 +547,19 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                     disabled={packlist.status !== 'currently_selling' || isSaving}
                   />
                 </div>
+              </div>
+
+              {/* Worker Note */}
+              <div className="space-y-2">
+                <Label htmlFor="workerNote">{t('workerNote')}</Label>
+                <Textarea
+                  id="workerNote"
+                  value={workerNote}
+                  onChange={(e) => setWorkerNote(e.target.value)}
+                  placeholder={t('workerNotePlaceholder')}
+                  disabled={packlist.status !== 'currently_selling' || isSaving}
+                  className="min-h-[80px]"
+                />
               </div>
 
               {packlist.status === 'currently_selling' && (

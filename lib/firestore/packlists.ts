@@ -45,6 +45,7 @@ function docToPacklist(id: string, data: Record<string, unknown>): Packlist {
     assignedUserIds: data.assignedUserIds as string[] || [],
     changeAmount: data.changeAmount as number || 0,
     note: data.note as string || '',
+    workerNote: (data.workerNote as string) || null,
     templateId: (data.templateId as string) || null,
     reportedCash: (data.reportedCash as number) ?? null,
     expectedCash: (data.expectedCash as number) ?? null,
@@ -142,6 +143,7 @@ export async function createPacklist(
       assignedUserIds: data.assignedUserIds,
       changeAmount: data.changeAmount,
       note: data.note,
+      workerNote: data.workerNote,
       templateId: data.templateId,
       reportedCash: data.reportedCash,
       expectedCash: data.expectedCash,
@@ -188,6 +190,7 @@ export async function updatePacklist(
   if (data.assignedUserIds !== undefined) updateData.assignedUserIds = data.assignedUserIds
   if (data.changeAmount !== undefined) updateData.changeAmount = data.changeAmount
   if (data.note !== undefined) updateData.note = data.note
+  if (data.workerNote !== undefined) updateData.workerNote = data.workerNote
   if (data.templateId !== undefined) updateData.templateId = data.templateId
   if (data.reportedCash !== undefined) updateData.reportedCash = data.reportedCash
   if (data.expectedCash !== undefined) updateData.expectedCash = data.expectedCash
@@ -328,14 +331,15 @@ interface FinishSellingItem {
 /**
  * Finish selling a packlist:
  * - Sets endQuantity for each item
- * - Sets reportedCash
+ * - Sets reportedCash and workerNote
  * - Changes status to 'sold'
  * - No stock changes (admin will handle returns)
  */
 export async function finishSellingPacklist(
   id: string,
   itemsWithEndQuantity: FinishSellingItem[],
-  reportedCash: number
+  reportedCash: number,
+  workerNote?: string
 ): Promise<void> {
   const packlistRef = doc(db, COLLECTION, id)
 
@@ -368,6 +372,7 @@ export async function finishSellingPacklist(
       status: 'sold',
       items: updatedItems,
       reportedCash,
+      workerNote: workerNote || null,
       updatedAt: serverTimestamp()
     })
   })

@@ -256,7 +256,9 @@
       "completed": "Abgeschlossen",
       "expected": "Erwartet",
       "reported": "Gemeldet",
-      "difference": "Differenz"
+      "difference": "Differenz",
+      "workerNote": "Notiz zum Verkauf",
+      "workerNotePlaceholder": "Optionale Anmerkungen zum Verkauf (z.B. beschädigte Ware, Besonderheiten, etc.)"
     }
   },
   "statistics": {
@@ -314,6 +316,14 @@
       "finishSelling": "Fehler beim Beenden des Verkaufs",
       "complete": "Fehler beim Abschließen",
       "loading": "Fehler beim Laden"
+    },
+    "validation": {
+      "notEnoughStock": "Nicht genug Bestand im Lager. Verfügbar: {available}",
+      "setToAvailable": "Auf verfügbare Menge setzen",
+      "remainingExceedsStart": "Restbestand kann nicht größer als die Ausgangsmenge sein (max: {max})",
+      "setToStartAmount": "Auf Ausgangsmenge setzen",
+      "cannotBeNegative": "Restbestand kann nicht negativ sein",
+      "setToZero": "Auf 0 setzen"
     }
   },
   "login": {

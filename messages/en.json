@@ -256,7 +256,9 @@
       "completed": "Completed",
       "expected": "Expected",
       "reported": "Reported",
-      "difference": "Difference"
+      "difference": "Difference",
+      "workerNote": "Sales Note",
+      "workerNotePlaceholder": "Optional notes about the sales (e.g., damaged goods, special circumstances, etc.)"
     }
   },
   "statistics": {
@@ -314,6 +316,14 @@
       "finishSelling": "Failed to finish selling",
       "complete": "Failed to complete",
       "loading": "Failed to load"
+    },
+    "validation": {
+      "notEnoughStock": "Not enough stock in warehouse. Available: {available}",
+      "setToAvailable": "Set to available amount",
+      "remainingExceedsStart": "Remaining quantity cannot exceed starting amount (max: {max})",
+      "setToStartAmount": "Set to starting amount",
+      "cannotBeNegative": "Remaining quantity cannot be negative",
+      "setToZero": "Set to 0"
     }
   },
   "login": {
