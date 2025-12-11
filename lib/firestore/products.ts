@@ -11,7 +11,7 @@ import {
   serverTimestamp,
   updateDoc
 } from 'firebase/firestore'
-import { Product } from './types'
+import { Product, ProductUnitType } from './types'
 
 const COLLECTION = 'products'
 
@@ -30,7 +30,8 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
   const legacyDescription = (data.description as string) ?? null
   const descriptionDe = (data.descriptionDe as string | null) ?? legacyDescription ?? null
   const descriptionEn = (data.descriptionEn as string | null) ?? null
-  const unitLabel = (data.unitLabel as string | null) ?? null
+  const rawUnitType = (data.unitType as ProductUnitType) ?? 'piece'
+  const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
 
   return {
     id,
@@ -39,8 +40,7 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
     nameEn,
     sku: data.sku as string || '',
     labels,
-    unitType: data.unitType as 'piece' | 'weight',
-    unitLabel: unitLabel,
+    unitType,
     basePrice: data.basePrice as number,
     description: legacyDescription,
     descriptionDe,
@@ -84,7 +84,6 @@ export async function createProduct(
     sku: data.sku,
     labels: data.labels || [],
     unitType: data.unitType,
-    unitLabel: data.unitLabel ?? null,
     basePrice: data.basePrice,
     descriptionDe: data.descriptionDe ?? '',
     descriptionEn: data.descriptionEn ?? null,

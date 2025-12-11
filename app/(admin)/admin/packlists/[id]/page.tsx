@@ -39,6 +39,7 @@ import {
   AppUser,
   Pos
 } from '@/lib/firestore'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -319,27 +320,30 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {lineItems.map((item) => (
-                <TableRow key={item.productId}>
-                  <TableCell className="font-medium">{item.productName}</TableCell>
-                  <TableCell className="text-muted-foreground">{item.unitLabel}</TableCell>
-                  <TableCell className="text-right">{item.plannedQuantity}</TableCell>
-                  <TableCell className="text-right">
-                    {item.startQuantity !== null ? item.startQuantity : '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {item.endQuantity !== null ? item.endQuantity : '-'}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">{item.soldQty}</TableCell>
-                  <TableCell className="text-right">
-                    €{item.price.toFixed(2)}
-                    {item.specialPrice && (
-                      <span className="text-xs text-muted-foreground ml-1">(S)</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">€{item.lineTotal.toFixed(2)}</TableCell>
-                </TableRow>
-              ))}
+              {lineItems.map((item) => {
+                const unitLabel = getUnitLabel(item.unitType, locale)
+                return (
+                  <TableRow key={item.productId}>
+                    <TableCell className="font-medium">{item.productName}</TableCell>
+                    <TableCell className="text-muted-foreground">{unitLabel}</TableCell>
+                    <TableCell className="text-right">{item.plannedQuantity}</TableCell>
+                    <TableCell className="text-right">
+                      {item.startQuantity !== null ? item.startQuantity : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.endQuantity !== null ? item.endQuantity : '-'}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{item.soldQty}</TableCell>
+                    <TableCell className="text-right">
+                      €{item.price.toFixed(2)}
+                      {item.specialPrice && (
+                        <span className="text-xs text-muted-foreground ml-1">(S)</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">€{item.lineTotal.toFixed(2)}</TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
             <TableFooter>
               <TableRow>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Pencil, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Product, updateProductStock } from '@/lib/firestore'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 
@@ -35,10 +36,12 @@ interface LagerbestandTableProps {
 export function LagerbestandTable({ products, onDataChange }: LagerbestandTableProps) {
   const t = useTranslations('lagerbestand')
   const tActions = useTranslations('actions')
+  const locale = useLocale()
   const [view, setView] = useState<'total' | 'current'>('current')
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [newStock, setNewStock] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const editingUnitLabel = editingProduct ? getUnitLabel(editingProduct.unitType, locale) : ''
 
   const handleAdjustStock = async () => {
     if (!editingProduct) return
@@ -96,13 +99,14 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                 </TableRow>
               ) : (
                 products.map((product) => {
+                  const unitLabel = getUnitLabel(product.unitType, locale)
                   const stockValue = view === 'total' ? product.totalStock : product.currentStock
                   return (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.unitLabel}</TableCell>
+                      <TableCell>{unitLabel}</TableCell>
                       <TableCell className="text-right">
-                        {stockValue} {product.unitLabel}
+                        {stockValue} {unitLabel}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {product.updatedAt
@@ -139,15 +143,15 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">{t('columns.totalStock')}:</span>
-                <span className="ml-2 font-medium">{editingProduct?.totalStock} {editingProduct?.unitLabel}</span>
+                <span className="ml-2 font-medium">{editingProduct?.totalStock} {editingUnitLabel}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">{t('columns.currentStock')}:</span>
-                <span className="ml-2 font-medium">{editingProduct?.currentStock} {editingProduct?.unitLabel}</span>
+                <span className="ml-2 font-medium">{editingProduct?.currentStock} {editingUnitLabel}</span>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newStock">{t('adjustDialog.newTotalStock')} ({editingProduct?.unitLabel})</Label>
+              <Label htmlFor="newStock">{t('adjustDialog.newTotalStock')} ({editingUnitLabel})</Label>
               <Input
                 id="newStock"
                 type="number"

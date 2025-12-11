@@ -11,7 +11,7 @@ import {
   orderBy
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { PacklistTemplate, PacklistTemplateItem } from './types'
+import { PacklistTemplate, PacklistTemplateItem, ProductUnitType } from './types'
 
 const COLLECTION = 'packlistTemplates'
 
@@ -20,16 +20,20 @@ function timestampToDate(timestamp: Timestamp | null | undefined): Date | null {
 }
 
 function docToTemplate(id: string, data: Record<string, unknown>): PacklistTemplate {
-  const items = (data.items as Record<string, unknown>[] || []).map((item) => ({
-    productId: item.productId as string,
-    productName: item.productName as string || '',
-    unitType: item.unitType as 'piece' | 'weight',
-    unitLabel: item.unitLabel as string,
-    basePrice: item.basePrice as number,
-    specialPrice: (item.specialPrice as number) || null,
-    defaultQuantity: item.defaultQuantity as number,
-    note: item.note as string || ''
-  }))
+  const items = (data.items as Record<string, unknown>[] || []).map((item) => {
+    const rawUnitType = (item.unitType as ProductUnitType) ?? 'piece'
+    const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
+    return {
+      productId: item.productId as string,
+      productName: item.productName as string || '',
+      unitType,
+      unitLabel: item.unitLabel as string,
+      basePrice: item.basePrice as number,
+      specialPrice: (item.specialPrice as number) || null,
+      defaultQuantity: item.defaultQuantity as number,
+      note: item.note as string || ''
+    }
+  })
 
   return {
     id,

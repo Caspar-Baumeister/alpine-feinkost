@@ -40,6 +40,7 @@ import {
   finishSellingPacklist,
   getProduct
 } from '@/lib/firestore'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
 
@@ -365,6 +366,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                 <TableBody>
                   {packlist.items.map((item) => {
                     const state = getStateForItem(item.productId)
+                    const unitLabel = getUnitLabel(item.unitType, locale)
                     return (
                       <TableRow key={item.productId}>
                         <TableCell>
@@ -399,7 +401,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                           />
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {item.unitLabel}
+                          {unitLabel}
                         </TableCell>
                       </TableRow>
                     )
@@ -451,6 +453,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                   {packlist.items.map((item) => {
                     const state = getStateForItem(item.productId)
                     const warning = getEndQuantityWarning(item.productId)
+                    const unitLabel = getUnitLabel(item.unitType, locale)
                     return (
                       <TableRow key={item.productId}>
                         <TableCell>
@@ -520,7 +523,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {item.unitLabel}
+                          {unitLabel}
                         </TableCell>
                       </TableRow>
                     )

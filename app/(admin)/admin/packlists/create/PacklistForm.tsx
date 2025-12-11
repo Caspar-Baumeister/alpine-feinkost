@@ -62,6 +62,7 @@ import {
 } from '@/lib/firestore'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 import { cn } from '@/lib/utils'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 
 interface PacklistFormProps {
   products: Product[]
@@ -74,7 +75,7 @@ interface LineItem {
   id: string
   productId: string
   productName: string
-  unitType: 'piece' | 'weight'
+  unitType: Product['unitType']
   unitLabel: string
   basePrice: number
   plannedQuantity: number
@@ -129,7 +130,7 @@ export function PacklistForm({
           productId: item.productId,
           productName: item.productName,
           unitType: item.unitType,
-          unitLabel: item.unitLabel,
+          unitLabel: getUnitLabel(item.unitType, locale),
           basePrice: item.basePrice,
           plannedQuantity: item.defaultQuantity,
           specialPrice: item.specialPrice,
@@ -149,7 +150,7 @@ export function PacklistForm({
       productId: product.id,
       productName: product.name,
       unitType: product.unitType,
-      unitLabel: product.unitLabel,
+      unitLabel: getUnitLabel(product.unitType, locale),
       basePrice: product.basePrice,
       plannedQuantity: 1,
       specialPrice: null,
@@ -419,7 +420,7 @@ export function PacklistForm({
                         >
                           {product.name}
                           <span className="ml-auto text-xs text-muted-foreground">
-                            {product.unitLabel}
+                            {getUnitLabel(product.unitType, locale)}
                           </span>
                         </CommandItem>
                       ))}
@@ -496,7 +497,7 @@ export function PacklistForm({
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {item.unitLabel}
+                      {getUnitLabel(item.unitType, locale)}
                     </TableCell>
                     <TableCell>
                       <div className="relative">

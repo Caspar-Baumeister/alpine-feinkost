@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Product } from '@/lib/firestore'
 import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
 import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
-import { getUnitLabelForLocale } from '@/lib/products/getUnitLabelForLocale'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { getProductImageUrl } from '@/lib/storage/products'
 
 interface ProductDetailDialogProps {
@@ -34,7 +34,7 @@ export function ProductDetailDialog({
   const [isLoadingImage, setIsLoadingImage] = useState(false)
   const description = product ? getProductDescriptionForLocale(product, locale) : ''
   const productName = product ? getProductNameForLocale(product, locale) : ''
-  const unitLabel = product ? getUnitLabelForLocale(product, locale) : ''
+  const unitLabel = product ? getUnitLabel(product.unitType, locale) : ''
 
   useEffect(() => {
     const loadImage = async () => {
@@ -161,7 +161,7 @@ export function ProductDetailDialog({
                     {locale === 'de' ? 'Gesamtbestand' : 'Total Stock'}
                   </p>
                   <p className="text-lg font-semibold">
-                    {product.totalStock} {product.unitLabel}
+                    {product.totalStock} {unitLabel}
                   </p>
                 </div>
               </div>
@@ -174,7 +174,7 @@ export function ProductDetailDialog({
                     {locale === 'de' ? 'Aktueller Bestand' : 'Current Stock'}
                   </p>
                   <p className="text-lg font-semibold">
-                    {product.currentStock} {product.unitLabel}
+                    {product.currentStock} {unitLabel}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {locale === 'de' ? 'Verfügbar im Lager' : 'Available in warehouse'}

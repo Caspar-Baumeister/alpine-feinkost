@@ -6,7 +6,7 @@
 export interface Product {
   id: string
   name: string
-  unit: 'piece' | 'weight'
+  unit: 'piece' | 'weight' | 'kg' | 'g' | 'ml'
   basePrice: number
   active: boolean
   thumbnail?: string

@@ -13,7 +13,7 @@ import {
   runTransaction
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { Packlist, PacklistStatus, PacklistItem, Product } from './types'
+import { Packlist, PacklistStatus, PacklistItem, Product, ProductUnitType } from './types'
 
 const COLLECTION = 'packlists'
 const PRODUCTS_COLLECTION = 'products'
@@ -23,18 +23,22 @@ function timestampToDate(timestamp: Timestamp | null | undefined): Date | null {
 }
 
 function docToPacklist(id: string, data: Record<string, unknown>): Packlist {
-  const items = (data.items as Record<string, unknown>[] || []).map((item) => ({
-    productId: item.productId as string,
-    productName: item.productName as string || '',
-    unitType: item.unitType as 'piece' | 'weight',
-    unitLabel: item.unitLabel as string,
-    basePrice: item.basePrice as number,
-    specialPrice: (item.specialPrice as number) || null,
-    plannedQuantity: item.plannedQuantity as number,
-    startQuantity: (item.startQuantity as number) ?? null,
-    endQuantity: (item.endQuantity as number) ?? null,
-    note: item.note as string || ''
-  }))
+  const items = (data.items as Record<string, unknown>[] || []).map((item) => {
+    const rawUnitType = (item.unitType as ProductUnitType) ?? 'piece'
+    const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
+    return {
+      productId: item.productId as string,
+      productName: item.productName as string || '',
+      unitType,
+      unitLabel: item.unitLabel as string,
+      basePrice: item.basePrice as number,
+      specialPrice: (item.specialPrice as number) || null,
+      plannedQuantity: item.plannedQuantity as number,
+      startQuantity: (item.startQuantity as number) ?? null,
+      endQuantity: (item.endQuantity as number) ?? null,
+      note: item.note as string || ''
+    }
+  })
 
   return {
     id,
@@ -486,15 +490,24 @@ export async function getProductsForPacklist(productIds: string[]): Promise<Map<
     if (productSnap.exists()) {
       const data = productSnap.data()
       const totalStock = data.totalStock as number ?? 0
+      const nameDe = (data.nameDe as string | null) ?? (data.name as string) ?? ''
+      const nameEn = (data.nameEn as string | null) ?? null
+      const descriptionDe = (data.descriptionDe as string | null) ?? (data.description as string) ?? null
+      const descriptionEn = (data.descriptionEn as string | null) ?? null
+      const rawUnitType = (data.unitType as ProductUnitType) ?? 'piece'
+      const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
       products.set(productId, {
         id: productId,
         name: data.name as string,
+        nameDe,
+        nameEn,
         sku: data.sku as string || '',
         labels: (data.labels as string[]) ?? [],
-        unitType: data.unitType as 'piece' | 'weight',
-        unitLabel: data.unitLabel as string || (data.unitType === 'piece' ? 'Stück' : 'kg'),
+        unitType,
         basePrice: data.basePrice as number,
         description: data.description as string || '',
+        descriptionDe,
+        descriptionEn,
         imagePath: (data.imagePath as string) || null,
         isActive: data.isActive as boolean ?? true,
         totalStock,

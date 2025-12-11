@@ -41,11 +41,14 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
+import { FormLanguageToggle } from '@/components/form-language-toggle'
 import type { Product, Label as ProductLabel } from '@/lib/firestore'
 import { createLabel, createProduct, getLabelBySlug, updateProduct } from '@/lib/firestore'
 import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
 import { slugifyLabel } from '@/lib/labels/slugify'
 import { deleteProductImage, getProductImageUrl, uploadProductImageWithUrl } from '@/lib/storage/products'
+import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
+import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { cn } from '@/lib/utils'
 import { Check as CheckIcon, Loader2, Package, Pencil, Plus, Tag, Upload, X } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -77,13 +80,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [nameDe, setNameDe] = useState('')
   const [nameEn, setNameEn] = useState('')
   const [sku, setSku] = useState('')
-  const [unitType, setUnitType] = useState<'piece' | 'weight'>('weight')
-  const [unitLabel, setUnitLabel] = useState<string | null>('kg')
+  const [unitType, setUnitType] = useState<Product['unitType']>('kg')
   const [basePrice, setBasePrice] = useState('')
   const [descriptionDe, setDescriptionDe] = useState('')
   const [descriptionEn, setDescriptionEn] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [labelIds, setLabelIds] = useState<string[]>([])
+  const [productFormLanguage, setProductFormLanguage] = useState<'de' | 'en'>('de')
+  const [productFormError, setProductFormError] = useState<string | null>(null)
 
   // Label creation dialog
   const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false)
@@ -94,6 +98,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [hasAutofilledDescriptionEn, setHasAutofilledDescriptionEn] = useState(false)
   const [isCreatingLabel, setIsCreatingLabel] = useState(false)
   const [labelError, setLabelError] = useState<string | null>(null)
+  const [labelFormLanguage, setLabelFormLanguage] = useState<'de' | 'en'>('de')
 
   const [localLabels, setLocalLabels] = useState<ProductLabel[]>(labels)
 
@@ -132,17 +137,23 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setLocalLabels(labels)
   }, [labels])
 
+  const normalizeUnitType = (value: Product['unitType']) => {
+    if (value === 'weight') return 'kg'
+    return value
+  }
+
   const resetForm = () => {
     setNameDe('')
     setNameEn('')
     setSku('')
-    setUnitType('weight')
-    setUnitLabel('kg')
+    setUnitType('kg')
     setBasePrice('')
     setDescriptionDe('')
     setDescriptionEn('')
     setIsActive(true)
     setLabelIds([])
+    setProductFormLanguage('de')
+    setProductFormError(null)
     setEditingProduct(null)
     setImageFile(null)
     setImagePreview(null)
@@ -152,6 +163,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setNewLabelDescriptionDe('')
     setNewLabelDescriptionEn('')
     setHasAutofilledDescriptionEn(false)
+    setLabelFormLanguage('de')
   }
 
   const openEditDialog = async (product: Product) => {
@@ -159,14 +171,15 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setNameDe(product.nameDe || product.name || '')
     setNameEn(product.nameEn || '')
     setSku(product.sku)
-    setUnitType(product.unitType)
-    setUnitLabel(product.unitLabel || null)
+    setUnitType(normalizeUnitType(product.unitType))
     setBasePrice(product.basePrice.toString())
     setDescriptionDe(product.descriptionDe || product.description || '')
     setDescriptionEn(product.descriptionEn || '')
     setIsActive(product.isActive)
     setLabelIds(product.labels || [])
     setExistingImagePath(product.imagePath)
+    setProductFormLanguage('de')
+    setProductFormError(null)
 
     // Load existing image preview
     if (product.imagePath) {
@@ -191,9 +204,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setIsDetailOpen(true)
   }
 
-  const handleUnitTypeChange = (value: 'piece' | 'weight') => {
+  const handleUnitTypeChange = (value: Product['unitType']) => {
     setUnitType(value)
-    setUnitLabel(value === 'piece' ? 'Stück' : 'kg')
   }
 
   const maybeAutofillDescriptionEn = () => {
@@ -205,13 +217,15 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   }
 
   const handleCreateLabel = async () => {
-    const nameEn = newLabelNameEn.trim()
+    const nameEnInput = newLabelNameEn.trim()
     const nameDe = newLabelNameDe.trim()
     const descriptionDe = newLabelDescriptionDe.trim()
     const descriptionEn = newLabelDescriptionEn.trim()
+    const nameEn = nameEnInput || nameDe
+    const slugSource = nameEnInput || nameDe
 
-    if (!nameEn || !nameDe) {
-      setLabelError(locale === 'de' ? 'Bitte beide Namen eingeben' : 'Please provide both names')
+    if (!nameDe) {
+      setLabelError(locale === 'de' ? 'Bitte deutschen Namen eingeben' : 'Please provide the German name')
       return
     }
 
@@ -224,7 +238,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       return
     }
 
-    const slug = slugifyLabel(nameEn)
+    const slug = slugifyLabel(slugSource)
     const existsLocal = localLabels.some((l) => l.slug === slug)
     if (existsLocal) {
       setLabelError(tLabels('slugExists'))
@@ -266,6 +280,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       setNewLabelDescriptionDe('')
       setNewLabelDescriptionEn('')
       setHasAutofilledDescriptionEn(false)
+      setLabelFormLanguage('de')
     } catch (error) {
       console.error('Failed to create label', error)
       setLabelError(error instanceof Error ? error.message : 'Error creating label')
@@ -325,6 +340,22 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setProductFormError(null)
+
+    const trimmedNameDe = nameDe.trim()
+    const normalizedUnitType = normalizeUnitType(unitType)
+    const parsedBasePrice = parseFloat(basePrice)
+
+    if (!trimmedNameDe) {
+      setProductFormError(locale === 'de' ? 'Bitte deutschen Namen eingeben' : 'Please enter the German name')
+      return
+    }
+
+    if (Number.isNaN(parsedBasePrice)) {
+      setProductFormError(locale === 'de' ? 'Bitte Grundpreis eingeben' : 'Please enter the base price')
+      return
+    }
+
     setIsSaving(true)
 
     try {
@@ -352,15 +383,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       }
 
       const productData = {
-        nameDe,
-        nameEn: nameEn || null,
+        nameDe: trimmedNameDe,
+        nameEn: nameEn.trim() || null,
         sku,
         labels: labelIds,
-        unitType,
-        unitLabel: unitLabel || null,
-        basePrice: parseFloat(basePrice) || 0,
-        descriptionDe,
-        descriptionEn,
+        unitType: normalizedUnitType,
+        basePrice: parsedBasePrice,
+        descriptionDe: descriptionDe.trim(),
+        descriptionEn: descriptionEn.trim() || null,
         imagePath,
         isActive,
         totalStock: 0,
@@ -455,30 +485,66 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nameDe">
-                    {locale === 'de' ? 'Name (DE)' : 'Name (DE)'}
-                  </Label>
-                  <Input
-                    id="nameDe"
-                    value={nameDe}
-                    onChange={(e) => setNameDe(e.target.value)}
-                    required
-                  />
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium text-muted-foreground">
+                  {locale === 'de' ? 'Sprache im Formular' : 'Form language'}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="nameEn">
-                    {locale === 'de' ? 'Name (EN)' : 'Name (EN)'}
-                  </Label>
-                  <Input
-                    id="nameEn"
-                    value={nameEn}
-                    onChange={(e) => setNameEn(e.target.value)}
-                    placeholder={locale === 'de' ? 'Optional' : 'Optional'}
-                  />
-                </div>
+                <FormLanguageToggle
+                  value={productFormLanguage}
+                  onChange={setProductFormLanguage}
+                />
               </div>
+
+              {productFormError ? (
+                <p className="text-sm text-destructive">{productFormError}</p>
+              ) : null}
+
+              {productFormLanguage === 'de' ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nameDe">
+                      {locale === 'de' ? 'Name (DE)' : 'Name (DE)'}
+                    </Label>
+                    <Input
+                      id="nameDe"
+                      value={nameDe}
+                      onChange={(e) => setNameDe(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="descriptionDe">{locale === 'de' ? 'Beschreibung (DE)' : 'Description (DE)'}</Label>
+                    <Textarea
+                      id="descriptionDe"
+                      value={descriptionDe}
+                      onChange={(e) => setDescriptionDe(e.target.value)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nameEn">
+                      {locale === 'de' ? 'Name (EN)' : 'Name (EN)'}
+                    </Label>
+                    <Input
+                      id="nameEn"
+                      value={nameEn}
+                      onChange={(e) => setNameEn(e.target.value)}
+                      placeholder={locale === 'de' ? 'Optional' : 'Optional'}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="descriptionEn">{locale === 'de' ? 'Beschreibung (EN)' : 'Description (EN)'}</Label>
+                    <Textarea
+                      id="descriptionEn"
+                      value={descriptionEn}
+                      onChange={(e) => setDescriptionEn(e.target.value)}
+                      placeholder={locale === 'de' ? 'Optional' : 'Optional'}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="sku">SKU</Label>
@@ -493,13 +559,18 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="unitType">{t('form.unit')}</Label>
-                  <Select value={unitType} onValueChange={handleUnitTypeChange}>
+                  <Select
+                    value={unitType}
+                    onValueChange={(value) => handleUnitTypeChange(value as Product['unitType'])}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="kg">kg</SelectItem>
+                      <SelectItem value="g">g</SelectItem>
+                      <SelectItem value="ml">ml</SelectItem>
                       <SelectItem value="piece">{t('form.unitPiece')}</SelectItem>
-                      <SelectItem value="weight">{t('form.unitWeight')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -574,26 +645,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 </Popover>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="descriptionDe">{locale === 'de' ? 'Beschreibung (DE)' : 'Description (DE)'}</Label>
-                  <Textarea
-                    id="descriptionDe"
-                    value={descriptionDe}
-                    onChange={(e) => setDescriptionDe(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="descriptionEn">{locale === 'de' ? 'Beschreibung (EN)' : 'Description (EN)'}</Label>
-                  <Textarea
-                    id="descriptionEn"
-                    value={descriptionEn}
-                    onChange={(e) => setDescriptionEn(e.target.value)}
-                    placeholder={locale === 'de' ? 'Optional' : 'Optional'}
-                  />
-                </div>
-              </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="isActive"
@@ -655,6 +706,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
               ) : (
                 products.map((product) => {
                   const imageUrl = imageUrls.get(product.id)
+                  const unitLabel = getUnitLabel(product.unitType, locale)
+                  const productName = getProductNameForLocale(product, locale)
 
                   return (
                     <TableRow
@@ -677,8 +730,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.unitLabel}</TableCell>
+                      <TableCell className="font-medium">{productName}</TableCell>
+                      <TableCell>{unitLabel}</TableCell>
                       <TableCell className="text-right">
                         €{product.basePrice.toFixed(2)}
                       </TableCell>
@@ -724,46 +777,68 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="labelNameEn">{tLabels('nameEn')}</Label>
-              <TextInput
-                id="labelNameEn"
-                value={newLabelNameEn}
-                onChange={(e) => setNewLabelNameEn(e.target.value)}
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm font-medium text-muted-foreground">
+                {locale === 'de' ? 'Sprache im Formular' : 'Form language'}
+              </div>
+              <FormLanguageToggle
+                value={labelFormLanguage}
+                onChange={setLabelFormLanguage}
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="labelNameDe">{tLabels('nameDe')}</Label>
-              <TextInput
-                id="labelNameDe"
-                value={newLabelNameDe}
-                onChange={(e) => setNewLabelNameDe(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="labelDescriptionDe">{tLabels('descriptionDe')}</Label>
-              <Textarea
-                id="labelDescriptionDe"
-                value={newLabelDescriptionDe}
-                onChange={(e) => setNewLabelDescriptionDe(e.target.value)}
-                placeholder={tLabels('descriptionDePlaceholder')}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="labelDescriptionEn">
-                {tLabels('descriptionEn')} ({tLabels('optional')})
-              </Label>
-              <Textarea
-                id="labelDescriptionEn"
-                value={newLabelDescriptionEn}
-                onChange={(e) => setNewLabelDescriptionEn(e.target.value)}
-                onFocus={maybeAutofillDescriptionEn}
-                placeholder={tLabels('descriptionEnPlaceholder')}
-              />
-              <p className="text-xs text-muted-foreground">
-                {tLabels('descriptionAutofillHint')}
-              </p>
-            </div>
+
+            {labelFormLanguage === 'de' ? (
+              <>
+                <div className="space-y-1">
+                  <Label htmlFor="labelNameDe">{tLabels('nameDe')}</Label>
+                  <TextInput
+                    id="labelNameDe"
+                    value={newLabelNameDe}
+                    onChange={(e) => setNewLabelNameDe(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="labelDescriptionDe">{tLabels('descriptionDe')}</Label>
+                  <Textarea
+                    id="labelDescriptionDe"
+                    value={newLabelDescriptionDe}
+                    onChange={(e) => setNewLabelDescriptionDe(e.target.value)}
+                    placeholder={tLabels('descriptionDePlaceholder')}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  <Label htmlFor="labelNameEn">
+                    {tLabels('nameEn')} ({tLabels('optional')})
+                  </Label>
+                  <TextInput
+                    id="labelNameEn"
+                    value={newLabelNameEn}
+                    onChange={(e) => setNewLabelNameEn(e.target.value)}
+                    placeholder={tLabels('nameEn')}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="labelDescriptionEn">
+                    {tLabels('descriptionEn')} ({tLabels('optional')})
+                  </Label>
+                  <Textarea
+                    id="labelDescriptionEn"
+                    value={newLabelDescriptionEn}
+                    onChange={(e) => setNewLabelDescriptionEn(e.target.value)}
+                    onFocus={maybeAutofillDescriptionEn}
+                    placeholder={tLabels('descriptionEnPlaceholder')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {tLabels('descriptionAutofillHint')}
+                  </p>
+                </div>
+              </>
+            )}
+
             {labelError && (
               <p className="text-sm text-destructive">{labelError}</p>
             )}
