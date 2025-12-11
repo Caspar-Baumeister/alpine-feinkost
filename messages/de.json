@@ -88,8 +88,8 @@
     "unknownUser": "unbekannt",
     "adjustDialog": {
       "title": "Bestand anpassen",
-      "newTotalStock": "Neuer Gesamtbestand",
-      "hint": "Hinweis: Änderungen am Gesamtbestand werden auch auf den aktuellen Bestand angewendet."
+      "newTotalStock": "Neuer Lagerbestand",
+      "hint": "Hinweis: Hier ändern Sie den aktuellen Bestand im Lager."
     }
   },
   "products": {
@@ -423,6 +423,32 @@
       "subtitle": "Handverlesen, mit Sorgfalt gereift und für Marktbesucher zusammengestellt.",
       "comingSoon": "Online-Bestellung in Vorbereitung",
       "empty": "Derzeit sind keine Produkte verfügbar."
+    },
+    "productDetail": {
+      "back": "Zurück zum Sortiment",
+      "notFoundTitle": "Produkt nicht gefunden",
+      "notFoundSubtitle": "Das gewünschte Produkt ist nicht verfügbar.",
+      "descriptionTitle": "Produktbeschreibung",
+      "labelsTitle": "Merkmale & Labels",
+      "labelsEmpty": "Keine Label-Beschreibung hinterlegt.",
+      "availabilityTitle": "Erhältlich auf folgenden Märkten",
+      "availabilityPlaceholder": "Die Marktverfügbarkeit wird hier angezeigt, sobald sie hinterlegt ist.",
+      "availabilityEmpty": "Noch keine Märkte hinterlegt.",
+      "addToCartTitle": "In den Warenkorb",
+      "sizeLabel": "Größe auswählen",
+      "quantityLabel": "Menge",
+      "addToCartCta": "In den Warenkorb",
+      "cartSoon": "Warenkorb folgt in Kürze – Online-Bestellung wird vorbereitet.",
+      "sizeLabels": {
+        "g250": "250 g",
+        "g400": "400 g",
+        "g500": "500 g",
+        "kg1": "1 kg",
+        "piece1": "1 Stück",
+        "piece2": "2 Stück",
+        "half": "Halb",
+        "whole": "Ganz"
+      }
     },
     "about": {
       "kicker": "Unsere Geschichte",

@@ -38,6 +38,8 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
   const imagePathLegacy = (data.imagePath as string | null) || null
   const imagePaths = imagePathsRaw.length ? imagePathsRaw : (imagePathLegacy ? [imagePathLegacy] : [])
   const primaryImagePath = imagePaths[0] || imagePathLegacy || null
+  const availableAtPosIdsRaw = data.availableAtPosIds as string[] | undefined
+  const availableAtPosIds = Array.isArray(availableAtPosIdsRaw) ? availableAtPosIdsRaw : null
 
   return {
     id,
@@ -53,6 +55,7 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
     descriptionEn,
     imagePaths,
     imagePath: primaryImagePath,
+    availableAtPosIds,
     isActive: data.isActive as boolean ?? true,
     totalStock,
     currentStock,

@@ -32,6 +32,7 @@ export type Product = {
   descriptionEn: string | null
   imagePaths?: string[]       // ordered list; first is primary
   imagePath?: string | null   // legacy single image
+  availableAtPosIds?: string[] | null
   isActive: boolean
   totalStock: number      // Total inventory owned (not yet sold)
   currentStock: number    // What's physically in warehouse (not assigned to open/in-progress packlists)

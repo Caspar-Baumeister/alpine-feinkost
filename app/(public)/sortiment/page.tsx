@@ -35,6 +35,9 @@ export default async function SortimentPage() {
               locale={locale}
               labelsBySlug={labelsBySlug}
               comingSoonLabel={tProducts('comingSoon')}
+              showLearnMore
+              learnMoreHref={`/sortiment/${product.id}`}
+              learnMoreLabel={tProducts('learnMore')}
             />
           ))}
         </div>

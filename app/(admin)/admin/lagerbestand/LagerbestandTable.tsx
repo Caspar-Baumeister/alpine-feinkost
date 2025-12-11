@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Product, updateProductStock } from '@/lib/firestore'
+import { Product, updateProductCurrentStock } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
@@ -57,10 +57,9 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
 
     setIsSaving(true)
     try {
-      await updateProductStock(
+      await updateProductCurrentStock(
         editingProduct.id,
         parseFloat(newStock) || 0,
-        undefined,
         currentUser.uid
       )
       setEditingProduct(null)
@@ -75,8 +74,8 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
 
   const openAdjustDialog = (product: Product) => {
     setEditingProduct(product)
-    // When adjusting stock, we adjust totalStock (which also adjusts currentStock by the same delta)
-    setNewStock(product.totalStock.toString())
+    // Adjust the physical stock currently in storage
+    setNewStock(product.currentStock.toString())
   }
 
   return (

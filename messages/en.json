@@ -88,8 +88,8 @@
     "unknownUser": "unknown",
     "adjustDialog": {
       "title": "Adjust Stock",
-      "newTotalStock": "New Total Stock",
-      "hint": "Note: Changes to total stock will also be applied to current stock."
+      "newTotalStock": "New Current Stock",
+      "hint": "Note: This updates the stock currently in storage."
     }
   },
   "products": {
@@ -424,6 +424,32 @@
       "subtitle": "Handpicked Alpine specialties for market lovers.",
       "comingSoon": "Online ordering coming soon",
       "empty": "No products available at the moment."
+    },
+    "productDetail": {
+      "back": "Back to assortment",
+      "notFoundTitle": "Product not found",
+      "notFoundSubtitle": "The requested product is not available.",
+      "descriptionTitle": "Product description",
+      "labelsTitle": "Characteristics & labels",
+      "labelsEmpty": "No label description available yet.",
+      "availabilityTitle": "Available at these markets",
+      "availabilityPlaceholder": "Market availability will be shown here once configured.",
+      "availabilityEmpty": "No markets configured yet.",
+      "addToCartTitle": "Add to cart",
+      "sizeLabel": "Choose a size",
+      "quantityLabel": "Quantity",
+      "addToCartCta": "Add to cart",
+      "cartSoon": "Cart coming soon – online ordering is being prepared.",
+      "sizeLabels": {
+        "g250": "250 g",
+        "g400": "400 g",
+        "g500": "500 g",
+        "kg1": "1 kg",
+        "piece1": "1 piece",
+        "piece2": "2 pieces",
+        "half": "Half",
+        "whole": "Whole"
+      }
     },
     "about": {
       "kicker": "Our story",
