@@ -833,7 +833,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                           {imageUrl ? (
                             <Image
                               src={imageUrl}
-                              alt={product.name}
+                              alt={productName || 'Product image'}
                               width={40}
                               height={40}
                               className="object-cover"

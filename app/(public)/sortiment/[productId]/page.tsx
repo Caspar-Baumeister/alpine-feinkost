@@ -81,7 +81,7 @@ async function fetchMarkets(ids: string[] | null | undefined): Promise<MarketDis
   )
 
   return fetched
-    .filter((pos): pos is Pos => Boolean(pos) && pos.active)
+    .filter((pos): pos is Pos => Boolean(pos && pos.active))
     .map((pos) => ({
       id: pos.id,
       name: pos.name,
@@ -116,7 +116,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
   }
 
   const product = await getProduct(productId).catch((error) => {
-    console.error('Failed to fetch product', params.productId, error)
+    console.error('Failed to fetch product', productId, error)
     return null
   })
 

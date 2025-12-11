@@ -1,7 +1,7 @@
-import { getLocale, getTranslations } from 'next-intl/server'
-import { Badge } from '@/components/ui/badge'
 import { ProductCard } from '@/components/public-site/product-card'
+import { Badge } from '@/components/ui/badge'
 import { getPublicCatalog } from '@/lib/public/catalog'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 export default async function SortimentPage() {
   const locale = (await getLocale()) as 'de' | 'en'

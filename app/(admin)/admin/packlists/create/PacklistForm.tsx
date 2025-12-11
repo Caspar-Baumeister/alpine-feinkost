@@ -97,6 +97,13 @@ export function PacklistForm({
   const dateLocale = locale === 'de' ? de : enUS
   const { user: currentUser } = useCurrentUser()
 
+  const getProductName = (product: Product) => {
+    if (locale === 'de') {
+      return product.nameDe || product.name || product.nameEn || ''
+    }
+    return product.nameEn || product.nameDe || product.name || ''
+  }
+
   // Create a map of productId -> product for easy lookup of currentStock
   const productsMap = useMemo(() => {
     const map = new Map<string, Product>()
@@ -148,7 +155,7 @@ export function PacklistForm({
     const newItem: LineItem = {
       id: `${Date.now()}`,
       productId: product.id,
-      productName: product.name,
+      productName: getProductName(product),
       unitType: product.unitType,
       unitLabel: getUnitLabel(product.unitType, locale),
       basePrice: product.basePrice,
@@ -421,7 +428,7 @@ export function PacklistForm({
                           key={product.id}
                           onSelect={() => addLineItem(product)}
                         >
-                          {product.name}
+                          {getProductName(product)}
                           <span className="ml-auto text-xs text-muted-foreground">
                             {getUnitLabel(product.unitType, locale)}
                           </span>

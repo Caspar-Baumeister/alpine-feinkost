@@ -52,7 +52,7 @@ export function ProductCard({
           .map((label) => label as Label)
       : []
   const primaryImagePath = product.imagePaths?.[0] || product.imagePath
-  const imageUrl = getPublicStorageUrl(primaryImagePath)
+  const imageUrl = getPublicStorageUrl(primaryImagePath || null)
   const unitLabel =
     getUnitLabelForLocale(product, locale)
   const productName = getProductNameForLocale(product, locale)

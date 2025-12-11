@@ -57,9 +57,16 @@ export default function LagerbestandPage() {
     .filter((p) => {
       if (!search.trim()) return true
       const term = search.toLowerCase()
+      const name = (p.name || p.nameDe || p.nameEn || '').toLowerCase()
+      const description = (
+        p.description ||
+        p.descriptionDe ||
+        p.descriptionEn ||
+        ''
+      ).toLowerCase()
       return (
-        p.name.toLowerCase().includes(term) ||
-        (p.description && p.description.toLowerCase().includes(term)) ||
+        name.includes(term) ||
+        description.includes(term) ||
         (p.sku && p.sku.toLowerCase().includes(term))
       )
     })
