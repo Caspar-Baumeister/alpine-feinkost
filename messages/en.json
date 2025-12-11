@@ -415,7 +415,7 @@
       "title": "Curated cheese selection",
       "subtitle": "Handpicked Alpine specialties for market lovers.",
       "comingSoon": "Online ordering coming soon",
-      "empty": "No products yet. Check back shortly."
+      "empty": "No products available at the moment."
     },
     "about": {
       "kicker": "Our story",
@@ -447,6 +447,7 @@
       "locationsTitle": "Markets & locations",
       "locationsIntro": "Find us regularly at these markets:",
       "marketsBadge": "Market day",
+      "locationsEmpty": "No locations are available at the moment.",
       "locations": {
         "teltow": {
           "name": "Weekly market Teltow",

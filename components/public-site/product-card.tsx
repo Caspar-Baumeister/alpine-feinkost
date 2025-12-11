@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Product, Label } from '@/lib/firestore'
 import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
+import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
 
 type ProductCardProps = {
   product: Product
@@ -40,13 +41,21 @@ export function ProductCard({
           .filter(Boolean)
           .map((label) => getLabelDisplayName(label as Label, locale))
       : []
+  const imageUrl = getPublicStorageUrl(product.imagePath)
+  const unitLabel =
+    product.unitLabel ||
+    (product.unitType === 'piece'
+      ? locale === 'de'
+        ? 'Stück'
+        : 'piece'
+      : 'kg')
 
   return (
     <Card className="h-full overflow-hidden border-border/70 bg-card shadow-sm">
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-500/20 via-background to-background">
-        {product.imagePath ? (
+        {imageUrl ? (
           <Image
-            src={product.imagePath}
+            src={imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
@@ -55,7 +64,7 @@ export function ProductCard({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-            {product.name}
+            {product.name || 'Alpine Feinkost'}
           </div>
         )}
       </div>
@@ -87,7 +96,7 @@ export function ProductCard({
 
         <div className="text-sm font-medium text-foreground">
           {formatPrice(product.basePrice, locale)}{' '}
-          <span className="text-muted-foreground">/ {product.unitLabel}</span>
+          <span className="text-muted-foreground">/ {unitLabel}</span>
         </div>
 
         {showLearnMore && learnMoreHref ? (

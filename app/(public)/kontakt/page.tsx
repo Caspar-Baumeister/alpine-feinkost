@@ -1,18 +1,21 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Mail, MapPin, Phone } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { listPos } from '@/lib/firestore'
+import type { Pos } from '@/lib/firestore'
+import { LocationCard } from '@/components/public-site/location-card'
 
 export default async function KontaktPage() {
   const t = await getTranslations('marketing.contact')
+  let locations: Pos[] = []
 
-  const locationKeys = ['teltow', 'potsdam', 'berlin'] as const
-  const locations = locationKeys.map((key) => ({
-    key,
-    name: t(`locations.${key}.name`),
-    address: t(`locations.${key}.address`),
-    schedule: t(`locations.${key}.schedule`)
-  }))
+  try {
+    locations = await listPos()
+  } catch (error) {
+    console.error('Failed to load locations for public contact page', error)
+  }
+
+  const activeLocations = locations.filter((location) => location.active !== false)
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
@@ -53,25 +56,23 @@ export default async function KontaktPage() {
         <div className="rounded-2xl border border-border/60 bg-muted/40 p-6">
           <h2 className="text-xl font-semibold text-foreground">{t('locationsTitle')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t('locationsIntro')}</p>
-          <div className="mt-4 space-y-3">
-            {locations.map((location) => (
-              <div
-                key={location.key}
-                className="rounded-xl border border-border/60 bg-background p-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-base font-semibold text-foreground">{location.name}</p>
-                    <p className="text-sm text-muted-foreground">{location.address}</p>
-                  </div>
-                  <Badge variant="secondary" className="whitespace-nowrap">
-                    {t('marketsBadge')}
-                  </Badge>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{location.schedule}</p>
-              </div>
-            ))}
-          </div>
+          {activeLocations.length ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {activeLocations.map((location) => (
+                <LocationCard
+                  key={location.id}
+                  name={location.name}
+                  address={location.location}
+                  notes={location.notes}
+                  tagLabel={t('marketsBadge')}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+              {t('locationsEmpty')}
+            </div>
+          )}
         </div>
       </div>
     </div>

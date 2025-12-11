@@ -414,7 +414,7 @@
       "title": "Ausgewählte Käsespezialitäten",
       "subtitle": "Handverlesen, mit Sorgfalt gereift und für Marktbesucher zusammengestellt.",
       "comingSoon": "Online-Bestellung in Vorbereitung",
-      "empty": "Noch keine Produkte verfügbar. Bitte später erneut vorbeischauen."
+      "empty": "Derzeit sind keine Produkte verfügbar."
     },
     "about": {
       "kicker": "Unsere Geschichte",
@@ -446,6 +446,7 @@
       "locationsTitle": "Märkte & Standorte",
       "locationsIntro": "Hier treffen Sie uns regelmäßig:",
       "marketsBadge": "Wochenmarkt",
+      "locationsEmpty": "Aktuell sind keine Standorte hinterlegt.",
       "locations": {
         "teltow": {
           "name": "Wochenmarkt Teltow",
