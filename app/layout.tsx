@@ -15,13 +15,41 @@ const geistMono = Geist_Mono({
   subsets: ['latin']
 })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const ogImagePath = '/opengraph-image.png'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Alpine Feinkost | Alpenkäse Lämmle',
   description: 'Feinster Alpenkäse für Wochenmärkte, Gastro und Genießer – plus moderne Verwaltung für unser Team.',
   icons: {
-    icon: '/alpinefeinkostlabel.png',
-    shortcut: '/alpinefeinkostlabel.png',
-    apple: '/alpinefeinkostlabel.png'
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png'
+  },
+  openGraph: {
+    title: 'Alpine Feinkost | Alpenkäse Lämmle',
+    description:
+      'Feinster Alpenkäse für Wochenmärkte, Gastro und Genießer – plus moderne Verwaltung für unser Team.',
+    url: siteUrl,
+    siteName: 'Alpine Feinkost | Alpenkäse Lämmle',
+    images: [
+      {
+        url: ogImagePath,
+        width: 1200,
+        height: 630,
+        alt: 'Alpine Feinkost Logo'
+      }
+    ],
+    locale: 'de_DE',
+    type: 'website'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Alpine Feinkost | Alpenkäse Lämmle',
+    description:
+      'Feinster Alpenkäse für Wochenmärkte, Gastro und Genießer – plus moderne Verwaltung für unser Team.',
+    images: [ogImagePath]
   }
 }
 
