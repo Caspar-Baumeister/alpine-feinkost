@@ -84,6 +84,8 @@
       "lastUpdated": "Last Updated",
       "actions": "Actions"
     },
+    "lastUpdatedBy": "by {user}",
+    "unknownUser": "unknown",
     "adjustDialog": {
       "title": "Adjust Stock",
       "newTotalStock": "New Total Stock",

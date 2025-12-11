@@ -84,6 +84,8 @@
       "lastUpdated": "Zuletzt aktualisiert",
       "actions": "Aktionen"
     },
+    "lastUpdatedBy": "von {user}",
+    "unknownUser": "unbekannt",
     "adjustDialog": {
       "title": "Bestand anpassen",
       "newTotalStock": "Neuer Gesamtbestand",

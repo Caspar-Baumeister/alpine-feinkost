@@ -55,6 +55,12 @@ import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
+type FormImage = {
+  path?: string
+  file?: File
+  previewUrl: string
+}
+
 interface ProductsTableProps {
   products: Product[]
   labels: ProductLabel[]
@@ -103,9 +109,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [localLabels, setLocalLabels] = useState<ProductLabel[]>(labels)
 
   // Image state
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [existingImagePath, setExistingImagePath] = useState<string | null>(null)
+  const [images, setImages] = useState<FormImage[]>([])
+  const [deletedImagePaths, setDeletedImagePaths] = useState<string[]>([])
   const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   // Image URLs for table
@@ -117,9 +122,10 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       const urls = new Map<string, string>()
 
       for (const product of products) {
-        if (product.imagePath) {
+        const primaryPath = product.imagePaths?.[0] || product.imagePath
+        if (primaryPath) {
           try {
-            const url = await getProductImageUrl(product.imagePath)
+            const url = await getProductImageUrl(primaryPath)
             urls.set(product.id, url)
           } catch (error) {
             console.error(`Failed to load image for product ${product.id}:`, error)
@@ -142,6 +148,65 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     return value
   }
 
+  const loadFormImages = async (paths: string[]) => {
+    if (!paths.length) {
+      setImages([])
+      return
+    }
+
+    try {
+      const urls = await Promise.all(paths.map(async (path) => {
+        try {
+          const url = await getProductImageUrl(path)
+          return { path, previewUrl: url }
+        } catch (error) {
+          console.error('Failed to load product image url', error)
+          return { path, previewUrl: '' }
+        }
+      }))
+      setImages(urls)
+    } catch (error) {
+      console.error('Failed to load images', error)
+    }
+  }
+
+  const fileToDataUrl = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const moveImage = (from: number, to: number) => {
+    setImages((prev) => {
+      if (to < 0 || to >= prev.length) return prev
+      const next = [...prev]
+      const [removed] = next.splice(from, 1)
+      next.splice(to, 0, removed)
+      return next
+    })
+  }
+
+  const nextProductId = () => {
+    if (editingProduct?.id) return editingProduct.id
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID()
+    }
+    return `product_${Date.now()}`
+  }
+
+  const removeImageAt = (index: number) => {
+    setImages((prev) => {
+      const image = prev[index]
+      if (image?.path && !image.file) {
+        setDeletedImagePaths((paths) => [...paths, image.path as string])
+      }
+      return prev.filter((_, i) => i !== index)
+    })
+  }
+
   const resetForm = () => {
     setNameDe('')
     setNameEn('')
@@ -155,9 +220,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setProductFormLanguage('de')
     setProductFormError(null)
     setEditingProduct(null)
-    setImageFile(null)
-    setImagePreview(null)
-    setExistingImagePath(null)
+    setImages([])
+    setDeletedImagePaths([])
     setNewLabelNameEn('')
     setNewLabelNameDe('')
     setNewLabelDescriptionDe('')
@@ -177,19 +241,13 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setDescriptionEn(product.descriptionEn || '')
     setIsActive(product.isActive)
     setLabelIds(product.labels || [])
-    setExistingImagePath(product.imagePath)
+    const productImages = product.imagePaths?.length
+      ? product.imagePaths
+      : (product.imagePath ? [product.imagePath] : [])
+    await loadFormImages(productImages)
+    setDeletedImagePaths([])
     setProductFormLanguage('de')
     setProductFormError(null)
-
-    // Load existing image preview
-    if (product.imagePath) {
-      try {
-        const url = await getProductImageUrl(product.imagePath)
-        setImagePreview(url)
-      } catch (error) {
-        console.error('Failed to load image preview:', error)
-      }
-    }
 
     setIsDialogOpen(true)
   }
@@ -296,43 +354,42 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     )
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-    if (!allowedTypes.includes(file.type)) {
-      alert(locale === 'de'
-        ? 'Nur JPG, PNG, WebP oder GIF Dateien sind erlaubt'
-        : 'Only JPG, PNG, WebP or GIF files are allowed'
-      )
-      return
+    const maxSize = 5 * 1024 * 1024
+
+    const newImages: FormImage[] = []
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        alert(locale === 'de'
+          ? 'Nur JPG, PNG, WebP oder GIF Dateien sind erlaubt'
+          : 'Only JPG, PNG, WebP or GIF files are allowed'
+        )
+        continue
+      }
+      if (file.size > maxSize) {
+        alert(locale === 'de'
+          ? 'Die Datei darf maximal 5MB groß sein'
+          : 'File size must be less than 5MB'
+        )
+        continue
+      }
+
+      try {
+        const previewUrl = await fileToDataUrl(file)
+        newImages.push({ file, previewUrl })
+      } catch (error) {
+        console.error('Failed to create preview', error)
+      }
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert(locale === 'de'
-        ? 'Die Datei darf maximal 5MB groß sein'
-        : 'File size must be less than 5MB'
-      )
-      return
+    if (newImages.length) {
+      setImages((prev) => [...prev, ...newImages])
     }
 
-    setImageFile(file)
-
-    // Create preview
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleRemoveImage = () => {
-    setImageFile(null)
-    setImagePreview(null)
-    setExistingImagePath(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -359,28 +416,19 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setIsSaving(true)
 
     try {
-      let imagePath = existingImagePath
+      const productId = nextProductId()
 
-      // Handle image upload/delete
-      if (imageFile) {
-        setIsUploadingImage(true)
-
-        // Delete old image if exists
-        if (existingImagePath) {
-          await deleteProductImage(existingImagePath)
+      setIsUploadingImage(true)
+      const resolvedImagePaths: string[] = []
+      for (const image of images) {
+        if (image.path) {
+          resolvedImagePaths.push(image.path)
+        } else if (image.file) {
+          const { path } = await uploadProductImageWithUrl(productId, image.file)
+          resolvedImagePaths.push(path)
         }
-
-        // Generate a temporary ID for new products
-        const productId = editingProduct?.id || `temp_${Date.now()}`
-        const { path } = await uploadProductImageWithUrl(productId, imageFile)
-        imagePath = path
-
-        setIsUploadingImage(false)
-      } else if (!imagePreview && existingImagePath) {
-        // Image was removed
-        await deleteProductImage(existingImagePath)
-        imagePath = null
       }
+      setIsUploadingImage(false)
 
       const productData = {
         nameDe: trimmedNameDe,
@@ -391,7 +439,8 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
         basePrice: parsedBasePrice,
         descriptionDe: descriptionDe.trim(),
         descriptionEn: descriptionEn.trim() || null,
-        imagePath,
+        imagePaths: resolvedImagePaths,
+        imagePath: resolvedImagePaths[0] || null,
         isActive,
         totalStock: 0,
         currentStock: 0
@@ -400,14 +449,12 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData)
       } else {
-        const newId = await createProduct(productData)
+        await createProduct(productData, productId)
+      }
 
-        // If we uploaded an image with a temp ID, we need to re-upload with the real ID
-        if (imageFile && imagePath?.includes('temp_')) {
-          await deleteProductImage(imagePath)
-          const { path: newPath } = await uploadProductImageWithUrl(newId, imageFile)
-          await updateProduct(newId, { imagePath: newPath })
-        }
+      if (deletedImagePaths.length) {
+        await Promise.all(deletedImagePaths.map((path) => deleteProductImage(path)))
+        setDeletedImagePaths([])
       }
 
       setIsDialogOpen(false)
@@ -443,46 +490,112 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Image Upload */}
-              <div className="space-y-2">
-                <Label>{t('columns.thumbnail')}</Label>
-                <div className="flex items-center gap-4">
-                  {imagePreview ? (
-                    <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-muted">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-
-                      />
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="absolute top-1 right-1 p-1 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                      >
-                        <X className="h-3 w-3 text-white" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>{locale === 'de' ? 'Produktbilder' : 'Product images'}</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => fileInputRef.current?.click()}
-                      className="h-20 w-20 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 flex items-center justify-center cursor-pointer transition-colors"
+                      disabled={isUploadingImage}
                     >
-                      <Upload className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                  )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-                  <div className="text-sm text-muted-foreground">
-                    <p>{locale === 'de' ? 'Klicken zum Hochladen' : 'Click to upload'}</p>
-                    <p className="text-xs">JPG, PNG, WebP, GIF (max 5MB)</p>
+                      <Upload className="h-4 w-4 mr-2" />
+                      {locale === 'de' ? 'Bilder hochladen' : 'Upload images'}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
                   </div>
                 </div>
+
+                {images.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-muted-foreground/40 p-6 text-sm text-muted-foreground text-center">
+                    {locale === 'de' ? 'Noch keine Bilder hinzugefügt' : 'No images yet'}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    {images.map((image, index) => (
+                      <div key={index} className="w-28">
+                        <div className="relative h-28 w-28 overflow-hidden rounded-md border bg-muted">
+                          {image.previewUrl ? (
+                            <Image
+                              src={image.previewUrl}
+                              alt={`Product image ${index + 1}`}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                              {locale === 'de' ? 'Kein Bild' : 'No image'}
+                            </div>
+                          )}
+                          {index === 0 ? (
+                            <span className="absolute left-1 top-1 rounded bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                              {locale === 'de' ? 'Hauptbild' : 'Primary'}
+                            </span>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => removeImageAt(index)}
+                            className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {index > 0 ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => moveImage(index, 0)}
+                            >
+                              {locale === 'de' ? 'Als Hauptbild' : 'Set primary'}
+                            </Button>
+                          ) : null}
+                          <div className="flex gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              disabled={index === 0}
+                              onClick={() => moveImage(index, index - 1)}
+                              aria-label="Move left"
+                            >
+                              ‹
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              disabled={index === images.length - 1}
+                              onClick={() => moveImage(index, index + 1)}
+                              aria-label="Move right"
+                            >
+                              ›
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG, WebP, GIF (max 5MB). Die erste Position ist das Hauptbild.
+                </p>
+                {isUploadingImage ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {locale === 'de' ? 'Bilder werden hochgeladen...' : 'Uploading images...'}
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-between gap-3">

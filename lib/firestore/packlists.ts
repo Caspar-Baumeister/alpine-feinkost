@@ -107,9 +107,11 @@ export async function getPacklist(id: string): Promise<Packlist | null> {
  * - Do NOT change totalStock (products are just reserved, not sold)
  */
 export async function createPacklist(
-  data: Omit<Packlist, 'id' | 'createdAt' | 'updatedAt' | 'closedAt'>
+  data: Omit<Packlist, 'id' | 'createdAt' | 'updatedAt' | 'closedAt'>,
+  stockUpdatedByUserId?: string | null
 ): Promise<string> {
   const colRef = collection(db, COLLECTION)
+  const stockUpdatedBy = stockUpdatedByUserId ?? data.createdBy ?? null
 
   // Use a transaction to atomically update stock and create the packlist
   const packlistId = await runTransaction(db, async (transaction) => {
@@ -133,6 +135,7 @@ export async function createPacklist(
       // Update product's currentStock (reserve the items)
       transaction.update(productRef, {
         currentStock: newCurrentStock,
+        lastStockUpdatedByUserId: stockUpdatedBy,
         updatedAt: serverTimestamp()
       })
     }
@@ -239,9 +242,13 @@ interface StartSellingItem {
  */
 export async function startSellingPacklist(
   id: string,
-  itemsWithStartQuantity: StartSellingItem[]
+  itemsWithStartQuantity: StartSellingItem[],
+  updatedByUserId?: string | null
 ): Promise<void> {
   const packlistRef = doc(db, COLLECTION, id)
+  const stockUserUpdate = updatedByUserId !== undefined
+    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
+    : {}
 
   await runTransaction(db, async (transaction) => {
     // Read the packlist
@@ -314,6 +321,7 @@ export async function startSellingPacklist(
       const productRef = doc(db, PRODUCTS_COLLECTION, productId)
       transaction.update(productRef, {
         currentStock: newCurrentStock,
+        ...stockUserUpdate,
         updatedAt: serverTimestamp()
       })
     }
@@ -390,8 +398,14 @@ export async function finishSellingPacklist(
  *   - currentStock += endQuantity (leftover goods return to warehouse)
  * - Changes status to 'completed'
  */
-export async function completePacklist(id: string): Promise<void> {
+export async function completePacklist(
+  id: string,
+  updatedByUserId?: string | null
+): Promise<void> {
   const packlistRef = doc(db, COLLECTION, id)
+  const stockUserUpdate = updatedByUserId !== undefined
+    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
+    : {}
 
   await runTransaction(db, async (transaction) => {
     // Read the packlist
@@ -462,6 +476,7 @@ export async function completePacklist(id: string): Promise<void> {
       transaction.update(productRef, {
         totalStock: update.newTotalStock,
         currentStock: update.newCurrentStock,
+        ...stockUserUpdate,
         updatedAt: serverTimestamp()
       })
     }
@@ -496,6 +511,11 @@ export async function getProductsForPacklist(productIds: string[]): Promise<Map<
       const descriptionEn = (data.descriptionEn as string | null) ?? null
       const rawUnitType = (data.unitType as ProductUnitType) ?? 'piece'
       const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
+      const lastStockUpdatedByUserId = (data.lastStockUpdatedByUserId as string | null) ?? null
+      const imagePathsRaw = (data.imagePaths as string[] | undefined) || []
+      const imagePathLegacy = (data.imagePath as string | null) || null
+      const imagePaths = imagePathsRaw.length ? imagePathsRaw : (imagePathLegacy ? [imagePathLegacy] : [])
+      const imagePath = imagePaths[0] || imagePathLegacy || null
       products.set(productId, {
         id: productId,
         name: data.name as string,
@@ -504,14 +524,16 @@ export async function getProductsForPacklist(productIds: string[]): Promise<Map<
         sku: data.sku as string || '',
         labels: (data.labels as string[]) ?? [],
         unitType,
+        imagePaths,
+        imagePath,
         basePrice: data.basePrice as number,
         description: data.description as string || '',
         descriptionDe,
         descriptionEn,
-        imagePath: (data.imagePath as string) || null,
         isActive: data.isActive as boolean ?? true,
         totalStock,
         currentStock: data.currentStock as number ?? totalStock,
+        lastStockUpdatedByUserId,
         createdAt: timestampToDate(data.createdAt as Timestamp | null),
         updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
       })

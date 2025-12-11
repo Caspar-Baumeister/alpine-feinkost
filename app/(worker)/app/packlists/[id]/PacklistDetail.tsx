@@ -43,6 +43,7 @@ import {
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 
 interface PacklistDetailProps {
   packlist: Packlist
@@ -62,6 +63,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   const router = useRouter()
   const locale = useLocale()
   const dateLocale = locale === 'de' ? de : enUS
+  const { user: currentUser } = useCurrentUser()
 
   // Local UI state
   const [isSaving, setIsSaving] = useState(false)
@@ -153,6 +155,12 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
     setError(null)
 
     try {
+      if (!currentUser) {
+        setError(locale === 'de' ? 'Benutzer nicht angemeldet' : 'User not authenticated')
+        setIsSaving(false)
+        return
+      }
+
       // Validate quantities
       const hasNegative = lineItemStates.some((s) => s.startQuantity < 0)
       if (hasNegative) {
@@ -167,7 +175,8 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
         lineItemStates.map((s) => ({
           productId: s.productId,
           startQuantity: s.startQuantity
-        }))
+        })),
+        currentUser.uid
       )
 
       onUpdate()

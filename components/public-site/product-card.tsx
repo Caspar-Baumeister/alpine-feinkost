@@ -51,7 +51,8 @@ export function ProductCard({
           .filter(Boolean)
           .map((label) => label as Label)
       : []
-  const imageUrl = getPublicStorageUrl(product.imagePath)
+  const primaryImagePath = product.imagePaths?.[0] || product.imagePath
+  const imageUrl = getPublicStorageUrl(primaryImagePath)
   const unitLabel =
     getUnitLabelForLocale(product, locale)
   const productName = getProductNameForLocale(product, locale)
@@ -62,7 +63,7 @@ export function ProductCard({
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={product.name}
+            alt={productName || 'Product'}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover transition-transform duration-300 hover:scale-105"

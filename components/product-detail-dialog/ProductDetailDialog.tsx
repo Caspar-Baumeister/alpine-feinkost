@@ -35,17 +35,18 @@ export function ProductDetailDialog({
   const description = product ? getProductDescriptionForLocale(product, locale) : ''
   const productName = product ? getProductNameForLocale(product, locale) : ''
   const unitLabel = product ? getUnitLabel(product.unitType, locale) : ''
+  const primaryImagePath = product?.imagePaths?.[0] || product?.imagePath || null
 
   useEffect(() => {
     const loadImage = async () => {
-      if (!product?.imagePath) {
+      if (!primaryImagePath) {
         setImageUrl(null)
         return
       }
 
       setIsLoadingImage(true)
       try {
-        const url = await getProductImageUrl(product.imagePath)
+        const url = await getProductImageUrl(primaryImagePath)
         setImageUrl(url)
       } catch (error) {
         console.error('Failed to load product image:', error)
@@ -58,7 +59,7 @@ export function ProductDetailDialog({
     if (open && product) {
       loadImage()
     }
-  }, [open, product])
+  }, [open, primaryImagePath, product])
 
   if (!product) return null
 
@@ -79,7 +80,7 @@ export function ProductDetailDialog({
             ) : imageUrl ? (
               <Image
                 src={imageUrl}
-                alt={product.name}
+                alt={productName || 'Product'}
                 fill
                 className="object-contain"
                 sizes="(max-width: 768px) 100vw, 500px"

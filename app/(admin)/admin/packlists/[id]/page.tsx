@@ -40,6 +40,7 @@ import {
   Pos
 } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -52,6 +53,7 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
   const tActions = useTranslations('actions')
   const locale = useLocale()
   const dateLocale = locale === 'de' ? de : enUS
+  const { user: currentUser } = useCurrentUser()
 
   const [packlist, setPacklist] = useState<Packlist | null>(null)
   const [pos, setPos] = useState<Pos | null>(null)
@@ -101,13 +103,20 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
   }, [id])
 
   const handleComplete = async () => {
-    if (!packlist) return
+    if (!packlist || !currentUser) {
+      setError(
+        locale === 'de'
+          ? 'Keine Berechtigung zum Abschließen'
+          : 'Not authorized to complete'
+      )
+      return
+    }
 
     setIsCompleting(true)
     setError(null)
 
     try {
-      await completePacklist(packlist.id)
+      await completePacklist(packlist.id, currentUser.uid)
       router.push('/admin/packlists')
     } catch (err) {
       console.error('Failed to complete packlist:', err)

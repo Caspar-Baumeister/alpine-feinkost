@@ -24,7 +24,8 @@ export {
   getProduct,
   createProduct,
   updateProduct,
-  updateProductStock
+  updateProductStock,
+  updateProductCurrentStock
 } from './products'
 
 // POS

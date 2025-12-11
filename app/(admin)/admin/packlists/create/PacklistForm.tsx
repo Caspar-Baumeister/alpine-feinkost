@@ -221,22 +221,25 @@ export function PacklistForm({
       }))
 
       // Create the packlist
-      await createPacklist({
-        posId: selectedPosId,
-        posName: selectedPos?.name || '',
-        status: 'open',
-        date: selectedDate,
-        assignedUserIds,
-        changeAmount: parseFloat(changeAmount) || 0,
-        note,
-        workerNote: null,
-        templateId: selectedTemplateId || null,
-        reportedCash: null,
-        expectedCash: null,
-        difference: null,
-        createdBy: currentUser.uid,
-        items
-      })
+      await createPacklist(
+        {
+          posId: selectedPosId,
+          posName: selectedPos?.name || '',
+          status: 'open',
+          date: selectedDate,
+          assignedUserIds,
+          changeAmount: parseFloat(changeAmount) || 0,
+          note,
+          workerNote: null,
+          templateId: selectedTemplateId || null,
+          reportedCash: null,
+          expectedCash: null,
+          difference: null,
+          createdBy: currentUser.uid,
+          items
+        },
+        currentUser.uid
+      )
 
       // Optionally save as template
       if (saveAsTemplate && templateName) {

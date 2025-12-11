@@ -30,10 +30,12 @@ export type Product = {
   description?: string | null  // legacy
   descriptionDe: string | null
   descriptionEn: string | null
-  imagePath: string | null
+  imagePaths?: string[]       // ordered list; first is primary
+  imagePath?: string | null   // legacy single image
   isActive: boolean
   totalStock: number      // Total inventory owned (not yet sold)
   currentStock: number    // What's physically in warehouse (not assigned to open/in-progress packlists)
+  lastStockUpdatedByUserId?: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }

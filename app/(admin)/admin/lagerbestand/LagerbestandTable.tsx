@@ -26,7 +26,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Product, updateProductStock } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
+import { de, enUS } from 'date-fns/locale'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import { useUserLookup } from '@/lib/users/useUserLookup'
 
 interface LagerbestandTableProps {
   products: Product[]
@@ -37,6 +39,9 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
   const t = useTranslations('lagerbestand')
   const tActions = useTranslations('actions')
   const locale = useLocale()
+  const dateLocale = locale === 'de' ? de : enUS
+  const { user: currentUser } = useCurrentUser()
+  const { getDisplayName } = useUserLookup()
   const [view, setView] = useState<'total' | 'current'>('current')
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [newStock, setNewStock] = useState('')
@@ -45,10 +50,19 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
 
   const handleAdjustStock = async () => {
     if (!editingProduct) return
+    if (!currentUser) {
+      console.error('No authenticated user found when updating stock')
+      return
+    }
 
     setIsSaving(true)
     try {
-      await updateProductStock(editingProduct.id, parseFloat(newStock) || 0)
+      await updateProductStock(
+        editingProduct.id,
+        parseFloat(newStock) || 0,
+        undefined,
+        currentUser.uid
+      )
       setEditingProduct(null)
       setNewStock('')
       onDataChange()
@@ -101,6 +115,10 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                 products.map((product) => {
                   const unitLabel = getUnitLabel(product.unitType, locale)
                   const stockValue = view === 'total' ? product.totalStock : product.currentStock
+                  const lastUpdated = product.updatedAt
+                    ? format(new Date(product.updatedAt), 'dd.MM.yyyy, HH:mm', { locale: dateLocale })
+                    : null
+                  const lastUpdatedBy = getDisplayName(product.lastStockUpdatedByUserId)
                   return (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
@@ -109,9 +127,16 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                         {stockValue} {unitLabel}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {product.updatedAt
-                          ? format(new Date(product.updatedAt), 'dd.MM.yyyy', { locale: de })
-                          : '—'}
+                        {lastUpdated ? (
+                          <div className="flex flex-col leading-tight">
+                            <span>{lastUpdated}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {t('lastUpdatedBy', { user: lastUpdatedBy || t('unknownUser') })}
+                            </span>
+                          </div>
+                        ) : (
+                          '—'
+                        )}
                       </TableCell>
                       <TableCell>
                         <Button

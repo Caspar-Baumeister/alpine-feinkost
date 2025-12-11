@@ -8,6 +8,12 @@ import { storage } from '@/lib/firebase'
 
 const PRODUCTS_FOLDER = 'products'
 
+function generateImagePath(productId: string, extension: string) {
+  const safeExt = extension || 'jpg'
+  const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  return `${PRODUCTS_FOLDER}/${productId}/${unique}.${safeExt}`
+}
+
 /**
  * Upload a product image to Firebase Storage
  * @param productId - The product ID (used as filename)
@@ -26,7 +32,7 @@ export async function uploadProductImage(
     throw new Error(`Invalid file type: ${extension}. Allowed: ${allowedExtensions.join(', ')}`)
   }
 
-  const storagePath = `${PRODUCTS_FOLDER}/${productId}.${extension}`
+  const storagePath = generateImagePath(productId, extension)
   const storageRef = ref(storage, storagePath)
 
   // Upload the file

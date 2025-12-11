@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc
 } from 'firebase/firestore'
 import { Product, ProductUnitType } from './types'
@@ -32,6 +33,11 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
   const descriptionEn = (data.descriptionEn as string | null) ?? null
   const rawUnitType = (data.unitType as ProductUnitType) ?? 'piece'
   const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
+  const lastStockUpdatedByUserId = (data.lastStockUpdatedByUserId as string | null) ?? null
+  const imagePathsRaw = (data.imagePaths as string[] | undefined) || []
+  const imagePathLegacy = (data.imagePath as string | null) || null
+  const imagePaths = imagePathsRaw.length ? imagePathsRaw : (imagePathLegacy ? [imagePathLegacy] : [])
+  const primaryImagePath = imagePaths[0] || imagePathLegacy || null
 
   return {
     id,
@@ -45,10 +51,12 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
     description: legacyDescription,
     descriptionDe,
     descriptionEn,
-    imagePath: (data.imagePath as string) || null,
+    imagePaths,
+    imagePath: primaryImagePath,
     isActive: data.isActive as boolean ?? true,
     totalStock,
     currentStock,
+    lastStockUpdatedByUserId,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
   }
@@ -74,10 +82,15 @@ export async function getProduct(id: string): Promise<Product | null> {
 }
 
 export async function createProduct(
-  data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
+  data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
+  id?: string
 ): Promise<string> {
   const colRef = collection(db, COLLECTION)
-  const docRef = await addDoc(colRef, {
+  const docRef = id ? doc(colRef, id) : doc(colRef)
+  const imagePaths = data.imagePaths ?? []
+  const imagePath = imagePaths[0] ?? data.imagePath ?? null
+
+  await setDoc(docRef, {
     name: data.nameDe, // keep legacy name for compatibility
     nameDe: data.nameDe,
     nameEn: data.nameEn ?? null,
@@ -87,10 +100,12 @@ export async function createProduct(
     basePrice: data.basePrice,
     descriptionDe: data.descriptionDe ?? '',
     descriptionEn: data.descriptionEn ?? null,
-    imagePath: data.imagePath,
+    imagePaths,
+    imagePath,
     isActive: data.isActive,
     totalStock: 0,
     currentStock: 0,
+    lastStockUpdatedByUserId: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
@@ -104,9 +119,15 @@ export async function updateProduct(
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id)
   const { description, ...rest } = data
+  const hasImagePaths = rest.imagePaths !== undefined
+  const imagePaths = rest.imagePaths ?? []
+  const imagePath = hasImagePaths
+    ? (imagePaths[0] ?? null)
+    : (rest.imagePath === undefined ? undefined : rest.imagePath)
 
   await updateDoc(docRef, {
     ...rest,
+    ...(hasImagePaths ? { imagePaths, imagePath } : {}),
     updatedAt: serverTimestamp()
   })
 }
@@ -119,15 +140,20 @@ export async function updateProduct(
 export async function updateProductStock(
   id: string,
   totalStock: number,
-  currentStock?: number
+  currentStock?: number,
+  updatedByUserId?: string | null
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id)
+  const stockUserUpdate = updatedByUserId !== undefined
+    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
+    : {}
 
   // If currentStock is provided, use it directly
   if (currentStock !== undefined) {
     await updateDoc(docRef, {
       totalStock,
       currentStock,
+      ...stockUserUpdate,
       updatedAt: serverTimestamp()
     })
   } else {
@@ -143,15 +169,38 @@ export async function updateProductStock(
       await updateDoc(docRef, {
         totalStock,
         currentStock: newCurrentStock,
+        ...stockUserUpdate,
         updatedAt: serverTimestamp()
       })
     } else {
       await updateDoc(docRef, {
         totalStock,
         currentStock: totalStock,
+        ...stockUserUpdate,
         updatedAt: serverTimestamp()
       })
     }
   }
+}
+
+/**
+ * Update only the currentStock (what is physically in storage).
+ * Does not touch totalStock.
+ */
+export async function updateProductCurrentStock(
+  id: string,
+  currentStock: number,
+  updatedByUserId?: string | null
+): Promise<void> {
+  const docRef = doc(db, COLLECTION, id)
+  const stockUserUpdate = updatedByUserId !== undefined
+    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
+    : {}
+
+  await updateDoc(docRef, {
+    currentStock,
+    ...stockUserUpdate,
+    updatedAt: serverTimestamp()
+  })
 }
 
