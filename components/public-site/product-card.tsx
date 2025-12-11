@@ -2,8 +2,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { Product, Label } from '@/lib/firestore'
 import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
+import { getLabelDescription } from '@/lib/labels/getLabelDescription'
 import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
 
 type ProductCardProps = {
@@ -39,7 +46,7 @@ export function ProductCard({
       ? product.labels
           .map((slug) => labelsBySlug.get(slug))
           .filter(Boolean)
-          .map((label) => getLabelDisplayName(label as Label, locale))
+          .map((label) => label as Label)
       : []
   const imageUrl = getPublicStorageUrl(product.imagePath)
   const unitLabel =
@@ -85,13 +92,27 @@ export function ProductCard({
         </div>
 
         {productLabels.length ? (
-          <div className="flex flex-wrap gap-2">
-            {productLabels.map((label) => (
-              <Badge key={label} variant="outline">
-                {label}
-              </Badge>
-            ))}
-          </div>
+          <TooltipProvider delayDuration={100}>
+            <div className="flex flex-wrap gap-2">
+              {productLabels.map((label) => {
+                const description = getLabelDescription(label, locale)
+                return (
+                  <Tooltip key={label.slug}>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline">
+                        {getLabelDisplayName(label, locale)}
+                      </Badge>
+                    </TooltipTrigger>
+                    {description ? (
+                      <TooltipContent side="top" align="start" className="max-w-xs whitespace-pre-line">
+                        {description}
+                      </TooltipContent>
+                    ) : null}
+                  </Tooltip>
+                )
+              })}
+            </div>
+          </TooltipProvider>
         ) : null}
 
         <div className="text-sm font-medium text-foreground">

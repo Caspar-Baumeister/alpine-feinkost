@@ -40,6 +40,8 @@ export type Label = {
   slug: string
   nameEn: string
   nameDe: string
+  descriptionDe: string
+  descriptionEn: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }

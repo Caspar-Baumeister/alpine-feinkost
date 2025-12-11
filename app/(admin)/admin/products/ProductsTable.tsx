@@ -87,6 +87,9 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false)
   const [newLabelNameEn, setNewLabelNameEn] = useState('')
   const [newLabelNameDe, setNewLabelNameDe] = useState('')
+  const [newLabelDescriptionDe, setNewLabelDescriptionDe] = useState('')
+  const [newLabelDescriptionEn, setNewLabelDescriptionEn] = useState('')
+  const [hasAutofilledDescriptionEn, setHasAutofilledDescriptionEn] = useState(false)
   const [isCreatingLabel, setIsCreatingLabel] = useState(false)
   const [labelError, setLabelError] = useState<string | null>(null)
 
@@ -140,6 +143,11 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setImageFile(null)
     setImagePreview(null)
     setExistingImagePath(null)
+    setNewLabelNameEn('')
+    setNewLabelNameDe('')
+    setNewLabelDescriptionDe('')
+    setNewLabelDescriptionEn('')
+    setHasAutofilledDescriptionEn(false)
   }
 
   const openEditDialog = async (product: Product) => {
@@ -182,13 +190,35 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
     setUnitLabel(value === 'piece' ? 'Stück' : 'kg')
   }
 
+  const maybeAutofillDescriptionEn = () => {
+    if (hasAutofilledDescriptionEn) return
+    if (newLabelDescriptionEn.trim()) return
+    if (!newLabelDescriptionDe.trim()) return
+    setNewLabelDescriptionEn(newLabelDescriptionDe)
+    setHasAutofilledDescriptionEn(true)
+  }
+
   const handleCreateLabel = async () => {
-    if (!newLabelNameEn.trim() || !newLabelNameDe.trim()) {
+    const nameEn = newLabelNameEn.trim()
+    const nameDe = newLabelNameDe.trim()
+    const descriptionDe = newLabelDescriptionDe.trim()
+    const descriptionEn = newLabelDescriptionEn.trim()
+
+    if (!nameEn || !nameDe) {
       setLabelError(locale === 'de' ? 'Bitte beide Namen eingeben' : 'Please provide both names')
       return
     }
 
-    const slug = slugifyLabel(newLabelNameEn.trim())
+    if (!descriptionDe) {
+      setLabelError(
+        locale === 'de'
+          ? 'Bitte eine deutsche Beschreibung hinterlegen'
+          : 'Please provide a German description'
+      )
+      return
+    }
+
+    const slug = slugifyLabel(nameEn)
     const existsLocal = localLabels.some((l) => l.slug === slug)
     if (existsLocal) {
       setLabelError(tLabels('slugExists'))
@@ -207,14 +237,18 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
 
       const newId = await createLabel({
         slug,
-        nameEn: newLabelNameEn.trim(),
-        nameDe: newLabelNameDe.trim()
+        nameEn,
+        nameDe,
+        descriptionDe,
+        descriptionEn: descriptionEn || null
       })
       const newLabel: ProductLabel = {
         id: newId,
         slug,
-        nameEn: newLabelNameEn.trim(),
-        nameDe: newLabelNameDe.trim(),
+        nameEn,
+        nameDe,
+        descriptionDe,
+        descriptionEn: descriptionEn || null,
         createdAt: null,
         updatedAt: null
       }
@@ -223,6 +257,9 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       setIsLabelDialogOpen(false)
       setNewLabelNameEn('')
       setNewLabelNameDe('')
+      setNewLabelDescriptionDe('')
+      setNewLabelDescriptionEn('')
+      setHasAutofilledDescriptionEn(false)
     } catch (error) {
       console.error('Failed to create label', error)
       setLabelError(error instanceof Error ? error.message : 'Error creating label')
@@ -679,6 +716,30 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 value={newLabelNameDe}
                 onChange={(e) => setNewLabelNameDe(e.target.value)}
               />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="labelDescriptionDe">{tLabels('descriptionDe')}</Label>
+              <Textarea
+                id="labelDescriptionDe"
+                value={newLabelDescriptionDe}
+                onChange={(e) => setNewLabelDescriptionDe(e.target.value)}
+                placeholder={tLabels('descriptionDePlaceholder')}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="labelDescriptionEn">
+                {tLabels('descriptionEn')} ({tLabels('optional')})
+              </Label>
+              <Textarea
+                id="labelDescriptionEn"
+                value={newLabelDescriptionEn}
+                onChange={(e) => setNewLabelDescriptionEn(e.target.value)}
+                onFocus={maybeAutofillDescriptionEn}
+                placeholder={tLabels('descriptionEnPlaceholder')}
+              />
+              <p className="text-xs text-muted-foreground">
+                {tLabels('descriptionAutofillHint')}
+              </p>
             </div>
             {labelError && (
               <p className="text-sm text-destructive">{labelError}</p>

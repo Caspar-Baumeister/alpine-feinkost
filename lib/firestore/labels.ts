@@ -20,11 +20,17 @@ function timestampToDate(timestamp: Timestamp | null): Date | null {
 }
 
 function docToLabel(id: string, data: Record<string, unknown>): Label {
+  const fallbackDescription = (data.description as string) ?? ''
+  const descriptionDe = (data.descriptionDe as string) ?? fallbackDescription ?? ''
+  const descriptionEn = (data.descriptionEn as string) ?? null
+
   return {
     id,
     slug: data.slug as string,
     nameEn: data.nameEn as string,
     nameDe: data.nameDe as string,
+    descriptionDe,
+    descriptionEn,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
   }
@@ -46,12 +52,22 @@ export async function getLabelBySlug(slug: string): Promise<Label | null> {
   return docToLabel(doc.id, doc.data())
 }
 
-export async function createLabel(data: { slug: string; nameEn: string; nameDe: string }): Promise<string> {
+type CreateLabelInput = {
+  slug: string
+  nameEn: string
+  nameDe: string
+  descriptionDe?: string | null
+  descriptionEn?: string | null
+}
+
+export async function createLabel(data: CreateLabelInput): Promise<string> {
   const colRef = collection(db, COLLECTION)
   const docRef = await addDoc(colRef, {
     slug: data.slug,
     nameEn: data.nameEn,
     nameDe: data.nameDe,
+    descriptionDe: data.descriptionDe ?? '',
+    descriptionEn: data.descriptionEn ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
