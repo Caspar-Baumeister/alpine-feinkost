@@ -1,0 +1,802 @@
+[
+    {
+        "nameDe": "Junger Bergkäse aus Vorarlberg",
+        "nameEn": "Young mountain cheese from Vorarlberg",
+        "descriptionDe": "Junger Bergkäse aus Vorarlberg, 3–4 Monate gereift, Heumilch-Rohmilchkäse mit frischer milchiger Note in der Kategorie Mild.",
+        "descriptionEn": "Young mountain cheese from Vorarlberg, matured for 3–4 months, a raw-milk hay-milk cheese with a fresh, milky flavour, offered in the mild category.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "mountain-cheese",
+            "aged",
+            "hard-cheese",
+            "hay-milk",
+            "raw-milk"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Mittelalter Bergkäse aus Vorarlberg",
+        "nameEn": "Medium-aged mountain cheese from Vorarlberg",
+        "descriptionDe": "Mittelalter Bergkäse aus Vorarlberg, etwa 8 Monate gereift, verbindet frische milchige Noten mit bereits kräftigen Tönen, Kategorie Würzig.",
+        "descriptionEn": "Medium-aged mountain cheese from Vorarlberg, matured for around 8 months, combining fresh milky notes with already robust flavours, offered in the spicy category.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "mountain-cheese",
+            "aged",
+            "hard-cheese",
+            "hay-milk",
+            "raw-milk"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bergkäse Extra, mind. 12 Monate gereift",
+        "nameEn": "Mountain cheese Extra, min. 12 months matured",
+        "descriptionDe": "Überjähriger Bergkäse aus Vorarlberg, mindestens 12 Monate gereift, kräftiger und würziger Rohmilch-Hartkäse mit Wasser- und Kristalleinschlüssen, gut zum Reiben über Nudeln und Salate geeignet.",
+        "descriptionEn": "Over-year mountain cheese from Vorarlberg, matured for at least 12 months, a robust and spicy raw-milk hard cheese with small water and crystal inclusions, ideal for grating over pasta and salads.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "mountain-cheese",
+            "aged",
+            "hard-cheese",
+            "hay-milk",
+            "raw-milk"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio Pecorino Vecchio",
+        "nameEn": "Organic Pecorino Vecchio",
+        "descriptionDe": "Gereifter Bio-Schafskäse aus der Val d’Orcia in der Toscana, traditionell in Handarbeit hergestellt, kleine Laibe von etwa 2 kg.",
+        "descriptionEn": "Matured organic sheep's cheese from the Val d’Orcia in Tuscany, traditionally handmade, small wheels of around 2 kg.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "fresh",
+            "aged",
+            "sheep-cheese",
+            "tuscany"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio Pecorino Fresco",
+        "nameEn": "Organic Pecorino Fresco",
+        "descriptionDe": "Junger Bio-Pecorino, der kleine Bruder des Vecchio, milder Schafskäse mit typisch toskanischem Aroma.",
+        "descriptionEn": "Young organic Pecorino, the smaller brother of the Vecchio, a mild sheep's cheese with a typical Tuscan aroma.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "fresh",
+            "sheep-cheese",
+            "tuscany"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Capra Fieno, Bergziege in Heu gereift",
+        "nameEn": "Capra Fieno, mountain goat cheese matured in hay",
+        "descriptionDe": "Gereifter Ziegen-Bergkäse aus dem Trentin, in duftendem Bergheu gereift, kleine Laibe von ca. 2 kg, intensiver Geschmack, ca. 45 % F.i.T. aus pasteurisierter Ziegenvollmilch.",
+        "descriptionEn": "Matured mountain goat cheese from Trentino, aged in fragrant mountain hay, small wheels of approx. 2 kg, with an intense flavour and about 45% fat in dry matter, made from pasteurised whole goat's milk.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "affinaged",
+            "pasteurized",
+            "ripened",
+            "goat-mountain-cheese",
+            "goat-cheese",
+            "trentino",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Räßkäse aus dem Bregenzerwald",
+        "nameEn": "Rässkäse from the Bregenz Forest",
+        "descriptionDe": "Naturgereifter Schnittkäse aus pasteurisierter Kuhmilch aus dem Bregenzerwald, je nach Reifegrad als nasser oder trockener Räßkäse, pikant-würziger Geschmack für herzhafte Speisen.",
+        "descriptionEn": "Naturally matured semi-hard cheese made from pasteurised cow's milk from the Bregenz Forest, available as a moist or dry Rässkäse depending on ripeness, with a piquant, spicy flavour for hearty dishes.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "hay-milk",
+            "pasteurized",
+            "pungent",
+            "semi-hard-cheese"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Alte Ziege aus dem Trentin",
+        "nameEn": "Old goat from Trentino",
+        "descriptionDe": "Gereifter Ziegen-Hartkäse aus den Trentiner Alpen, Heumilchkäse mit ca. 35 % F.i.T., Laibgewicht etwa 4 kg, würzig und charaktervoll.",
+        "descriptionEn": "Matured hard goat's cheese from the Trentino Alps, a hay-milk cheese with around 35% fat in dry matter, wheels of about 4 kg, spicy and full of character.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "natural-rind",
+            "trentino",
+            "goat-mountain-cheese",
+            "goat-cheese",
+            "hay-milk",
+            "hard-cheese",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Tiroler Bergschaf Rot",
+        "nameEn": "Tyrolean mountain sheep cheese Red",
+        "descriptionDe": "Mild bis feinwürziger Schaf-Bergkäse vom Berg mit Rotschmiere, pasteurisierter Schnittkäse aus Tirol mit Rotschmiere, Heumilch, Formen ca. 3 kg.",
+        "descriptionEn": "Mild to finely spicy mountain sheep's cheese with red smear, a pasteurised semi-hard cheese from Tyrol made from hay milk, wheels of about 3 kg.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "hay-milk",
+            "red-smear",
+            "sheep-mountain-cheese",
+            "sheep-cheese",
+            "tyrol",
+            "pasteurized",
+            "semi-hard-cheese"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio-Edelziege Rot aus Tirol",
+        "nameEn": "Organic Edelziege Red from Tyrol",
+        "descriptionDe": "Bio-Schnittkäse aus Tiroler Vollmilch von der Bergziege. Rotgeschmiert, pasteurisiert, ca. 48 % F.i.T., in Hausreifung veredelt.",
+        "descriptionEn": "Organic semi-hard cheese made from Tyrolean mountain goat's whole milk. Red-smeared, pasteurised, about 48% fat in dry matter, refined by in-house maturation.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "pasteurized",
+            "red-smear",
+            "goat-mountain-cheese",
+            "goat-cheese",
+            "tyrol",
+            "semi-hard-cheese",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Mirtillo",
+        "nameEn": "Mirtillo blueberry gorgonzola",
+        "descriptionDe": "Cremiger Blauschimmelkäse aus dem Trentin, affiniert mit Blaubeeren („Mirtillo“), mit feiner süß-fruchtiger Note.",
+        "descriptionEn": "Creamy blue cheese from Trentino, affinaged with blueberries (“Mirtillo”), with a fine sweet-fruity note.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "affinaged",
+            "blue-cheese",
+            "gorgonzola",
+            "blueberry",
+            "trentino",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Vino Santo",
+        "nameEn": "Vino Santo sweet wine gorgonzola",
+        "descriptionDe": "Cremiger Blauschimmelkäse aus dem Trentin, affiniert mit süßem Wein („Vino Santo“), aromatisch und fein-süß im Geschmack.",
+        "descriptionEn": "Creamy blue cheese from Trentino, affinaged with sweet wine (“Vino Santo”), aromatic and delicately sweet in flavour.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "affinaged",
+            "blue-cheese",
+            "gorgonzola",
+            "trentino",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Dolce Di Capra",
+        "nameEn": "Dolce Di Capra goat gorgonzola",
+        "descriptionDe": "Gorgonzola Dolce aus reiner Bergziegen-Heumilch aus den Trentiner Alpen, in 4-kg-Formen hausgereift, besonders cremig und mild.",
+        "descriptionEn": "Gorgonzola Dolce made from pure mountain goat hay milk from the Trentino Alps, matured in 4 kg wheels in-house, especially creamy and mild.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "trentino",
+            "goat-mountain-cheese",
+            "goat-cheese",
+            "blue-cheese",
+            "gorgonzola",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Südtiroler Schüttelbrot",
+        "nameEn": "South Tyrolean Schüttelbrot",
+        "descriptionDe": "Hartes, knuspriges Fladenbrot aus Roggenmehl mit Gewürzen wie Kümmel, Fenchel oder Anis, lange haltbar und traditionell mit Speck oder Käse zur Marende gegessen, offen am Marktstand verkauft.",
+        "descriptionEn": "Hard, crispy flat bread made from rye flour and spices such as caraway, fennel or anise, very long-lasting and traditionally eaten with speck or cheese as a snack, sold loose at the market stall.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "crispbread",
+            "south-tyrol"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Hirschbeisser",
+        "nameEn": "Venison Kaminwurzn",
+        "descriptionDe": "Lange, dünne Hirsch-Wurzn aus dem Bregenzerwald, ca. 80 g pro Stück, luftgetrocknete Rohwurst aus 2/3 Hirschfleisch und 1/3 Rind- und Schweinefleisch, nach alter Tradition hergestellt.",
+        "descriptionEn": "Long, thin venison sausages from the Bregenz Forest, around 80 g per piece, air-dried raw sausage made from two-thirds venison and one-third beef and pork, produced according to old tradition.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "mountain-game",
+            "bregenz-forest",
+            "kaminwurzn",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Finocchia Aufschnitt",
+        "nameEn": "Finocchia cold cuts",
+        "descriptionDe": "Fein geschnittener Aufschnitt mit Fenchel („Finocchia“), würzige Spezialität für Brotzeit und Antipasti.",
+        "descriptionEn": "Finely sliced fennel-flavoured cold cuts (“Finocchia”), a savoury speciality for snacks and antipasti.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "cold-cuts",
+            "air-dried",
+            "speck"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Mocchetta von der Gemse",
+        "nameEn": "Chamois mocchetta",
+        "descriptionDe": "Dünn aufgeschnittener luftgetrockneter Gemsschinken („Mocchetta“), aromatisches Bergwild-Fleisch für feine Aufschnitte.",
+        "descriptionEn": "Thinly sliced air-dried chamois ham (“Mocchetta”), aromatic mountain game meat for fine cold-cut platters.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "cold-cuts",
+            "mountain-game",
+            "chamois-ham",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Wildschweincoppa",
+        "nameEn": "Wild boar coppa",
+        "descriptionDe": "Luftgetrocknete Coppa vom Wildschwein, kräftig-würzige Spezialität aus Bergwild, als Aufschnitt oder am Stück erhältlich.",
+        "descriptionEn": "Air-dried coppa made from wild boar, a robust, spicy mountain game speciality, available sliced or in pieces.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "cold-cuts",
+            "air-dried",
+            "speck",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Luftgetrockneter Rinderschinken aus den Trentiner Alpen",
+        "nameEn": "Air-dried beef ham from the Trentino Alps",
+        "descriptionDe": "Traditionell luftgetrockneter Rinderschinken aus den Trentiner Bergen, am Marktstand fein aufgeschnitten angeboten.",
+        "descriptionEn": "Traditional air-dried beef ham from the Trentino mountains, offered finely sliced at the market stall.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "cold-cuts",
+            "air-dried",
+            "trentino",
+            "speck"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Südtiroler Speck aus dem Pustertal",
+        "nameEn": "South Tyrolean speck from the Puster Valley",
+        "descriptionDe": "Südtiroler Speck aus dem Pustertal, luftgetrocknet und zart, klassischer Begleiter zu Schüttelbrot und Bergkäse.",
+        "descriptionEn": "South Tyrolean speck from the Puster Valley, air-dried and tender, a classic companion to Schüttelbrot and mountain cheese.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "speck",
+            "south-tyrol",
+            "air-dried",
+            "cold-cuts"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Gams-Mocchetta aus dem Trentin",
+        "nameEn": "Chamois mocchetta from Trentino",
+        "descriptionDe": "Luftgetrockneter Gamsschinken („Mocchetta“) aus den Dolomiten, aromatisches Bergwild-Fleisch für feine Aufschnittplatten.",
+        "descriptionEn": "Air-dried chamois ham (“Mocchetta”) from the Dolomites, aromatic mountain game meat for fine cold-cut platters.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "cold-cuts",
+            "mountain-game",
+            "chamois-ham",
+            "air-dried",
+            "trentino"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Kaminwurzn aus dem Bregenzerwald",
+        "nameEn": "Kaminwurzn from the Bregenz Forest",
+        "descriptionDe": "Luftgetrocknete Rohwurstspezialität aus den Alpen, vom Traditionsbetrieb im Bregenzerwald, aus regionalem Schwein, Rind und Wild hergestellt, in verschiedenen Varianten am Marktstand erhältlich.",
+        "descriptionEn": "Air-dried raw sausage speciality from the Alps, produced by a traditional business in the Bregenz Forest using regional pork, beef and game, available in various versions at the market stall.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "bregenz-forest",
+            "kaminwurzn",
+            "air-dried",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Urige Wurzn von Schwein und Rind",
+        "nameEn": "Rustic pork and beef Kaminwurzn",
+        "descriptionDe": "Kräftige, leicht geräucherte Kaminwurzn aus Schweine- und Rindfleisch, ca. 80 g pro Stück, bei uns als „Urige Wurzn“ bekannt.",
+        "descriptionEn": "Hearty, lightly smoked Kaminwurzn made from pork and beef, about 80 g per piece, known with us as “Urige Wurzn”.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Teufele Miniwurzn von Schwein und Rind",
+        "nameEn": "Teufele spicy mini Kaminwurzn",
+        "descriptionDe": "Scharfe Mini-Kaminwurzn aus Schwein und Rind, ca. 25 g pro Stück, leicht geräuchert, heißen bei uns „Teufele“.",
+        "descriptionEn": "Spicy mini Kaminwurzn made from pork and beef, around 25 g per piece, lightly smoked, called “Teufele” by us.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Kräuterle Miniwurzn von Schwein und Rind",
+        "nameEn": "Kräuterle herb mini Kaminwurzn",
+        "descriptionDe": "Mini-Kaminwurzn aus Schwein und Rind, ca. 25 g pro Stück, mit Bergkräutern verfeinert und leicht geräuchert, genannt „Kräuterle“.",
+        "descriptionEn": "Mini Kaminwurzn made from pork and beef, about 25 g per piece, refined with mountain herbs and lightly smoked, called “Kräuterle”.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Wildschwein-Wurzn",
+        "nameEn": "Wild boar Kaminwurzn",
+        "descriptionDe": "Kaminwurzn aus reinem Wildschweinfleisch, ca. 40 g pro Stück, leicht geräucherte Rohwurst aus Bergwild.",
+        "descriptionEn": "Kaminwurzn made from pure wild boar meat, around 40 g per piece, a lightly smoked raw sausage from mountain game.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Rinderwurzn",
+        "nameEn": "Beef Kaminwurzn",
+        "descriptionDe": "Kaminwurzn aus reinem Rindfleisch, ca. 80 g pro Stück, leicht geräuchert und herzhaft im Geschmack.",
+        "descriptionEn": "Kaminwurzn made from pure beef, around 80 g per piece, lightly smoked and hearty in flavour.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Hirschwurzn",
+        "nameEn": "Venison Kaminwurzn",
+        "descriptionDe": "Kaminwurzn aus Hirschfleisch, nach Angebot oder auf Bestellung erhältlich, luftgetrocknete Rohwurst aus Bergwild.",
+        "descriptionEn": "Kaminwurzn made from venison, available depending on supply or on order, an air-dried raw sausage from mountain game.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Lammwurzn",
+        "nameEn": "Lamb Kaminwurzn",
+        "descriptionDe": "Kaminwurzn aus Lammfleisch, nach Angebot oder auf Bestellung erhältlich, würzige luftgetrocknete Rohwurst.",
+        "descriptionEn": "Kaminwurzn made from lamb, available depending on supply or on order, a spicy air-dried raw sausage.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Gamswurzn",
+        "nameEn": "Chamois Kaminwurzn",
+        "descriptionDe": "Kaminwurzn aus Gamsfleisch, nach Angebot oder auf Bestellung erhältlich, kräftige Rohwurstspezialität aus Bergwild.",
+        "descriptionEn": "Kaminwurzn made from chamois meat, available depending on supply or on order, a robust raw sausage speciality from mountain game.",
+        "basePrice": 0,
+        "unitType": "piece",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "kaminwurzn",
+            "air-dried",
+            "mountain-game"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bresaola",
+        "nameEn": "Bresaola",
+        "descriptionDe": "Bresaola, luftgetrockneter Rinderschinken nach alter Tradition aus den Trentiner Bergen, am Marktstand fein aufgeschnitten.",
+        "descriptionEn": "Bresaola, air-dried beef ham made according to old tradition in the Trentino mountains, offered finely sliced at the market stall.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "bresaola",
+            "air-dried",
+            "trentino",
+            "cold-cuts"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio-Bergkäse aus Tirol",
+        "nameEn": "Organic mountain cheese from Tyrol",
+        "descriptionDe": "Bio-Bergkäse aus Tirol vom Bio-Pionier, in einer Naturstein-Höhle gereift, gereifter Rohmilch-Hartkäse mit kräftigem Aroma.",
+        "descriptionEn": "Organic mountain cheese from Tyrol made by a pioneering organic producer, matured in a natural stone cave, a matured raw-milk hard cheese with a robust aroma.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "mountain-cheese",
+            "aged",
+            "hard-cheese",
+            "raw-milk",
+            "tyrol"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio Camembert aus Tirol",
+        "nameEn": "Organic Camembert from Tyrol",
+        "descriptionDe": "Kräftiger Berg-Camembert aus Tiroler Bio-Vollmilch mit Weißschimmel- und Rotkulturreifung, aus tagesfrischer Bio-Heumilch mit Steinsalz hergestellt, ca. 45 % F.i.T.",
+        "descriptionEn": "Robust mountain Camembert made from Tyrolean organic whole milk with white mold and red culture ripening, produced from fresh organic hay milk with rock salt, around 45% fat in dry matter.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "bregenz-forest",
+            "red-smear",
+            "white-mold",
+            "tyrol",
+            "brie",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "BRUNO",
+        "nameEn": "BRUNO",
+        "descriptionDe": "Rustikaler Rohmilchkäse vom Gamsegghof in Südtirol, hergestellt aus 80 % Kuhmilch und 20 % Ziegenmilch von der Hochalpe, gereift und kräftig im Geschmack.",
+        "descriptionEn": "Rustic raw-milk cheese from the Gamsegghof in South Tyrol, made from 80% cow's milk and 20% goat's milk from the high alpine pastures, matured and full-flavoured.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "high-alpine",
+            "raw-milk",
+            "aged",
+            "hay-milk"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "BERGSCHAF",
+        "nameEn": "BERGSCHAF",
+        "descriptionDe": "Rohmilchkäse vom Gamsegghof aus 100 % Schafmilch von der Hochalpe, gereift, aromatisch und in Bio-Qualität.",
+        "descriptionEn": "Raw-milk cheese from the Gamsegghof made from 100% sheep's milk from the high alpine pastures, matured, aromatic and in organic quality.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "sheep-mountain-cheese",
+            "sheep-cheese",
+            "high-alpine",
+            "aged",
+            "raw-milk"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Bio-Korbkäse aus Tirol",
+        "nameEn": "Organic basket cheese from Tyrol",
+        "descriptionDe": "Bio-Bergbrie („Bio-Korbkäse“) aus Tirol mit leichter Säure und kräftigem Milchschimmel, duftet milchig nach Champignons und ist auch mit Bergkräutern affiniert im Sortiment.",
+        "descriptionEn": "Organic mountain brie (“Bio-Korbkäse”) from Tyrol with a light acidity and strong milk mold, with a milky mushroom-like aroma and also available affinaged with mountain herbs.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "organic",
+            "brie",
+            "white-mold",
+            "tyrol",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Zola Di Malga",
+        "nameEn": "Zola Di Malga",
+        "descriptionDe": "Mit Bergkräutern affinierter Gorgonzola Dolce („Zola Di Malga“), in den Trentiner Alpen höhlengereift, fein und unvergleichlich im Geschmack.",
+        "descriptionEn": "Gorgonzola Dolce affinaged with alpine herbs (“Zola Di Malga”), cave-aged in the Trentino Alps, delicate and incomparable in flavour.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "alp-cheese",
+            "organic",
+            "blue-cheese",
+            "trentino",
+            "gorgonzola",
+            "aged",
+            "cave-aged",
+            "affinaged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Kellerfund",
+        "nameEn": "Cellar discovery",
+        "descriptionDe": "„Kellerfund“ aus der Käsekeller, eine Auswahl gereifter Bergkäse aus Heumilch mit robustem, kantigem Geschmack, je nach Verfügbarkeit für Liebhaber kräftiger Käse.",
+        "descriptionEn": "“Cellar discovery” from the cheese cellar, a selection of matured mountain cheeses made from hay milk with a robust, edgy flavour, available depending on stock for lovers of strong cheeses.",
+        "basePrice": 2.85,
+        "unitType": "g",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "special-offer",
+            "mountain-cheese",
+            "aged",
+            "hay-milk",
+            "hard-cheese"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    },
+    {
+        "nameDe": "Gorgonzola Dolce aus dem Piemont",
+        "nameEn": "Gorgonzola Dolce from Piedmont",
+        "descriptionDe": "Gorgonzola Dolce aus dem Piemont, cremiger mild-würziger Blauschimmelkäse, von Alpenkäse Lämmle affiniert und nachgereift.",
+        "descriptionEn": "Gorgonzola Dolce from Piedmont, a creamy, mildly spicy blue cheese, affinaged and further matured by Alpenkäse Lämmle.",
+        "basePrice": 0,
+        "unitType": "kg",
+        "sku": "",
+        "imagePath": "",
+        "isActive": true,
+        "totalStock": 0,
+        "labels": [
+            "blue-cheese",
+            "gorgonzola",
+            "piedmont",
+            "aged"
+        ],
+        "createdAt": null,
+        "updatedAt": null
+    }
+]

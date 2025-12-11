@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/page-header'
 import { ProductsTable } from './ProductsTable'
 import type { Product, Label } from '@/lib/firestore'
 import { listProducts, listLabels } from '@/lib/firestore'
+import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import {
@@ -61,9 +62,10 @@ export default function ProductsPage() {
     .filter((p) => {
       if (!search.trim()) return true
       const term = search.toLowerCase()
+      const descriptionForLocale = getProductDescriptionForLocale(p, locale).toLowerCase()
       return (
         p.name.toLowerCase().includes(term) ||
-        (p.description && p.description.toLowerCase().includes(term)) ||
+        descriptionForLocale.includes(term) ||
         (p.sku && p.sku.toLowerCase().includes(term))
       )
     })

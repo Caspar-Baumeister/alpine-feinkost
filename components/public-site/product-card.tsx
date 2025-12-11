@@ -12,6 +12,9 @@ import { Product, Label } from '@/lib/firestore'
 import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
 import { getLabelDescription } from '@/lib/labels/getLabelDescription'
 import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
+import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
+import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
+import { getUnitLabelForLocale } from '@/lib/products/getUnitLabelForLocale'
 
 type ProductCardProps = {
   product: Product
@@ -50,12 +53,8 @@ export function ProductCard({
       : []
   const imageUrl = getPublicStorageUrl(product.imagePath)
   const unitLabel =
-    product.unitLabel ||
-    (product.unitType === 'piece'
-      ? locale === 'de'
-        ? 'Stück'
-        : 'piece'
-      : 'kg')
+    getUnitLabelForLocale(product, locale)
+  const productName = getProductNameForLocale(product, locale)
 
   return (
     <Card className="h-full overflow-hidden border-border/70 bg-card shadow-sm">
@@ -71,7 +70,7 @@ export function ProductCard({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-            {product.name || 'Alpine Feinkost'}
+            {productName || 'Alpine Feinkost'}
           </div>
         )}
       </div>
@@ -80,9 +79,11 @@ export function ProductCard({
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
             <p className="text-base font-semibold leading-tight text-foreground">
-              {product.name}
+              {productName}
             </p>
-            <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {getProductDescriptionForLocale(product, locale)}
+            </p>
           </div>
           {comingSoonLabel ? (
             <Badge variant="secondary" className="whitespace-nowrap">

@@ -19,13 +19,17 @@ export type AppUser = {
 // ===== Product =====
 export type Product = {
   id: string
-  name: string
+  name?: string | null        // legacy
+  nameDe: string
+  nameEn: string | null
   sku: string
   labels: string[]           // Array of label slugs
   unitType: ProductUnitType
-  unitLabel: string
+  unitLabel?: string | null   // legacy/custom; UI derives defaults
   basePrice: number
-  description: string
+  description?: string | null  // legacy
+  descriptionDe: string | null
+  descriptionEn: string | null
   imagePath: string | null
   isActive: boolean
   totalStock: number      // Total inventory owned (not yet sold)

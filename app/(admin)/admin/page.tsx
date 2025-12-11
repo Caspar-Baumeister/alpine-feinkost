@@ -11,6 +11,7 @@ import {
   listPacklists,
   listUsers
 } from '@/lib/firestore'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 
 interface Stats {
   products: number
@@ -23,6 +24,7 @@ export default function AdminDashboardPage() {
   const t = useTranslations()
   const [stats, setStats] = useState<Stats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { user } = useCurrentUser()
 
   useEffect(() => {
     const loadStats = async () => {
@@ -71,6 +73,8 @@ export default function AdminDashboardPage() {
         title={t('nav.dashboard')}
         description={t('app.subtitle')}
       />
+
+      {user?.role === 'superadmin' ? null : null}
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

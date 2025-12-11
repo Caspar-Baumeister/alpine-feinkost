@@ -12,6 +12,9 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Product } from '@/lib/firestore'
+import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
+import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
+import { getUnitLabelForLocale } from '@/lib/products/getUnitLabelForLocale'
 import { getProductImageUrl } from '@/lib/storage/products'
 
 interface ProductDetailDialogProps {
@@ -29,6 +32,9 @@ export function ProductDetailDialog({
   const locale = useLocale()
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [isLoadingImage, setIsLoadingImage] = useState(false)
+  const description = product ? getProductDescriptionForLocale(product, locale) : ''
+  const productName = product ? getProductNameForLocale(product, locale) : ''
+  const unitLabel = product ? getUnitLabelForLocale(product, locale) : ''
 
   useEffect(() => {
     const loadImage = async () => {
@@ -60,7 +66,7 @@ export function ProductDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">{product.name}</DialogTitle>
+          <DialogTitle className="text-xl">{productName}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -125,7 +131,7 @@ export function ProductDetailDialog({
                     €{product.basePrice.toFixed(2)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {locale === 'de' ? 'pro' : 'per'} {product.unitLabel}
+                    {locale === 'de' ? 'pro' : 'per'} {unitLabel}
                   </p>
                 </div>
               </div>
@@ -137,7 +143,7 @@ export function ProductDetailDialog({
                   <p className="text-sm text-muted-foreground">
                     {t('columns.unit')}
                   </p>
-                  <p className="text-lg font-semibold">{product.unitLabel}</p>
+                  <p className="text-lg font-semibold">{unitLabel}</p>
                   <p className="text-xs text-muted-foreground">
                     {product.unitType === 'piece'
                       ? (locale === 'de' ? 'Stückware' : 'Piece goods')
@@ -178,7 +184,7 @@ export function ProductDetailDialog({
             </div>
 
             {/* Description */}
-            {product.description && (
+            {description ? (
               <div className="p-3 rounded-lg bg-muted/50">
                 <div className="flex items-start gap-3">
                   <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -186,11 +192,11 @@ export function ProductDetailDialog({
                     <p className="text-sm text-muted-foreground mb-1">
                       {t('form.description')}
                     </p>
-                    <p className="text-sm">{product.description}</p>
+                    <p className="text-sm whitespace-pre-line">{description}</p>
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </DialogContent>

@@ -74,12 +74,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   // Form state
-  const [name, setName] = useState('')
+  const [nameDe, setNameDe] = useState('')
+  const [nameEn, setNameEn] = useState('')
   const [sku, setSku] = useState('')
   const [unitType, setUnitType] = useState<'piece' | 'weight'>('weight')
-  const [unitLabel, setUnitLabel] = useState('kg')
+  const [unitLabel, setUnitLabel] = useState<string | null>('kg')
   const [basePrice, setBasePrice] = useState('')
-  const [description, setDescription] = useState('')
+  const [descriptionDe, setDescriptionDe] = useState('')
+  const [descriptionEn, setDescriptionEn] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [labelIds, setLabelIds] = useState<string[]>([])
 
@@ -131,12 +133,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
   }, [labels])
 
   const resetForm = () => {
-    setName('')
+    setNameDe('')
+    setNameEn('')
     setSku('')
     setUnitType('weight')
     setUnitLabel('kg')
     setBasePrice('')
-    setDescription('')
+    setDescriptionDe('')
+    setDescriptionEn('')
     setIsActive(true)
     setLabelIds([])
     setEditingProduct(null)
@@ -152,12 +156,14 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
 
   const openEditDialog = async (product: Product) => {
     setEditingProduct(product)
-    setName(product.name)
+    setNameDe(product.nameDe || product.name || '')
+    setNameEn(product.nameEn || '')
     setSku(product.sku)
     setUnitType(product.unitType)
-    setUnitLabel(product.unitLabel)
+    setUnitLabel(product.unitLabel || null)
     setBasePrice(product.basePrice.toString())
-    setDescription(product.description)
+    setDescriptionDe(product.descriptionDe || product.description || '')
+    setDescriptionEn(product.descriptionEn || '')
     setIsActive(product.isActive)
     setLabelIds(product.labels || [])
     setExistingImagePath(product.imagePath)
@@ -346,13 +352,15 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
       }
 
       const productData = {
-        name,
+        nameDe,
+        nameEn: nameEn || null,
         sku,
         labels: labelIds,
         unitType,
-        unitLabel,
+        unitLabel: unitLabel || null,
         basePrice: parseFloat(basePrice) || 0,
-        description,
+        descriptionDe,
+        descriptionEn,
         imagePath,
         isActive,
         totalStock: 0,
@@ -449,23 +457,37 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t('form.name')}</Label>
+                  <Label htmlFor="nameDe">
+                    {locale === 'de' ? 'Name (DE)' : 'Name (DE)'}
+                  </Label>
                   <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    id="nameDe"
+                    value={nameDe}
+                    onChange={(e) => setNameDe(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sku">SKU</Label>
+                  <Label htmlFor="nameEn">
+                    {locale === 'de' ? 'Name (EN)' : 'Name (EN)'}
+                  </Label>
                   <Input
-                    id="sku"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                    placeholder="Optional"
+                    id="nameEn"
+                    value={nameEn}
+                    onChange={(e) => setNameEn(e.target.value)}
+                    placeholder={locale === 'de' ? 'Optional' : 'Optional'}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  placeholder="Optional"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -480,16 +502,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                       <SelectItem value="weight">{t('form.unitWeight')}</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="unitLabel">
-                    {locale === 'de' ? 'Einheits-Label' : 'Unit Label'}
-                  </Label>
-                  <Input
-                    id="unitLabel"
-                    value={unitLabel}
-                    onChange={(e) => setUnitLabel(e.target.value)}
-                  />
                 </div>
               </div>
 
@@ -562,13 +574,24 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
                 </Popover>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">{t('form.description')}</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="descriptionDe">{locale === 'de' ? 'Beschreibung (DE)' : 'Description (DE)'}</Label>
+                  <Textarea
+                    id="descriptionDe"
+                    value={descriptionDe}
+                    onChange={(e) => setDescriptionDe(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="descriptionEn">{locale === 'de' ? 'Beschreibung (EN)' : 'Description (EN)'}</Label>
+                  <Textarea
+                    id="descriptionEn"
+                    value={descriptionEn}
+                    onChange={(e) => setDescriptionEn(e.target.value)}
+                    placeholder={locale === 'de' ? 'Optional' : 'Optional'}
+                  />
+                </div>
               </div>
 
               <div className="flex items-center space-x-2">

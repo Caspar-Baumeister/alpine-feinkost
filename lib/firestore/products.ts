@@ -24,16 +24,27 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
   // If currentStock is not set, default to totalStock (for backwards compatibility)
   const currentStock = data.currentStock as number ?? totalStock
   const labels = (data.labels as string[]) ?? []
+  const legacyName = (data.name as string) ?? ''
+  const nameDe = (data.nameDe as string | null) ?? legacyName
+  const nameEn = (data.nameEn as string | null) ?? null
+  const legacyDescription = (data.description as string) ?? null
+  const descriptionDe = (data.descriptionDe as string | null) ?? legacyDescription ?? null
+  const descriptionEn = (data.descriptionEn as string | null) ?? null
+  const unitLabel = (data.unitLabel as string | null) ?? null
 
   return {
     id,
-    name: data.name as string,
+    name: legacyName,
+    nameDe,
+    nameEn,
     sku: data.sku as string || '',
     labels,
     unitType: data.unitType as 'piece' | 'weight',
-    unitLabel: data.unitLabel as string || (data.unitType === 'piece' ? 'Stück' : 'kg'),
+    unitLabel: unitLabel,
     basePrice: data.basePrice as number,
-    description: data.description as string || '',
+    description: legacyDescription,
+    descriptionDe,
+    descriptionEn,
     imagePath: (data.imagePath as string) || null,
     isActive: data.isActive as boolean ?? true,
     totalStock,
@@ -67,13 +78,16 @@ export async function createProduct(
 ): Promise<string> {
   const colRef = collection(db, COLLECTION)
   const docRef = await addDoc(colRef, {
-    name: data.name,
+    name: data.nameDe, // keep legacy name for compatibility
+    nameDe: data.nameDe,
+    nameEn: data.nameEn ?? null,
     sku: data.sku,
     labels: data.labels || [],
     unitType: data.unitType,
-    unitLabel: data.unitLabel,
+    unitLabel: data.unitLabel ?? null,
     basePrice: data.basePrice,
-    description: data.description,
+    descriptionDe: data.descriptionDe ?? '',
+    descriptionEn: data.descriptionEn ?? null,
     imagePath: data.imagePath,
     isActive: data.isActive,
     totalStock: 0,
@@ -90,8 +104,10 @@ export async function updateProduct(
   data: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id)
+  const { description, ...rest } = data
+
   await updateDoc(docRef, {
-    ...data,
+    ...rest,
     updatedAt: serverTimestamp()
   })
 }
