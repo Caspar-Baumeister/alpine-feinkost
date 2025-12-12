@@ -1,5 +1,6 @@
 'use client'
 
+import { FormLanguageToggle } from '@/components/form-language-toggle'
 import { ProductDetailDialog } from '@/components/product-detail-dialog'
 import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
@@ -41,14 +42,13 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
-import { FormLanguageToggle } from '@/components/form-language-toggle'
 import type { Product, Label as ProductLabel } from '@/lib/firestore'
 import { createLabel, createProduct, getLabelBySlug, updateProduct } from '@/lib/firestore'
 import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
 import { slugifyLabel } from '@/lib/labels/slugify'
-import { deleteProductImage, getProductImageUrl, uploadProductImageWithUrl } from '@/lib/storage/products'
 import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
+import { deleteProductImage, getProductImageUrl, uploadProductImageWithUrl } from '@/lib/storage/products'
 import { cn } from '@/lib/utils'
 import { Check as CheckIcon, Loader2, Package, Pencil, Plus, Tag, Upload, X } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -482,292 +482,294 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
               {t('addProduct')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
+          <DialogContent className="max-w-lg max-h-[95vh] h-[95vh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 gap-0 w-[calc(100vw-1rem)] sm:w-full rounded-none sm:rounded-lg">
+            <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b">
               <DialogTitle>
                 {editingProduct ? t('editProduct') : t('addProduct')}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Image Upload */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>{locale === 'de' ? 'Produktbilder' : 'Product images'}</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploadingImage}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {locale === 'de' ? 'Bilder hochladen' : 'Upload images'}
-                    </Button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      multiple
-                      onChange={handleImageSelect}
-                      className="hidden"
-                    />
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto px-6 py-4 pb-6 space-y-4 min-h-0">
+                {/* Image Upload */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{locale === 'de' ? 'Produktbilder' : 'Product images'}</Label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingImage}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {locale === 'de' ? 'Bilder hochladen' : 'Upload images'}
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        multiple
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {images.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-muted-foreground/40 p-6 text-sm text-muted-foreground text-center">
-                    {locale === 'de' ? 'Noch keine Bilder hinzugefügt' : 'No images yet'}
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-3">
-                    {images.map((image, index) => (
-                      <div key={index} className="w-28">
-                        <div className="relative h-28 w-28 overflow-hidden rounded-md border bg-muted">
-                          {image.previewUrl ? (
-                            <Image
-                              src={image.previewUrl}
-                              alt={`Product image ${index + 1}`}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-                              {locale === 'de' ? 'Kein Bild' : 'No image'}
+                  {images.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-muted-foreground/40 p-6 text-sm text-muted-foreground text-center">
+                      {locale === 'de' ? 'Noch keine Bilder hinzugefügt' : 'No images yet'}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-3">
+                      {images.map((image, index) => (
+                        <div key={index} className="w-28">
+                          <div className="relative h-28 w-28 overflow-hidden rounded-md border bg-muted">
+                            {image.previewUrl ? (
+                              <Image
+                                src={image.previewUrl}
+                                alt={`Product image ${index + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                                {locale === 'de' ? 'Kein Bild' : 'No image'}
+                              </div>
+                            )}
+                            {index === 0 ? (
+                              <span className="absolute left-1 top-1 rounded bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                                {locale === 'de' ? 'Hauptbild' : 'Primary'}
+                              </span>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => removeImageAt(index)}
+                              className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {index > 0 ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => moveImage(index, 0)}
+                              >
+                                {locale === 'de' ? 'Als Hauptbild' : 'Set primary'}
+                              </Button>
+                            ) : null}
+                            <div className="flex gap-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === 0}
+                                onClick={() => moveImage(index, index - 1)}
+                                aria-label="Move left"
+                              >
+                                ‹
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === images.length - 1}
+                                onClick={() => moveImage(index, index + 1)}
+                                aria-label="Move right"
+                              >
+                                ›
+                              </Button>
                             </div>
-                          )}
-                          {index === 0 ? (
-                            <span className="absolute left-1 top-1 rounded bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                              {locale === 'de' ? 'Hauptbild' : 'Primary'}
-                            </span>
-                          ) : null}
-                          <button
-                            type="button"
-                            onClick={() => removeImageAt(index)}
-                            className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {index > 0 ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => moveImage(index, 0)}
-                            >
-                              {locale === 'de' ? 'Als Hauptbild' : 'Set primary'}
-                            </Button>
-                          ) : null}
-                          <div className="flex gap-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              disabled={index === 0}
-                              onClick={() => moveImage(index, index - 1)}
-                              aria-label="Move left"
-                            >
-                              ‹
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              disabled={index === images.length - 1}
-                              onClick={() => moveImage(index, index + 1)}
-                              aria-label="Move right"
-                            >
-                              ›
-                            </Button>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG, WebP, GIF (max 5MB). Die erste Position ist das Hauptbild.
+                  </p>
+                  {isUploadingImage ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {locale === 'de' ? 'Bilder werden hochgeladen...' : 'Uploading images...'}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {locale === 'de' ? 'Sprache im Formular' : 'Form language'}
+                  </div>
+                  <FormLanguageToggle
+                    value={productFormLanguage}
+                    onChange={setProductFormLanguage}
+                  />
+                </div>
+
+                {productFormError ? (
+                  <p className="text-sm text-destructive">{productFormError}</p>
+                ) : null}
+
+                {productFormLanguage === 'de' ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nameDe">
+                        {locale === 'de' ? 'Name (DE)' : 'Name (DE)'}
+                      </Label>
+                      <Input
+                        id="nameDe"
+                        value={nameDe}
+                        onChange={(e) => setNameDe(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="descriptionDe">{locale === 'de' ? 'Beschreibung (DE)' : 'Description (DE)'}</Label>
+                      <Textarea
+                        id="descriptionDe"
+                        value={descriptionDe}
+                        onChange={(e) => setDescriptionDe(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nameEn">
+                        {locale === 'de' ? 'Name (EN)' : 'Name (EN)'}
+                      </Label>
+                      <Input
+                        id="nameEn"
+                        value={nameEn}
+                        onChange={(e) => setNameEn(e.target.value)}
+                        placeholder={locale === 'de' ? 'Optional' : 'Optional'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="descriptionEn">{locale === 'de' ? 'Beschreibung (EN)' : 'Description (EN)'}</Label>
+                      <Textarea
+                        id="descriptionEn"
+                        value={descriptionEn}
+                        onChange={(e) => setDescriptionEn(e.target.value)}
+                        placeholder={locale === 'de' ? 'Optional' : 'Optional'}
+                      />
+                    </div>
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  JPG, PNG, WebP, GIF (max 5MB). Die erste Position ist das Hauptbild.
-                </p>
-                {isUploadingImage ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {locale === 'de' ? 'Bilder werden hochgeladen...' : 'Uploading images...'}
-                  </div>
-                ) : null}
-              </div>
 
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-medium text-muted-foreground">
-                  {locale === 'de' ? 'Sprache im Formular' : 'Form language'}
-                </div>
-                <FormLanguageToggle
-                  value={productFormLanguage}
-                  onChange={setProductFormLanguage}
-                />
-              </div>
-
-              {productFormError ? (
-                <p className="text-sm text-destructive">{productFormError}</p>
-              ) : null}
-
-              {productFormLanguage === 'de' ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nameDe">
-                      {locale === 'de' ? 'Name (DE)' : 'Name (DE)'}
-                    </Label>
-                    <Input
-                      id="nameDe"
-                      value={nameDe}
-                      onChange={(e) => setNameDe(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="descriptionDe">{locale === 'de' ? 'Beschreibung (DE)' : 'Description (DE)'}</Label>
-                    <Textarea
-                      id="descriptionDe"
-                      value={descriptionDe}
-                      onChange={(e) => setDescriptionDe(e.target.value)}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nameEn">
-                      {locale === 'de' ? 'Name (EN)' : 'Name (EN)'}
-                    </Label>
-                    <Input
-                      id="nameEn"
-                      value={nameEn}
-                      onChange={(e) => setNameEn(e.target.value)}
-                      placeholder={locale === 'de' ? 'Optional' : 'Optional'}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="descriptionEn">{locale === 'de' ? 'Beschreibung (EN)' : 'Description (EN)'}</Label>
-                    <Textarea
-                      id="descriptionEn"
-                      value={descriptionEn}
-                      onChange={(e) => setDescriptionEn(e.target.value)}
-                      placeholder={locale === 'de' ? 'Optional' : 'Optional'}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                  placeholder="Optional"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="unitType">{t('form.unit')}</Label>
-                  <Select
-                    value={unitType}
-                    onValueChange={(value) => handleUnitTypeChange(value as Product['unitType'])}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="kg">kg</SelectItem>
-                      <SelectItem value="g">g</SelectItem>
-                      <SelectItem value="ml">ml</SelectItem>
-                      <SelectItem value="piece">{t('form.unitPiece')}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="sku">SKU</Label>
+                  <Input
+                    id="sku"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="unitType">{t('form.unit')}</Label>
+                    <Select
+                      value={unitType}
+                      onValueChange={(value) => handleUnitTypeChange(value as Product['unitType'])}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="g">g</SelectItem>
+                        <SelectItem value="ml">ml</SelectItem>
+                        <SelectItem value="piece">{t('form.unitPiece')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="basePrice">{t('form.basePrice')}</Label>
+                  <Input
+                    id="basePrice"
+                    type="number"
+                    step="0.01"
+                    value={basePrice}
+                    onChange={(e) => setBasePrice(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{t('form.labels')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between">
+                        <span className="flex gap-2 flex-wrap items-center text-left">
+                          {labelIds.length === 0
+                            ? t('filters.allLabels')
+                            : labelIds.map((id) => {
+                              const lbl = localLabels.find((l) => l.slug === id)
+                              return (
+                                <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
+                                  <Tag className="h-3 w-3" />
+                                  {lbl ? getLabelDisplayName(lbl, locale) : id}
+                                </span>
+                              )
+                            })}
+                        </span>
+                        <Plus className="h-4 w-4 opacity-70" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[260px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder={t('filters.searchLabels')} />
+                        <CommandList>
+                          <CommandEmpty>{t('filters.noLabels')}</CommandEmpty>
+                          <CommandGroup>
+                            {localLabels.map((label) => {
+                              const selected = labelIds.includes(label.slug)
+                              return (
+                                <CommandItem
+                                  key={label.id}
+                                  onSelect={() => toggleLabelSelection(label.slug)}
+                                >
+                                  <CheckIcon className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
+                                  {getLabelDisplayName(label, locale)}
+                                </CommandItem>
+                              )
+                            })}
+                          </CommandGroup>
+                          <CommandGroup>
+                            <CommandItem
+                              onSelect={() => {
+                                setIsLabelDialogOpen(true)
+                              }}
+                              className="text-primary"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              {tLabels('new')}
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={setIsActive}
+                  />
+                  <Label htmlFor="isActive">{t('form.active')}</Label>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="basePrice">{t('form.basePrice')}</Label>
-                <Input
-                  id="basePrice"
-                  type="number"
-                  step="0.01"
-                  value={basePrice}
-                  onChange={(e) => setBasePrice(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t('form.labels')}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                      <span className="flex gap-2 flex-wrap items-center text-left">
-                        {labelIds.length === 0
-                          ? t('filters.allLabels')
-                          : labelIds.map((id) => {
-                            const lbl = localLabels.find((l) => l.slug === id)
-                            return (
-                              <span key={id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs">
-                                <Tag className="h-3 w-3" />
-                                {lbl ? getLabelDisplayName(lbl, locale) : id}
-                              </span>
-                            )
-                          })}
-                      </span>
-                      <Plus className="h-4 w-4 opacity-70" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[260px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder={t('filters.searchLabels')} />
-                      <CommandList>
-                        <CommandEmpty>{t('filters.noLabels')}</CommandEmpty>
-                        <CommandGroup>
-                          {localLabels.map((label) => {
-                            const selected = labelIds.includes(label.slug)
-                            return (
-                              <CommandItem
-                                key={label.id}
-                                onSelect={() => toggleLabelSelection(label.slug)}
-                              >
-                                <CheckIcon className={cn('mr-2 h-4 w-4', selected ? 'opacity-100' : 'opacity-0')} />
-                                {getLabelDisplayName(label, locale)}
-                              </CommandItem>
-                            )
-                          })}
-                        </CommandGroup>
-                        <CommandGroup>
-                          <CommandItem
-                            onSelect={() => {
-                              setIsLabelDialogOpen(true)
-                            }}
-                            className="text-primary"
-                          >
-                            <Plus className="mr-2 h-4 w-4" />
-                            {tLabels('new')}
-                          </CommandItem>
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={isActive}
-                  onCheckedChange={setIsActive}
-                />
-                <Label htmlFor="isActive">{t('form.active')}</Label>
-              </div>
-
-              <DialogFooter>
+              <DialogFooter className="px-6 py-4 flex-shrink-0 border-t bg-background">
                 <Button
                   type="button"
                   variant="outline"
