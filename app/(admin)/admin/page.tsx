@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   ArrowUpRight,
@@ -7,13 +8,18 @@ import {
   Package,
   ShoppingCart,
   Store,
-  Ticket
+  Ticket,
+  CalendarDays
 } from 'lucide-react'
 import Link from 'next/link'
+import { format } from 'date-fns'
+import { de, enUS } from 'date-fns/locale'
 import { PageHeader } from '@/components/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { listOrdersByStatus, Order } from '@/lib/firestore'
+import { useLocale } from 'next-intl'
 
 const placeholderStats = [
   {
@@ -90,6 +96,7 @@ export default function AdminDashboardPage() {
       <StatGrid />
 
       <div className="grid gap-6 lg:grid-cols-2">
+        <UpcomingDeliveriesCard />
         <TopSellingProductsCard />
         <RestockNeededCard />
         <ReadyPacklistsCard />
@@ -210,6 +217,102 @@ function ReadyPacklistsCard() {
             <p className="text-sm text-muted-foreground">{packlist.status} – coming soon</p>
           </div>
         ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+function UpcomingDeliveriesCard() {
+  const t = useTranslations('dashboard')
+  const tOrders = useTranslations('orders')
+  const locale = useLocale()
+  const dateLocale = locale === 'de' ? de : enUS
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const [openOrders, pendingOrders] = await Promise.all([
+          listOrdersByStatus('open'),
+          listOrdersByStatus('check_pending')
+        ])
+        const allOrders = [...openOrders, ...pendingOrders]
+        // Sort by expected arrival date ascending
+        allOrders.sort((a, b) => a.expectedArrivalDate.getTime() - b.expectedArrivalDate.getTime())
+        // Take first 5
+        setOrders(allOrders.slice(0, 5))
+      } catch (error) {
+        console.error('Failed to load orders:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadOrders()
+  }, [])
+
+  const isOverdue = (order: Order) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const expectedDate = new Date(order.expectedArrivalDate)
+    expectedDate.setHours(0, 0, 0, 0)
+    return expectedDate < today
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-3">
+        <div>
+          <CardTitle>{t('upcomingDeliveries')}</CardTitle>
+          <CardDescription>{t('upcomingDeliveriesDescription')}</CardDescription>
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/admin/orders">{t('viewAllOrders')}</Link>
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {isLoading ? (
+          <div className="text-center py-4 text-sm text-muted-foreground">
+            {locale === 'de' ? 'Laden...' : 'Loading...'}
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-muted p-3 text-sm text-muted-foreground">
+            {t('noUpcomingDeliveries')}
+          </div>
+        ) : (
+          orders.map((order) => {
+            const overdue = isOverdue(order)
+            return (
+              <Link
+                key={order.id}
+                href={`/admin/orders/${order.id}`}
+                className="flex flex-col rounded-lg border px-4 py-3 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-foreground">
+                    {order.name || `#${order.id.slice(0, 8)}`}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {overdue && (
+                      <Badge variant="destructive" className="text-xs">
+                        {t('overdue')}
+                      </Badge>
+                    )}
+                    <Badge variant="outline" className="text-xs">
+                      {tOrders(`status.${order.status}`)}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <CalendarDays className="h-3 w-3 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    {format(order.expectedArrivalDate, 'PP', { locale: dateLocale })}
+                  </p>
+                </div>
+              </Link>
+            )
+          })
+        )}
       </CardContent>
     </Card>
   )

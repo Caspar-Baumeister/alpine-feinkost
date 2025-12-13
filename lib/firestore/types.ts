@@ -124,3 +124,53 @@ export type PacklistTemplate = {
   items: PacklistTemplateItem[]
 }
 
+// ===== Order =====
+export type OrderStatus = 'open' | 'check_pending' | 'completed'
+
+export type OrderItem = {
+  productId: string
+  productName: string
+  unitType: ProductUnitType
+  unitLabel: string
+  orderedQuantity: number
+  receivedQuantity: number | null  // null until delivery is checked
+  note: string
+}
+
+export type Order = {
+  id: string
+  name: string | null  // Optional order reference/name
+  orderDate: Date
+  expectedArrivalDate: Date
+  status: OrderStatus
+  note: string
+  templateId: string | null
+  items: OrderItem[]
+  confirmedBy: string | null
+  confirmedAt: Date | null
+  createdBy: string
+  createdAt: Date | null
+  updatedAt: Date | null
+}
+
+// ===== Order Template =====
+export type OrderTemplateItem = {
+  productId: string
+  productName: string
+  unitType: ProductUnitType
+  unitLabel: string
+  defaultQuantity: number
+  note: string
+}
+
+export type OrderTemplate = {
+  id: string
+  name: string
+  description: string
+  note: string
+  createdBy: string
+  createdAt: Date | null
+  updatedAt: Date | null
+  items: OrderTemplateItem[]
+}
+

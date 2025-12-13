@@ -9,6 +9,7 @@
     "products": "Products",
     "pos": "Points of Sale",
     "packlists": "Pack Lists",
+    "orders": "Orders",
     "templates": "Templates",
     "statistics": "Statistics",
     "settings": "Settings",
@@ -236,6 +237,86 @@
       "lastUsed": "Last Used",
       "productCount": "Number of Products",
       "actions": "Actions"
+    },
+    "packlistTemplates": "Pack List Templates",
+    "orderTemplates": "Order Templates"
+  },
+  "orders": {
+    "title": "Orders",
+    "description": "Manage incoming orders from suppliers",
+    "createOrder": "Create new order",
+    "editOrder": "Edit order",
+    "receiveOrder": "Check & confirm order",
+    "columns": {
+      "name": "Name/Reference",
+      "orderDate": "Order Date",
+      "expectedArrival": "Expected Arrival",
+      "status": "Status",
+      "productCount": "Number of Products",
+      "actions": "Actions"
+    },
+    "status": {
+      "open": "Open",
+      "check_pending": "Awaiting Check",
+      "completed": "Completed"
+    },
+    "form": {
+      "name": "Order name/reference",
+      "namePlaceholder": "e.g. Order from Supplier XY",
+      "orderDate": "Order date",
+      "expectedArrivalDate": "Expected arrival date",
+      "expectedArrivalDateRequired": "Expected arrival date is required",
+      "note": "Note",
+      "products": "Products",
+      "product": "Product",
+      "orderedQuantity": "Ordered quantity",
+      "receivedQuantity": "Received quantity",
+      "lineNote": "Note",
+      "addLine": "Add product",
+      "removeLine": "Remove",
+      "startFromTemplate": "Start from template",
+      "saveAsTemplate": "Save as template",
+      "templateName": "Template name"
+    },
+    "detail": {
+      "title": "Order Details",
+      "summary": "Summary",
+      "items": "Items",
+      "checkDelivery": "Check delivery",
+      "checkDescription": "Enter the actually received quantities and confirm the order",
+      "confirmOrder": "Check & confirm order",
+      "confirmed": "This order has been completed",
+      "ordered": "Ordered",
+      "received": "Received",
+      "difference": "Difference"
+    },
+    "filters": {
+      "status": "Status",
+      "allStatuses": "All Statuses"
+    },
+    "empty": "No orders found"
+  },
+  "orderTemplates": {
+    "title": "Order Templates",
+    "description": "Manage order templates",
+    "createTemplate": "Create Template",
+    "editTemplate": "Edit Template",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "productCount": "Number of Products",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Template name",
+      "description": "Description",
+      "note": "Note",
+      "products": "Products",
+      "product": "Product",
+      "defaultQuantity": "Default quantity",
+      "lineNote": "Note",
+      "addLine": "Add product",
+      "removeLine": "Remove"
     }
   },
   "users": {
@@ -296,6 +377,13 @@
       "workerNote": "Sales Note",
       "workerNotePlaceholder": "Optional notes about the sales (e.g., damaged goods, special circumstances, etc.)"
     }
+  },
+  "dashboard": {
+    "upcomingDeliveries": "Upcoming deliveries",
+    "upcomingDeliveriesDescription": "Open orders with expected arrival dates",
+    "viewAllOrders": "View all orders",
+    "overdue": "Overdue",
+    "noUpcomingDeliveries": "No upcoming deliveries"
   },
   "statistics": {
     "title": "Statistics",

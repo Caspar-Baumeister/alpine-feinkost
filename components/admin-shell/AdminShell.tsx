@@ -47,13 +47,16 @@ import {
   ShoppingBag,
   Store,
   UserCircle,
-  Users
+  Users,
+  ShoppingCart,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState, useEffect } from 'react'
 import styles from './AdminShell.module.css'
 
 interface AdminShellProps {
@@ -66,6 +69,7 @@ interface NavItem {
   labelKey: string
   icon: typeof LayoutDashboard
   superadminOnly?: boolean
+  children?: NavItem[]
 }
 
 const allNavItems: NavItem[] = [
@@ -74,7 +78,16 @@ const allNavItems: NavItem[] = [
   { href: '/admin/products', labelKey: 'nav.products', icon: ShoppingBag },
   { href: '/admin/pos', labelKey: 'nav.pos', icon: Store },
   { href: '/admin/packlists', labelKey: 'nav.packlists', icon: ClipboardList },
-  { href: '/admin/templates', labelKey: 'nav.templates', icon: FileText },
+  { href: '/admin/orders', labelKey: 'nav.orders', icon: ShoppingCart },
+  {
+    href: '/admin/templates',
+    labelKey: 'nav.templates',
+    icon: FileText,
+    children: [
+      { href: '/admin/templates', labelKey: 'templates.packlistTemplates', icon: ClipboardList },
+      { href: '/admin/orders/templates', labelKey: 'templates.orderTemplates', icon: ShoppingCart }
+    ]
+  },
   { href: '/admin/statistics', labelKey: 'nav.statistics', icon: BarChart3, superadminOnly: true },
   { href: '/admin/settings/users', labelKey: 'nav.users', icon: Users, superadminOnly: true }
 ]
@@ -87,6 +100,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
   const { viewMode, setViewMode } = useViewModeStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
+  // Auto-expand templates if we're on a templates page
+  useEffect(() => {
+    if (pathname.startsWith('/admin/templates') || pathname.startsWith('/admin/orders/templates')) {
+      setExpandedItems((prev) => new Set([...prev, '/admin/templates']))
+    }
+  }, [pathname])
 
   // Filter navigation items based on user role
   const navItems = useMemo(() => {
@@ -148,12 +169,26 @@ export function AdminShell({ children, user }: AdminShellProps) {
     }
   }
 
+  const toggleExpanded = (href: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev)
+      if (next.has(href)) {
+        next.delete(href)
+      } else {
+        next.add(href)
+      }
+      return next
+    })
+  }
+
   // Navigation component - reused in both desktop sidebar and mobile drawer
   const NavLinks = ({ showLabels = true, onItemClick }: { showLabels?: boolean; onItemClick?: () => void }) => (
     <>
       {navItems.map((item) => {
         const Icon = item.icon
         const active = isActive(item.href)
+        const hasChildren = item.children && item.children.length > 0
+        const isExpanded = expandedItems.has(item.href)
 
         if (!showLabels) {
           return (
@@ -175,6 +210,48 @@ export function AdminShell({ children, user }: AdminShellProps) {
                 {t(item.labelKey)}
               </TooltipContent>
             </Tooltip>
+          )
+        }
+
+        if (hasChildren) {
+          return (
+            <div key={item.href}>
+              <button
+                onClick={() => toggleExpanded(item.href)}
+                className={cn(styles.navItem, active && styles.active, 'w-full')}
+              >
+                <Icon className={styles.navIcon} />
+                <span className={styles.navLabel}>{t(item.labelKey)}</span>
+                {isExpanded ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              {isExpanded && item.children && (
+                <div className="ml-4 space-y-1">
+                  {item.children.map((child) => {
+                    const ChildIcon = child.icon
+                    const childActive = isActive(child.href)
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={onItemClick}
+                        className={cn(
+                          styles.navItem,
+                          childActive && styles.active,
+                          'text-sm'
+                        )}
+                      >
+                        <ChildIcon className={styles.navIcon} />
+                        <span className={styles.navLabel}>{t(child.labelKey)}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         }
 

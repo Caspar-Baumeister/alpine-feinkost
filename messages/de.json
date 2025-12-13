@@ -9,6 +9,7 @@
     "products": "Produkte",
     "pos": "Verkaufsstellen",
     "packlists": "Packlisten",
+    "orders": "Bestellungen",
     "templates": "Vorlagen",
     "statistics": "Statistiken",
     "settings": "Einstellungen",
@@ -236,6 +237,86 @@
       "lastUsed": "Zuletzt verwendet",
       "productCount": "Anzahl Produkte",
       "actions": "Aktionen"
+    },
+    "packlistTemplates": "Packlisten-Vorlagen",
+    "orderTemplates": "Bestell-Vorlagen"
+  },
+  "orders": {
+    "title": "Bestellungen",
+    "description": "Verwalten Sie eingehende Bestellungen von Lieferanten",
+    "createOrder": "Neue Bestellung anlegen",
+    "editOrder": "Bestellung bearbeiten",
+    "receiveOrder": "Bestellung prüfen und bestätigen",
+    "columns": {
+      "name": "Name/Referenz",
+      "orderDate": "Bestelldatum",
+      "expectedArrival": "Erwartete Ankunft",
+      "status": "Status",
+      "productCount": "Anzahl Produkte",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "open": "Offen",
+      "check_pending": "Warte auf Prüfung",
+      "completed": "Abgeschlossen"
+    },
+    "form": {
+      "name": "Bestellname/Referenz",
+      "namePlaceholder": "z.B. Bestellung Käselieferant XY",
+      "orderDate": "Bestelldatum",
+      "expectedArrivalDate": "Erwartetes Ankunftsdatum",
+      "expectedArrivalDateRequired": "Erwartetes Ankunftsdatum ist erforderlich",
+      "note": "Notiz",
+      "products": "Produkte",
+      "product": "Produkt",
+      "orderedQuantity": "Bestellte Menge",
+      "receivedQuantity": "Erhaltene Menge",
+      "lineNote": "Notiz",
+      "addLine": "Produkt hinzufügen",
+      "removeLine": "Entfernen",
+      "startFromTemplate": "Von Vorlage starten",
+      "saveAsTemplate": "Als Vorlage speichern",
+      "templateName": "Vorlagenname"
+    },
+    "detail": {
+      "title": "Bestellungs-Details",
+      "summary": "Zusammenfassung",
+      "items": "Positionen",
+      "checkDelivery": "Lieferung prüfen",
+      "checkDescription": "Geben Sie die tatsächlich erhaltenen Mengen ein und bestätigen Sie die Bestellung",
+      "confirmOrder": "Bestellung prüfen und bestätigen",
+      "confirmed": "Diese Bestellung wurde abgeschlossen",
+      "ordered": "Bestellt",
+      "received": "Erhalten",
+      "difference": "Differenz"
+    },
+    "filters": {
+      "status": "Status",
+      "allStatuses": "Alle Status"
+    },
+    "empty": "Keine Bestellungen vorhanden"
+  },
+  "orderTemplates": {
+    "title": "Bestell-Vorlagen",
+    "description": "Verwalten Sie Bestell-Vorlagen",
+    "createTemplate": "Vorlage erstellen",
+    "editTemplate": "Vorlage bearbeiten",
+    "columns": {
+      "name": "Name",
+      "description": "Beschreibung",
+      "productCount": "Anzahl Produkte",
+      "actions": "Aktionen"
+    },
+    "form": {
+      "name": "Vorlagenname",
+      "description": "Beschreibung",
+      "note": "Notiz",
+      "products": "Produkte",
+      "product": "Produkt",
+      "defaultQuantity": "Standardmenge",
+      "lineNote": "Notiz",
+      "addLine": "Produkt hinzufügen",
+      "removeLine": "Entfernen"
     }
   },
   "users": {
@@ -296,6 +377,13 @@
       "workerNote": "Notiz zum Verkauf",
       "workerNotePlaceholder": "Optionale Anmerkungen zum Verkauf (z.B. beschädigte Ware, Besonderheiten, etc.)"
     }
+  },
+  "dashboard": {
+    "upcomingDeliveries": "Anstehende Lieferungen",
+    "upcomingDeliveriesDescription": "Offene Bestellungen mit erwarteten Ankunftsdaten",
+    "viewAllOrders": "Alle Bestellungen ansehen",
+    "overdue": "Überfällig",
+    "noUpcomingDeliveries": "Keine anstehenden Lieferungen"
   },
   "statistics": {
     "title": "Statistiken",
