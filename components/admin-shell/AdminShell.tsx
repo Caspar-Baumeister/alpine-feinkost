@@ -35,8 +35,10 @@ import { useViewModeStore } from '@/stores/useViewModeStore'
 import { signOut } from 'firebase/auth'
 import {
   BarChart3,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   ClipboardList,
   FileText,
   LayoutDashboard,
@@ -45,18 +47,16 @@ import {
   Menu,
   Package,
   ShoppingBag,
+  ShoppingCart,
   Store,
   UserCircle,
-  Users,
-  ShoppingCart,
-  ChevronDown,
-  ChevronUp
+  Users
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useMemo, useState, useEffect } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import styles from './AdminShell.module.css'
 
 interface AdminShellProps {
@@ -122,11 +122,35 @@ export function AdminShell({ children, user }: AdminShellProps) {
   // Check if user can switch views
   const canSwitch = canSwitchToWorkerView(user.role)
 
-  const isActive = (href: string) => {
+  const isActive = (href: string, isChildItem = false) => {
     if (href === '/admin') {
       return pathname === '/admin'
     }
-    return pathname.startsWith(href)
+
+    // For exact matches
+    if (pathname === href) {
+      return true
+    }
+
+    // For child items, check if pathname starts with the href
+    if (isChildItem) {
+      return pathname.startsWith(href + '/') || pathname === href
+    }
+
+    // For parent items, check if pathname starts with href but exclude child routes
+    if (pathname.startsWith(href + '/')) {
+      const remainingPath = pathname.slice(href.length + 1)
+      const firstSegment = remainingPath.split('/')[0]
+
+      // Special handling for /admin/orders - exclude /admin/orders/templates
+      if (href === '/admin/orders' && firstSegment === 'templates') {
+        return false
+      }
+
+      return true
+    }
+
+    return false
   }
 
   const getInitials = (name: string) => {
@@ -214,11 +238,16 @@ export function AdminShell({ children, user }: AdminShellProps) {
         }
 
         if (hasChildren) {
+          // For parent items with children, check if any child is active
+          // If a child is active, don't mark the parent as active
+          const hasActiveChild = item.children?.some((child) => isActive(child.href, true)) ?? false
+          const parentActive = !hasActiveChild && (pathname === item.href || pathname.startsWith(item.href + '/'))
+
           return (
             <div key={item.href}>
               <button
                 onClick={() => toggleExpanded(item.href)}
-                className={cn(styles.navItem, active && styles.active, 'w-full')}
+                className={cn(styles.navItem, parentActive && styles.active, 'w-full')}
               >
                 <Icon className={styles.navIcon} />
                 <span className={styles.navLabel}>{t(item.labelKey)}</span>
@@ -232,7 +261,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                 <div className="ml-4 space-y-1">
                   {item.children.map((child) => {
                     const ChildIcon = child.icon
-                    const childActive = isActive(child.href)
+                    const childActive = isActive(child.href, true)
                     return (
                       <Link
                         key={child.href}
