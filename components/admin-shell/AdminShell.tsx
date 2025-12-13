@@ -216,7 +216,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
           )}
         >
           {/* Logo */}
-          <div className={styles.logoContainer}>
+          <Link href="/" className={styles.logoContainer}>
             <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
               <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" unoptimized />
             </div>
@@ -225,7 +225,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                 {t('app.title')}
               </span>
             )}
-          </div>
+          </Link>
 
           {/* Navigation */}
           <nav className="flex-1 py-4 overflow-y-auto">
@@ -280,14 +280,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
                   <div className={styles.drawerNav}>
                     {/* Drawer Header */}
                     <SheetHeader className="p-0">
-                      <div className={styles.logoContainer}>
+                      <Link href="/" className={styles.logoContainer} onClick={handleNavClick}>
                         <div className="h-10 w-10 rounded-lg bg-white p-1 flex-shrink-0">
                           <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={40} height={40} className="w-full h-full object-contain" unoptimized />
                         </div>
                         <SheetTitle className={cn('ml-3', styles.logoText)}>
                           {t('app.title')}
                         </SheetTitle>
-                      </div>
+                      </Link>
                     </SheetHeader>
 
                     {/* User Info */}
@@ -338,17 +338,39 @@ export function AdminShell({ children, user }: AdminShellProps) {
               </Sheet>
 
               {/* Mobile Logo */}
-              <div className="flex items-center gap-2 lg:hidden">
+              <Link href="/" className="flex items-center gap-2 lg:hidden">
                 <div className="h-8 w-8 rounded-md bg-white p-0.5 flex-shrink-0">
                   <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={32} height={32} className="w-full h-full object-contain" unoptimized />
                 </div>
                 <span className={cn('text-lg font-semibold', styles.logoText)}>
                   {t('app.title')}
                 </span>
-              </div>
+              </Link>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+              {/* Go to Webshop Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="hidden sm:flex"
+              >
+                <Link href="/">
+                  <Store className="mr-2 h-4 w-4" />
+                  {t('nav.goToWebshop')}
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                asChild
+                className="sm:hidden"
+              >
+                <Link href="/" aria-label={t('nav.goToWebshop')}>
+                  <Store className="h-4 w-4" />
+                </Link>
+              </Button>
               {/* View Switcher - only for admin/superadmin */}
               {canSwitch && (
                 <ViewSwitcher

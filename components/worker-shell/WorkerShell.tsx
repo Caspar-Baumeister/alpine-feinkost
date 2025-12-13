@@ -19,7 +19,7 @@ import { AppUser } from '@/lib/firestore/types'
 import { cn } from '@/lib/utils'
 import { useViewModeStore } from '@/stores/useViewModeStore'
 import { signOut } from 'firebase/auth'
-import { ClipboardList, LayoutDashboard, Loader2, LogOut } from 'lucide-react'
+import { ClipboardList, LayoutDashboard, Loader2, LogOut, Store } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -100,15 +100,38 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
         )}
       >
         {/* Logo */}
-        <div className={styles.logoContainer}>
+        <Link href="/" className={styles.logoContainer}>
           <div className="h-9 w-9 rounded-lg bg-white p-0.5 flex-shrink-0">
             <Image src="/alpinefeinkostlabel.png" alt="Alpine Feinkost" width={36} height={36} className="w-full h-full object-contain" unoptimized />
           </div>
           <span className={styles.logoText}>{t('app.title')}</span>
-        </div>
+        </Link>
 
         {/* Right Side */}
         <div className="flex items-center gap-2">
+          {/* Go to Webshop Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="hidden sm:flex"
+          >
+            <Link href="/">
+              <Store className="mr-2 h-4 w-4" />
+              {t('nav.goToWebshop')}
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            asChild
+            className="sm:hidden"
+          >
+            <Link href="/" aria-label={t('nav.goToWebshop')}>
+              <Store className="h-4 w-4" />
+            </Link>
+          </Button>
+
           {/* View Switcher - only for admin/superadmin */}
           {canSwitch && (
             <ViewSwitcher

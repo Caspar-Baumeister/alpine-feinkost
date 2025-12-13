@@ -14,7 +14,8 @@
     "settings": "Einstellungen",
     "users": "Benutzerverwaltung",
     "logout": "Abmelden",
-    "myPacklists": "Meine Packlisten"
+    "myPacklists": "Meine Packlisten",
+    "goToWebshop": "Zum Webshop"
   },
   "user": {
     "openPacklists": "Offene Packlisten",
