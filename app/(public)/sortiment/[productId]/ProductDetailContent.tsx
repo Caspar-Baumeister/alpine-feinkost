@@ -155,17 +155,17 @@ export function ProductDetailContent({
   const mainImage = images[selectedImageIdx]
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground sm:mb-6">
         <Link href="/sortiment" className="hover:text-primary">
           {strings.back}
         </Link>
         <span className="text-border">/</span>
-        <span className="text-foreground">{product.name}</span>
+        <span className="truncate text-foreground">{product.name}</span>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="space-y-4">
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+        <div className="space-y-3 sm:space-y-4">
           <Card className="overflow-hidden border-border/70 bg-muted/30">
             <div className="relative aspect-square w-full bg-gradient-to-br from-emerald-500/10 via-background to-background">
               {mainImage ? (
@@ -186,17 +186,17 @@ export function ProductDetailContent({
           </Card>
 
           {images.length > 1 ? (
-            <div className="flex gap-3 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:gap-3">
               {images.map((image, index) => (
                 <button
                   key={image.path}
                   type="button"
                   onClick={() => setSelectedImageIdx(index)}
                   className={cn(
-                    'relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border transition',
+                    'relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border transition sm:h-20 sm:w-20',
                     selectedImageIdx === index
                       ? 'border-primary ring-2 ring-primary/40'
-                      : 'border-border/70 hover:border-primary/60'
+                      : 'border-border/70 hover:border-primary/60 active:border-primary/60'
                   )}
                   aria-label={`${product.name} thumbnail ${index + 1}`}
                 >
@@ -205,7 +205,7 @@ export function ProductDetailContent({
                     alt={product.name}
                     fill
                     className="object-cover"
-                    sizes="80px"
+                    sizes="(max-width: 640px) 64px, 80px"
                   />
                 </button>
               ))}
@@ -213,24 +213,26 @@ export function ProductDetailContent({
           ) : null}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-wide text-primary/80">Alpine Feinkost</p>
-            <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+            <h1 className="text-2xl font-semibold leading-tight text-foreground sm:text-3xl lg:text-4xl">
               {product.name}
             </h1>
-            <div className="text-xl font-semibold text-foreground">
+            <div className="text-lg font-semibold text-foreground sm:text-xl">
               {formatPrice(product.basePrice, locale)}{' '}
               <span className="text-muted-foreground">/ {product.unitLabel}</span>
             </div>
-            <p className="text-base text-muted-foreground">{product.description}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">{product.description}</p>
             {labels.length ? (
               <TooltipProvider delayDuration={100}>
                 <div className="flex flex-wrap gap-2 pt-2">
                   {labels.map((label) => (
                     <Tooltip key={label.slug}>
                       <TooltipTrigger asChild>
-                        <Badge variant="outline">{label.name}</Badge>
+                        <Badge variant="outline" className="text-xs sm:text-sm">
+                          {label.name}
+                        </Badge>
                       </TooltipTrigger>
                       {label.description ? (
                         <TooltipContent side="top" align="start" className="max-w-xs whitespace-pre-line">
@@ -245,13 +247,13 @@ export function ProductDetailContent({
           </div>
 
           <Card className="border-border/70 bg-card shadow-sm">
-            <div className="space-y-4 p-5 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div>
+            <div className="space-y-4 p-4 sm:p-5 lg:p-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">{strings.addToCartTitle}</p>
-                  <p className="text-sm text-muted-foreground">{product.unitLabel}</p>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{product.unitLabel}</p>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="shrink-0 text-xs">
                   {strings.cartSoon}
                 </Badge>
               </div>
@@ -265,10 +267,10 @@ export function ProductDetailContent({
                       type="button"
                       onClick={() => handleSelectSize(option.value)}
                       className={cn(
-                        'rounded-lg border px-3 py-2 text-sm font-medium transition',
+                        'rounded-lg border px-2 py-2 text-xs font-medium transition active:scale-95 sm:px-3 sm:text-sm',
                         selectedSize === option.value
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border/70 bg-card hover:border-primary/60'
+                          : 'border-border/70 bg-card hover:border-primary/60 active:border-primary/60'
                       )}
                     >
                       {option.label}
@@ -279,7 +281,7 @@ export function ProductDetailContent({
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-foreground">{strings.quantityLabel}</p>
-                <div className="flex w-28 items-center gap-2">
+                <div className="flex w-full max-w-32 items-center gap-2">
                   <Input
                     type="number"
                     min={1}
@@ -290,7 +292,7 @@ export function ProductDetailContent({
                 </div>
               </div>
 
-              <Button onClick={handleAddToCart} className="w-full">
+              <Button onClick={handleAddToCart} className="w-full" size="lg">
                 {strings.addToCartCta}
               </Button>
 
@@ -302,28 +304,30 @@ export function ProductDetailContent({
         </div>
       </div>
 
-      <div className="mt-12 space-y-10">
+      <div className="mt-8 space-y-6 sm:mt-12 sm:space-y-10">
         <section className="space-y-3">
-          <h2 className="text-xl font-semibold text-foreground">{strings.descriptionTitle}</h2>
-          <p className="text-base leading-relaxed text-muted-foreground">{product.description}</p>
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{strings.descriptionTitle}</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">{product.description}</p>
         </section>
 
         <Separator />
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">{strings.labelsTitle}</h2>
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{strings.labelsTitle}</h2>
 
           {labels.length ? (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
               {labels.map((label) => (
-                <Card key={label.slug} className="border-border/70 bg-card/60 p-4 shadow-sm">
+                <Card key={label.slug} className="border-border/70 bg-card/60 p-3 shadow-sm sm:p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-2">
+                    <div className="space-y-2 min-w-0">
                       <p className="text-sm font-semibold text-foreground">{label.name}</p>
                       {label.description ? (
-                        <p className="text-sm text-muted-foreground whitespace-pre-line">{label.description}</p>
+                        <p className="text-xs text-muted-foreground whitespace-pre-line sm:text-sm">
+                          {label.description}
+                        </p>
                       ) : (
-                        <p className="text-sm text-muted-foreground">{strings.labelsEmpty}</p>
+                        <p className="text-xs text-muted-foreground sm:text-sm">{strings.labelsEmpty}</p>
                       )}
                     </div>
                   </div>
@@ -338,26 +342,26 @@ export function ProductDetailContent({
         <Separator />
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">{strings.availabilityTitle}</h2>
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{strings.availabilityTitle}</h2>
 
           {markets.length ? (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
               {markets.map((market) => (
-                <Card key={market.id} className="border-border/70 bg-card/60 p-4 shadow-sm">
+                <Card key={market.id} className="border-border/70 bg-card/60 p-3 shadow-sm sm:p-4">
                   <div className="space-y-1">
-                    <p className="text-base font-semibold text-foreground">{market.name}</p>
+                    <p className="text-sm font-semibold text-foreground sm:text-base">{market.name}</p>
                     {market.location ? (
-                      <p className="text-sm text-muted-foreground">{market.location}</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">{market.location}</p>
                     ) : null}
                     {market.notes ? (
-                      <p className="text-sm text-muted-foreground">{market.notes}</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">{market.notes}</p>
                     ) : null}
                   </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="border-dashed border-border/70 bg-muted/30 p-4 text-sm text-muted-foreground">
+            <Card className="border-dashed border-border/70 bg-muted/30 p-3 text-sm text-muted-foreground sm:p-4">
               {strings.availabilityPlaceholder || strings.availabilityEmpty}
             </Card>
           )}
