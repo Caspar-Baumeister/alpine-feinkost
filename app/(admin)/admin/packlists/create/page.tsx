@@ -1,23 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { Loader2 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
-import { PacklistForm } from './PacklistForm'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 import {
-  listProducts,
-  listPos,
-  listUsers,
-  listPacklistTemplates,
-  Product,
-  Pos,
   AppUser,
-  PacklistTemplate
+  listPacklistTemplates,
+  listPos,
+  listProducts,
+  listUsers,
+  PacklistTemplate,
+  Pos,
+  Product
 } from '@/lib/firestore'
+import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
+import { PacklistForm } from './PacklistForm'
 
 export default function CreatePacklistPage() {
   const t = useTranslations('packlists')
+  const { firebaseUser, isLoading: authLoading } = useCurrentUser()
   const [products, setProducts] = useState<Product[]>([])
   const [posList, setPosList] = useState<Pos[]>([])
   const [users, setUsers] = useState<AppUser[]>([])
@@ -25,27 +27,60 @@ export default function CreatePacklistPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Wait for auth to be ready before loading data
+    if (authLoading) return
+
     const loadData = async () => {
+      // Ensure auth is ready
+      if (!firebaseUser) {
+        setIsLoading(false)
+        return
+      }
+
+      // Load data sequentially and set state immediately after each successful call
+      // This way, if one call fails, the others still show
       try {
-        const [productsData, posData, usersData, templatesData] = await Promise.all([
-          listProducts(),
-          listPos(),
-          listUsers(),
-          listPacklistTemplates()
-        ])
+        const productsData = await listProducts()
         setProducts(productsData.filter((p) => p.isActive))
+      } catch (error) {
+        console.error('Failed to load products:', error)
+      }
+
+      try {
+        const posData = await listPos()
         setPosList(posData.filter((p) => p.active))
+      } catch (error) {
+        console.error('Failed to load POS:', error)
+      }
+
+      try {
+        const usersData = await listUsers()
         setUsers(usersData.filter((u) => u.active))
+      } catch (error) {
+        console.error('Failed to load users:', error)
+      }
+
+      try {
+        const templatesData = await listPacklistTemplates()
         setTemplates(templatesData)
       } catch (error) {
-        console.error('Failed to load data:', error)
+        // Handle permission errors gracefully - treat as "no templates available"
+        // This can happen if the templates collection doesn't exist yet or rules deny access
+        const errorCode = (error as any)?.code
+        if (errorCode === 'permission-denied' || errorCode === 'permissions-denied') {
+          // Silently handle missing templates collection
+          setTemplates([])
+        } else {
+          console.error('Failed to load templates:', error)
+          setTemplates([])
+        }
       } finally {
         setIsLoading(false)
       }
     }
 
     loadData()
-  }, [])
+  }, [firebaseUser, authLoading])
 
   if (isLoading) {
     return (
