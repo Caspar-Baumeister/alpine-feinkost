@@ -1,0 +1,142 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper: ist der User eingeloggt?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: Prüft ob User-Dokument existiert
+    function hasUserDoc() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Helper: User-Dokument laden
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Helper: Rolle(n) prüfen (defensiv)
+    function hasRole(role) {
+      return hasUserDoc()
+        && userDoc().data.role == role;
+    }
+
+    function hasAnyRole(roles) {
+      return hasUserDoc()
+        && userDoc().data.role in roles;
+    }
+
+    function isAdminOrAbove() {
+      return hasAnyRole(['admin', 'superadmin']);
+    }
+
+    function isWorkerOrAbove() {
+      return hasAnyRole(['worker', 'admin', 'superadmin']);
+    }
+
+    // ─────────────────────────────
+    // users – alle eingeloggten können lesen, nur sich selbst schreiben
+    // ─────────────────────────────
+    match /users/{userId} {
+      // any signed-in user can read any user document
+      allow read: if isSignedIn();
+
+      // only the user themself can write to their own document
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ─────────────────────────────
+    // products – public read, nur admin/superadmin write
+    // ─────────────────────────────
+    match /products/{productId} {
+      // Webshop: jeder darf Produkte lesen, auch ohne Login
+      allow read: if true;
+
+      // Nur admin & superadmin dürfen Produkte anlegen/ändern/löschen
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // labels – public read, admin/superadmin write
+    // ─────────────────────────────
+    match /labels/{labelId} {
+      allow read: if true;
+
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // pos (Märkte/Standorte)
+    // ─────────────────────────────
+    match /pos/{posId} {
+      allow read: if true;
+
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // packlists – nur eingeloggte Rollen, worker darf bearbeiten
+    // ─────────────────────────────
+    match /packlists/{packlistId} {
+      // Nur interne User (worker/admin/superadmin) haben Zugriff
+      allow read: if isWorkerOrAbove();
+
+      // Bearbeiten (anlegen/ändern) darf worker/admin/superadmin
+      allow create, update: if isWorkerOrAbove();
+
+      // Löschen nur für admin/superadmin
+      allow delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // packlistTemplates – nur intern
+    // ─────────────────────────────
+    match /packlistTemplates/{templateId} {
+      allow read: if isWorkerOrAbove();
+
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // orders – nur eingeloggte Rollen, worker darf bearbeiten
+    // ─────────────────────────────
+    match /orders/{orderId} {
+      // Nur interne User (worker/admin/superadmin) haben Zugriff
+      allow read: if isWorkerOrAbove();
+
+      // Bearbeiten (anlegen/ändern) darf worker/admin/superadmin
+      allow create, update: if isWorkerOrAbove();
+
+      // Löschen nur für admin/superadmin
+      allow delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // orderTemplates – nur intern
+    // ─────────────────────────────
+    match /orderTemplates/{templateId} {
+      allow read: if isWorkerOrAbove();
+
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // templates – nur intern (legacy, falls noch verwendet)
+    // ─────────────────────────────
+    match /templates/{templateId} {
+      allow read: if isWorkerOrAbove();
+
+      allow create, update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
+    // Default: alles andere dicht
+    // ─────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

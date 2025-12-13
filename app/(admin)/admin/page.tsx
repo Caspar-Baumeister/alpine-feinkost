@@ -18,7 +18,7 @@ import { PageHeader } from '@/components/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { listOrdersByStatus, Order } from '@/lib/firestore'
+import { listOrders, Order } from '@/lib/firestore'
 import { useLocale } from 'next-intl'
 
 const placeholderStats = [
@@ -229,21 +229,27 @@ function UpcomingDeliveriesCard() {
   const dateLocale = locale === 'de' ? de : enUS
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const [openOrders, pendingOrders] = await Promise.all([
-          listOrdersByStatus('open'),
-          listOrdersByStatus('check_pending')
-        ])
-        const allOrders = [...openOrders, ...pendingOrders]
+        // Load all orders and filter client-side to avoid composite index requirements
+        const allOrders = await listOrders()
+        // Filter to only open and check_pending orders
+        const upcomingOrders = allOrders.filter(
+          (order) => order.status === 'open' || order.status === 'check_pending'
+        )
         // Sort by expected arrival date ascending
-        allOrders.sort((a, b) => a.expectedArrivalDate.getTime() - b.expectedArrivalDate.getTime())
+        upcomingOrders.sort((a, b) => a.expectedArrivalDate.getTime() - b.expectedArrivalDate.getTime())
         // Take first 5
-        setOrders(allOrders.slice(0, 5))
+        setOrders(upcomingOrders.slice(0, 5))
+        setHasError(false)
       } catch (error) {
         console.error('Failed to load orders:', error)
+        setHasError(true)
+        // Set empty array on error so UI shows "no orders" instead of breaking
+        setOrders([])
       } finally {
         setIsLoading(false)
       }
@@ -274,6 +280,10 @@ function UpcomingDeliveriesCard() {
         {isLoading ? (
           <div className="text-center py-4 text-sm text-muted-foreground">
             {locale === 'de' ? 'Laden...' : 'Loading...'}
+          </div>
+        ) : hasError ? (
+          <div className="rounded-lg border border-dashed border-muted p-3 text-sm text-muted-foreground">
+            {locale === 'de' ? 'Fehler beim Laden der Bestellungen' : 'Error loading orders'}
           </div>
         ) : orders.length === 0 ? (
           <div className="rounded-lg border border-dashed border-muted p-3 text-sm text-muted-foreground">
