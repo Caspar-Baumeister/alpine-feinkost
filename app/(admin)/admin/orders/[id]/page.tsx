@@ -30,10 +30,13 @@ import { Badge } from '@/components/ui/badge'
 import {
   getOrder,
   confirmOrder,
+  updateOrder,
   Order
 } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
+import { uploadOrderDocumentImage, deleteOrderDocumentImage } from '@/lib/storage/orders'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -54,6 +57,8 @@ export default function OrderDetailPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null)
   const [notFoundState, setNotFoundState] = useState(false)
   const [receivedQuantities, setReceivedQuantities] = useState<Map<string, number>>(new Map())
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null)
+  const [isUpdatingPhoto, setIsUpdatingPhoto] = useState(false)
 
   const loadData = async () => {
     try {
@@ -64,6 +69,12 @@ export default function OrderDetailPage({ params }: PageProps) {
       }
 
       setOrder(orderData)
+      if (orderData.bestelllistePhoto?.storagePath) {
+        const url = getPublicStorageUrl(orderData.bestelllistePhoto.storagePath)
+        setPhotoPreviewUrl(url)
+      } else {
+        setPhotoPreviewUrl(null)
+      }
 
       // Initialize received quantities with ordered quantities (or existing received if set)
       const initialQuantities = new Map<string, number>()
@@ -131,6 +142,47 @@ export default function OrderDetailPage({ params }: PageProps) {
     }
   }
 
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!order || !currentUser) return
+
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsUpdatingPhoto(true)
+    try {
+      // Delete previous image if present
+      if (order.bestelllistePhoto?.storagePath) {
+        await deleteOrderDocumentImage(order.bestelllistePhoto.storagePath)
+      }
+
+      const storagePath = await uploadOrderDocumentImage(order.id, file)
+      await updateOrder(order.id, {
+        bestelllistePhoto: {
+          storagePath,
+          contentType: file.type || undefined,
+          originalFileName: file.name,
+          sizeBytes: file.size
+        }
+      })
+
+      const url = getPublicStorageUrl(storagePath)
+      setPhotoPreviewUrl(url)
+      setOrder({
+        ...order,
+        bestelllistePhoto: {
+          storagePath,
+          contentType: file.type || undefined,
+          originalFileName: file.name,
+          sizeBytes: file.size
+        }
+      })
+    } catch (error) {
+      console.error('Failed to update order document image:', error)
+    } finally {
+      setIsUpdatingPhoto(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -167,6 +219,31 @@ export default function OrderDetailPage({ params }: PageProps) {
           </p>
         </div>
       </div>
+
+      {/* Totals summary always visible */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {locale === 'de' ? 'Total (Gewicht)' : 'Total (weight)'}
+              </p>
+              <p className="text-lg font-semibold">
+                {order.totalKg.toFixed(2)} kg
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {locale === 'de' ? 'Total (Stück)' : 'Total (pieces)'}
+              </p>
+              <p className="text-lg font-semibold">
+                {order.totalPieces}{' '}
+                {locale === 'de' ? 'Stück' : 'pieces'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Error Message */}
       {error && (
@@ -346,6 +423,49 @@ export default function OrderDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Bestellliste / Auftrag photo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {locale === 'de' ? 'Bestellliste / Auftrag Foto' : 'Order sheet photo'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="order-photo">
+              {locale === 'de'
+                ? 'Foto hochladen oder ersetzen'
+                : 'Upload or replace photo'}
+            </Label>
+            <Input
+              id="order-photo"
+              type="file"
+              accept="image/*"
+              disabled={isUpdatingPhoto}
+              onChange={handlePhotoChange}
+            />
+            {isUpdatingPhoto && (
+              <p className="text-xs text-muted-foreground flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                {locale === 'de' ? 'Lade Foto hoch…' : 'Uploading photo…'}
+              </p>
+            )}
+          </div>
+          {photoPreviewUrl && (
+            <div className="mt-2">
+              <p className="mb-1 text-xs text-muted-foreground">
+                {locale === 'de' ? 'Aktuelles Foto:' : 'Current photo:'}
+              </p>
+              <img
+                src={photoPreviewUrl}
+                alt="Bestellliste"
+                className="h-40 w-auto rounded-md border object-cover"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -52,12 +52,13 @@ import {
   OrderTemplate,
   OrderItem,
   createOrder,
-  createOrderTemplate
+  createOrderTemplate,
+  updateOrder
 } from '@/lib/firestore'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 import { cn } from '@/lib/utils'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
-import { PageHeader } from '@/components/page-header'
+import { uploadOrderDocumentImage } from '@/lib/storage/orders'
 
 interface OrderFormProps {
   products: Product[]
@@ -99,9 +100,38 @@ export function OrderForm({ products, templates }: OrderFormProps) {
   const [templateName, setTemplateName] = useState('')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null)
 
   // Product selector state
   const [productSearchOpen, setProductSearchOpen] = useState(false)
+
+  const isWeightUnit = (unitType: Product['unitType']) => {
+    return unitType === 'kg' || unitType === 'weight' || unitType === 'g'
+  }
+
+  const toKg = (value: number, unitType: Product['unitType']) => {
+    if (unitType === 'g') return value / 1000
+    return value
+  }
+
+  const totals = useMemo(() => {
+    let totalKg = 0
+    let totalPieces = 0
+
+    for (const item of lineItems) {
+      if (isWeightUnit(item.unitType)) {
+        totalKg += toKg(item.orderedQuantity, item.unitType)
+      } else {
+        totalPieces += item.orderedQuantity
+      }
+    }
+
+    return {
+      totalKg: Number(totalKg.toFixed(2)),
+      totalPieces
+    }
+  }, [lineItems])
 
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId)
@@ -150,25 +180,43 @@ export function OrderForm({ products, templates }: OrderFormProps) {
     setLineItems(lineItems.filter((item) => item.id !== id))
   }
 
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      setPhotoFile(null)
+      setPhotoPreviewUrl(null)
+      return
+    }
+
+    // Simple reuse of the product preview pattern
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPhotoPreviewUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+    setPhotoFile(file)
+  }
+
   const handleSubmit = async () => {
     if (!currentUser || !expectedArrivalDate) return
 
     setIsSaving(true)
 
     try {
-      // Convert line items to OrderItem format
+      // Convert line items to OrderItem format (including unitTypeSnapshot)
       const items: OrderItem[] = lineItems.map((item) => ({
         productId: item.productId,
         productName: item.productName,
         unitType: item.unitType,
         unitLabel: item.unitLabel,
+        unitTypeSnapshot: item.unitType,
         orderedQuantity: item.orderedQuantity || 0,
         receivedQuantity: null,
         note: item.note
       }))
 
       // Create the order
-      await createOrder({
+      const orderId = await createOrder({
         name: orderName || null,
         orderDate: orderDate || new Date(),
         expectedArrivalDate,
@@ -197,6 +245,23 @@ export function OrderForm({ products, templates }: OrderFormProps) {
         })
       }
 
+      // Optional: upload Bestellliste/Auftrag photo
+      if (photoFile) {
+        try {
+          const storagePath = await uploadOrderDocumentImage(orderId, photoFile)
+          await updateOrder(orderId, {
+            bestelllistePhoto: {
+              storagePath,
+              contentType: photoFile.type || undefined,
+              originalFileName: photoFile.name,
+              sizeBytes: photoFile.size
+            }
+          })
+        } catch (error) {
+          console.error('Failed to upload order document image:', error)
+        }
+      }
+
       router.push('/admin/orders')
     } catch (error) {
       console.error('Failed to create order:', error)
@@ -207,8 +272,6 @@ export function OrderForm({ products, templates }: OrderFormProps) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t('createOrder')} description={t('description')} />
-
       {/* Basic Info */}
       <Card>
         <CardHeader>
@@ -476,6 +539,65 @@ export function OrderForm({ products, templates }: OrderFormProps) {
           )}
         </Button>
       </div>
+
+      {/* Totals summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">
+            {locale === 'de' ? 'Summen' : 'Totals'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          <p className="text-sm">
+            <span className="font-medium">
+              {locale === 'de' ? 'Total:' : 'Total:'}{' '}
+            </span>
+            {totals.totalKg.toFixed(2)} kg
+          </p>
+          <p className="text-sm">
+            <span className="font-medium">
+              {locale === 'de' ? 'Total:' : 'Total:'}{' '}
+            </span>
+            {totals.totalPieces}{' '}
+            {locale === 'de' ? 'Stück' : 'pieces'}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Bestellliste / Auftrag photo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">
+            {locale === 'de' ? 'Bestellliste / Auftrag Foto' : 'Order sheet photo'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+            />
+            <p className="text-xs text-muted-foreground">
+              {locale === 'de'
+                ? 'Optional: Foto der Bestellliste oder des Auftrags hochladen.'
+                : 'Optional: upload a photo of the order sheet.'}
+            </p>
+          </div>
+          {photoPreviewUrl && (
+            <div className="mt-2">
+              <p className="mb-1 text-xs text-muted-foreground">
+                {locale === 'de' ? 'Vorschau:' : 'Preview:'}
+              </p>
+              <img
+                src={photoPreviewUrl}
+                alt="Bestellliste Vorschau"
+                className="h-32 w-auto rounded-md border object-cover"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

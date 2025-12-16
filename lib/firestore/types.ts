@@ -132,6 +132,8 @@ export type OrderItem = {
   productName: string
   unitType: ProductUnitType
   unitLabel: string
+  // Snapshot of unit type at time of ordering to keep totals stable
+  unitTypeSnapshot: ProductUnitType
   orderedQuantity: number
   receivedQuantity: number | null  // null until delivery is checked
   note: string
@@ -146,6 +148,16 @@ export type Order = {
   note: string
   templateId: string | null
   items: OrderItem[]
+  // Persisted totals derived from items[]
+  totalKg: number
+  totalPieces: number
+  // Optional photo of the Bestellliste/Auftrag
+  bestelllistePhoto?: {
+    storagePath: string
+    contentType?: string
+    originalFileName?: string
+    sizeBytes?: number
+  } | null
   confirmedBy: string | null
   confirmedAt: Date | null
   createdBy: string

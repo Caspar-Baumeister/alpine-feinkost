@@ -22,20 +22,61 @@ function timestampToDate(timestamp: Timestamp | null | undefined): Date | null {
   return timestamp ? timestamp.toDate() : null
 }
 
+function isWeightUnit(unitType: ProductUnitType): boolean {
+  return unitType === 'kg' || unitType === 'weight' || unitType === 'g'
+}
+
+function toKg(value: number, unitType: ProductUnitType): number {
+  if (unitType === 'g') {
+    return value / 1000
+  }
+  // For kg or generic weight, use value as-is
+  return value
+}
+
+function calculateTotalsFromItems(items: OrderItem[]): { totalKg: number; totalPieces: number } {
+  let totalKg = 0
+  let totalPieces = 0
+
+  for (const item of items) {
+    const unitTypeSnapshot = item.unitTypeSnapshot || item.unitType
+    if (isWeightUnit(unitTypeSnapshot)) {
+      totalKg += toKg(item.orderedQuantity, unitTypeSnapshot)
+    } else {
+      totalPieces += item.orderedQuantity
+    }
+  }
+
+  return {
+    totalKg: Number(totalKg.toFixed(2)),
+    totalPieces
+  }
+}
+
 function docToOrder(id: string, data: Record<string, unknown>): Order {
-  const items = (data.items as Record<string, unknown>[] || []).map((item) => {
+  const items = ((data.items as Record<string, unknown>[]) || []).map((item) => {
     const rawUnitType = (item.unitType as ProductUnitType) ?? 'piece'
     const unitType = rawUnitType === 'weight' ? 'kg' : rawUnitType
+    const unitTypeSnapshot = (item.unitTypeSnapshot as ProductUnitType) ?? unitType
+
     return {
       productId: item.productId as string,
-      productName: item.productName as string || '',
+      productName: (item.productName as string) || '',
       unitType,
       unitLabel: item.unitLabel as string,
+      unitTypeSnapshot,
       orderedQuantity: item.orderedQuantity as number,
       receivedQuantity: (item.receivedQuantity as number | null) ?? null,
-      note: item.note as string || ''
+      note: (item.note as string) || ''
     }
   })
+
+  const storedTotalKg = (data.totalKg as number | null) ?? null
+  const storedTotalPieces = (data.totalPieces as number | null) ?? null
+  const { totalKg, totalPieces } =
+    storedTotalKg === null || storedTotalPieces === null
+      ? calculateTotalsFromItems(items)
+      : { totalKg: storedTotalKg, totalPieces: storedTotalPieces }
 
   return {
     id,
@@ -43,12 +84,15 @@ function docToOrder(id: string, data: Record<string, unknown>): Order {
     orderDate: timestampToDate(data.orderDate as Timestamp) ?? new Date(),
     expectedArrivalDate: timestampToDate(data.expectedArrivalDate as Timestamp) ?? new Date(),
     status: (data.status as OrderStatus) ?? 'open',
-    note: data.note as string || '',
+    note: (data.note as string) || '',
     templateId: (data.templateId as string | null) ?? null,
     items,
+    totalKg,
+    totalPieces,
+    bestelllistePhoto: (data.bestelllistePhoto as Order['bestelllistePhoto']) ?? null,
     confirmedBy: (data.confirmedBy as string | null) ?? null,
     confirmedAt: timestampToDate(data.confirmedAt as Timestamp | null),
-    createdBy: data.createdBy as string || '',
+    createdBy: (data.createdBy as string) || '',
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
   }
@@ -90,6 +134,13 @@ export async function createOrder(
 ): Promise<string> {
   const colRef = collection(db, COLLECTION)
 
+  const itemsWithSnapshot: OrderItem[] = data.items.map((item) => ({
+    ...item,
+    unitTypeSnapshot: item.unitTypeSnapshot || item.unitType
+  }))
+
+  const { totalKg, totalPieces } = calculateTotalsFromItems(itemsWithSnapshot)
+
   const docData = {
     name: data.name,
     orderDate: Timestamp.fromDate(data.orderDate),
@@ -98,15 +149,19 @@ export async function createOrder(
     note: data.note,
     templateId: data.templateId,
     createdBy: data.createdBy,
-    items: data.items.map((item) => ({
+    items: itemsWithSnapshot.map((item) => ({
       productId: item.productId,
       productName: item.productName,
       unitType: item.unitType,
       unitLabel: item.unitLabel,
+      unitTypeSnapshot: item.unitTypeSnapshot,
       orderedQuantity: item.orderedQuantity,
       receivedQuantity: null,
       note: item.note
     })),
+    totalKg,
+    totalPieces,
+    bestelllistePhoto: data.bestelllistePhoto ?? null,
     confirmedBy: null,
     confirmedAt: null,
     createdAt: serverTimestamp(),
@@ -136,15 +191,27 @@ export async function updateOrder(
   if (data.note !== undefined) updateData.note = data.note
   if (data.templateId !== undefined) updateData.templateId = data.templateId
   if (data.items !== undefined) {
-    updateData.items = data.items.map((item) => ({
+    const itemsWithSnapshot: OrderItem[] = data.items.map((item) => ({
+      ...item,
+      unitTypeSnapshot: item.unitTypeSnapshot || item.unitType
+    }))
+    const totals = calculateTotalsFromItems(itemsWithSnapshot)
+
+    updateData.items = itemsWithSnapshot.map((item) => ({
       productId: item.productId,
       productName: item.productName,
       unitType: item.unitType,
       unitLabel: item.unitLabel,
+      unitTypeSnapshot: item.unitTypeSnapshot,
       orderedQuantity: item.orderedQuantity,
       receivedQuantity: item.receivedQuantity,
       note: item.note
     }))
+    updateData.totalKg = totals.totalKg
+    updateData.totalPieces = totals.totalPieces
+  }
+  if (data.bestelllistePhoto !== undefined) {
+    updateData.bestelllistePhoto = data.bestelllistePhoto
   }
 
   await updateDoc(docRef, updateData)
@@ -192,7 +259,13 @@ export async function confirmOrder(
       }
     })
 
-    // For each item, update product stock
+    // For each item, prepare product stock updates
+    const productUpdates: Array<{
+      productId: string
+      newTotalStock: number
+      newCurrentStock: number
+    }> = []
+
     for (const item of updatedItems) {
       const productId = item.productId as string
       const receivedQty = item.receivedQuantity as number
@@ -204,20 +277,30 @@ export async function confirmOrder(
 
       if (productSnap.exists()) {
         const productData = productSnap.data()
-        const currentTotalStock = productData.totalStock as number ?? 0
-        const currentCurrentStock = productData.currentStock as number ?? currentTotalStock
+        const currentTotalStock = (productData.totalStock as number) ?? 0
+        const currentCurrentStock = (productData.currentStock as number) ?? currentTotalStock
 
         // Add received quantity to both totalStock and currentStock
         const newTotalStock = currentTotalStock + receivedQty
         const newCurrentStock = currentCurrentStock + receivedQty
 
-        transaction.update(productRef, {
-          totalStock: newTotalStock,
-          currentStock: newCurrentStock,
-          ...stockUserUpdate,
-          updatedAt: serverTimestamp()
+        productUpdates.push({
+          productId,
+          newTotalStock,
+          newCurrentStock
         })
       }
+    }
+
+    // After all reads, perform the product stock updates
+    for (const update of productUpdates) {
+      const productRef = doc(db, PRODUCTS_COLLECTION, update.productId)
+      transaction.update(productRef, {
+        totalStock: update.newTotalStock,
+        currentStock: update.newCurrentStock,
+        ...stockUserUpdate,
+        updatedAt: serverTimestamp()
+      })
     }
 
     // Write: update the order
