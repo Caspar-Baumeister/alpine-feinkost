@@ -1,19 +1,19 @@
 import { db } from '@/lib/firebase'
 import {
   Timestamp,
+  addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
-  addDoc,
-  updateDoc,
-  query,
   orderBy,
-  where,
+  query,
+  runTransaction,
   serverTimestamp,
-  runTransaction
+  updateDoc,
+  where
 } from 'firebase/firestore'
-import { Order, OrderStatus, OrderItem, ProductUnitType } from './types'
+import { Order, OrderItem, OrderStatus, ProductUnitType } from './types'
 
 const COLLECTION = 'orders'
 const PRODUCTS_COLLECTION = 'products'
@@ -130,7 +130,10 @@ export async function getOrder(id: string): Promise<Order | null> {
 }
 
 export async function createOrder(
-  data: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'confirmedBy' | 'confirmedAt'>
+  data: Omit<
+    Order,
+    'id' | 'createdAt' | 'updatedAt' | 'confirmedBy' | 'confirmedAt' | 'totalKg' | 'totalPieces'
+  >
 ): Promise<string> {
   const colRef = collection(db, COLLECTION)
 
@@ -248,7 +251,16 @@ export async function confirmOrder(
     }
 
     // Update order items with received quantities
-    const existingItems = orderData.items as Record<string, unknown>[]
+    const existingItems = orderData.items as Array<{
+      productId: string
+      productName: string
+      unitType: ProductUnitType
+      unitLabel: string
+      unitTypeSnapshot?: ProductUnitType
+      orderedQuantity: number
+      receivedQuantity?: number | null
+      note?: string
+    }>
     const updatedItems = existingItems.map((item) => {
       const receivedItem = itemsWithReceivedQuantity.find(
         (ri) => ri.productId === item.productId

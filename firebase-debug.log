@@ -1,0 +1,93 @@
+[debug] [2025-12-16T10:33:23.793Z] ----------------------------------------------------------------------
+[debug] [2025-12-16T10:33:23.796Z] Command:       /opt/homebrew/Cellar/node/24.4.1/bin/node /opt/homebrew/bin/firebase deploy --only hosting
+[debug] [2025-12-16T10:33:23.796Z] CLI Version:   14.21.0
+[debug] [2025-12-16T10:33:23.796Z] Platform:      darwin
+[debug] [2025-12-16T10:33:23.796Z] Node Version:  v24.4.1
+[debug] [2025-12-16T10:33:23.796Z] Time:          Tue Dec 16 2025 11:33:23 GMT+0100 (Central European Standard Time)
+[debug] [2025-12-16T10:33:23.796Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-12-16T10:33:23.797Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-12-16T10:33:23.918Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-16T10:33:23.918Z] > authorizing via signed-in user (caspar.baumeister.privat@gmail.com)
+[debug] [2025-12-16T10:33:23.918Z] [iam] checking project alpine-feinkost-11333 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-12-16T10:33:23.918Z] Checked if tokens are valid: false, expires at: 1765643844428
+[debug] [2025-12-16T10:33:23.918Z] Checked if tokens are valid: false, expires at: 1765643844428
+[debug] [2025-12-16T10:33:23.918Z] > refreshing access token with scopes: []
+[debug] [2025-12-16T10:33:23.919Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-12-16T10:33:23.919Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-12-16T10:33:24.028Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-12-16T10:33:24.028Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-12-16T10:33:24.047Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/alpine-feinkost-11333:testIamPermissions [none]
+[debug] [2025-12-16T10:33:24.047Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/alpine-feinkost-11333:testIamPermissions x-goog-quota-user=projects/alpine-feinkost-11333
+[debug] [2025-12-16T10:33:24.047Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/alpine-feinkost-11333:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-12-16T10:33:24.298Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-12-16T10:33:24.298Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-12-16T10:33:24.871Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/alpine-feinkost-11333:testIamPermissions 200
+[debug] [2025-12-16T10:33:24.872Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/alpine-feinkost-11333:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-12-16T10:33:24.872Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:24.872Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:24.872Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333 [none]
+[debug] [2025-12-16T10:33:25.334Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333 200
+[debug] [2025-12-16T10:33:25.334Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333 {"projectId":"alpine-feinkost-11333","projectNumber":"948167685330","displayName":"alpine-feinkost","name":"projects/alpine-feinkost-11333","resources":{"hostingSite":"alpine-feinkost-11333"},"state":"ACTIVE","etag":"1_2cd261a4-18ba-4860-9495-8b63d2fd79de"}
+[debug] [2025-12-16T10:33:27.904Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:27.904Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:27.904Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites pageToken=&pageSize=10
+[debug] [2025-12-16T10:33:28.950Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites 200
+[debug] [2025-12-16T10:33:28.950Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites {"sites":[{"name":"projects/alpine-feinkost-11333/sites/alpine-feinkost-11333","defaultUrl":"https://alpine-feinkost-11333.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2025-12-16T10:33:28.951Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:28.951Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:28.951Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites 
+[debug] [2025-12-16T10:33:29.335Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites 200
+[debug] [2025-12-16T10:33:29.336Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites {"sites":[{"name":"projects/alpine-feinkost-11333/sites/alpine-feinkost-11333","defaultUrl":"https://alpine-feinkost-11333.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2025-12-16T10:33:29.336Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:29.336Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:29.336Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333/webApps/-/config [none]
+[debug] [2025-12-16T10:33:30.104Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333/webApps/-/config 200
+[debug] [2025-12-16T10:33:30.104Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/alpine-feinkost-11333/webApps/-/config {"projectId":"alpine-feinkost-11333","appId":"1:948167685330:web:5117f02a20c6f09e69690b","storageBucket":"alpine-feinkost-11333.firebasestorage.app","apiKey":"AIzaSyCKRtvaCoZufKKDZRO9YfUYTaOU9W80gIE","authDomain":"alpine-feinkost-11333.firebaseapp.com","messagingSenderId":"948167685330","projectNumber":"948167685330","version":"2"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 15.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-12-16T10:33:33.701Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:33.701Z] Checked if tokens are valid: true, expires at: 1765884803028
+[debug] [2025-12-16T10:33:33.701Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites/alpine-feinkost-11333 [none]
+[debug] [2025-12-16T10:33:33.906Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites/alpine-feinkost-11333 200
+[debug] [2025-12-16T10:33:33.906Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/alpine-feinkost-11333/sites/alpine-feinkost-11333 {"name":"projects/alpine-feinkost-11333/sites/alpine-feinkost-11333","defaultUrl":"https://alpine-feinkost-11333.web.app","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 16.0.7 (Turbopack)
+
+[info]    - Environments: .env.local
+
+
+[info]    Creating an optimized production build ...
+
+[info]  ✓ Compiled successfully in 3.7s
+
+[info]    Running TypeScript ...
+
+[info] Failed to compile.
+
+
+[info] ./app/(admin)/admin/orders/create/OrderForm.tsx:219:41
+Type error: Argument of type '{ name: string | null; orderDate: Date; expectedArrivalDate: Date; status: "open"; note: string; templateId: string | null; createdBy: string; items: OrderItem[]; }' is not assignable to parameter of type 'Omit<Order, "id" | "createdAt" | "updatedAt" | "confirmedBy" | "confirmedAt">'.
+  Type '{ name: string | null; orderDate: Date; expectedArrivalDate: Date; status: "open"; note: string; templateId: string | null; createdBy: string; items: OrderItem[]; }' is missing the following properties from type 'Omit<Order, "id" | "createdAt" | "updatedAt" | "confirmedBy" | "confirmedAt">': totalKg, totalPieces
+
+  217 |
+  218 |       // Create the order
+> 219 |       const orderId = await createOrder({
+      |                                         ^
+  220 |         name: orderName || null,
+  221 |         orderDate: orderDate || new Date(),
+  222 |         expectedArrivalDate,
+
+[info] Next.js build worker exited with code: 1 and signal: null
+
+[debug] [2025-12-16T10:33:42.417Z] Error: ENOENT: no such file or directory, open '/Users/casper.baumeister/Code/private/alpine-feinkost/.next/export-marker.json'
+[error] 
+[error] Error: An unexpected error has occurred.

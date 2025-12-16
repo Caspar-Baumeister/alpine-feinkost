@@ -35,6 +35,13 @@ import {
 } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
 import { uploadOrderDocumentImage, deleteOrderDocumentImage } from '@/lib/storage/orders'
 
@@ -457,11 +464,35 @@ export default function OrderDetailPage({ params }: PageProps) {
               <p className="mb-1 text-xs text-muted-foreground">
                 {locale === 'de' ? 'Aktuelles Foto:' : 'Current photo:'}
               </p>
-              <img
-                src={photoPreviewUrl}
-                alt="Bestellliste"
-                className="h-40 w-auto rounded-md border object-cover"
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button type="button" className="focus:outline-none">
+                    <img
+                      src={photoPreviewUrl}
+                      alt="Bestellliste"
+                      className="h-40 w-auto rounded-md border object-cover hover:opacity-90 transition"
+                    />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 show-close-button">
+                  <DialogHeader className="px-4 pt-4 pb-2">
+                    <DialogTitle className="text-sm">
+                      {locale === 'de'
+                        ? 'Bestellliste / Auftrag'
+                        : 'Order sheet'}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="px-4 pb-4">
+                    <div className="max-h-[80vh] w-full overflow-hidden rounded-md border bg-black flex items-center justify-center">
+                      <img
+                        src={photoPreviewUrl}
+                        alt="Bestellliste"
+                        className="max-h-[80vh] w-auto max-w-full object-contain"
+                      />
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           )}
         </CardContent>
