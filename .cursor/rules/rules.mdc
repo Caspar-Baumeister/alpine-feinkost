@@ -44,4 +44,13 @@ alwaysApply: true
     - Avoid for data fetching or state management.
   
   Follow Next.js docs for Data Fetching, Rendering, and Routing.
+
+  To avoid missing or insufficient permissions in admin features
+  When adding new admin features that read/write Firestore, follow these rules:
+  - Never call Firestore client SDK from a Server Component if the collection is protected by user‑based rules.
+  - On the server there is typically no request.auth, so rules like isSignedIn(), isWorkerOrAbove() etc. will fail and Firestore returns permission-denied.
+  - Server Components may only read from collections that are truly public under the current rules (e.g. products, labels, pos with allow read: if true;). For anything that depends on the logged‑in user or their role, always fetch on the client with auth.
+  If you see FirebaseError: Missing or insufficient permissions on a new page:
+  Check whether the Firestore call is happening in a Server Component or before auth is ready.
+  Move that call into a 'use client' component using useCurrentUser() as above, or relax the security rule if the data should be public.
   
