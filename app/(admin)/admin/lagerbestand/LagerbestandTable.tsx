@@ -25,6 +25,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Product, updateProductCurrentStock } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
+import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
@@ -118,9 +119,11 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                     ? format(new Date(product.updatedAt), 'dd.MM.yyyy, HH:mm', { locale: dateLocale })
                     : null
                   const lastUpdatedBy = getDisplayName(product.lastStockUpdatedByUserId)
+                  const productName = getProductNameForLocale(product, locale)
+
                   return (
                     <TableRow key={product.id}>
-                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell className="font-medium">{productName}</TableCell>
                       <TableCell>{unitLabel}</TableCell>
                       <TableCell className="text-right">
                         {stockValue} {unitLabel}
