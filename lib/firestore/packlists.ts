@@ -115,7 +115,12 @@ export async function createPacklist(
 
   // Use a transaction to atomically update stock and create the packlist
   const packlistId = await runTransaction(db, async (transaction) => {
-    // For each item, read and update the product's currentStock
+    // First: for each item, read the product and compute new currentStock
+    const productUpdates: Array<{
+      productId: string
+      newCurrentStock: number
+    }> = []
+
     for (const item of data.items) {
       const productRef = doc(db, PRODUCTS_COLLECTION, item.productId)
       const productSnap = await transaction.get(productRef)
@@ -125,16 +130,29 @@ export async function createPacklist(
       }
 
       const productData = productSnap.data()
-      const currentStock = productData.currentStock as number ?? productData.totalStock as number ?? 0
+      const currentStock =
+        (productData.currentStock as number) ??
+        (productData.totalStock as number) ??
+        0
       const newCurrentStock = currentStock - item.plannedQuantity
 
       if (newCurrentStock < 0) {
-        console.warn(`Product ${item.productName} will have negative currentStock: ${newCurrentStock}`)
+        console.warn(
+          `Product ${item.productName} will have negative currentStock: ${newCurrentStock}`
+        )
       }
 
-      // Update product's currentStock (reserve the items)
+      productUpdates.push({
+        productId: item.productId,
+        newCurrentStock
+      })
+    }
+
+    // After all reads are done, apply the product stock updates
+    for (const update of productUpdates) {
+      const productRef = doc(db, PRODUCTS_COLLECTION, update.productId)
       transaction.update(productRef, {
-        currentStock: newCurrentStock,
+        currentStock: update.newCurrentStock,
         lastStockUpdatedByUserId: stockUpdatedBy,
         updatedAt: serverTimestamp()
       })
