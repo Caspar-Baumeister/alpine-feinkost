@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { format } from 'date-fns'
@@ -126,7 +126,22 @@ export function PacklistForm({
   // Product selector state
   const [productSearchOpen, setProductSearchOpen] = useState(false)
 
+  // Validation / error state
+  const [posError, setPosError] = useState(false)
+  const [userError, setUserError] = useState(false)
+  const [templateNameError, setTemplateNameError] = useState(false)
+  const [duplicateProductError, setDuplicateProductError] = useState<string | null>(null)
+
   const selectedPos = posList.find((p) => p.id === selectedPosId)
+
+  const formatCurrency = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return '—'
+    const formatter = new Intl.NumberFormat(locale === 'de' ? 'de-DE' : 'en-US', {
+      style: 'currency',
+      currency: 'EUR'
+    })
+    return formatter.format(value)
+  }
 
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId)
@@ -152,6 +167,15 @@ export function PacklistForm({
   }
 
   const addLineItem = (product: Product) => {
+    // Prevent duplicates at state level
+    if (lineItems.some((item) => item.productId === product.id)) {
+      setDuplicateProductError(
+        locale === 'de' ? 'Produkt ist bereits in der Packliste.' : 'Product is already in the pack list.'
+      )
+      // Optionally: could scroll to existing row here
+      return
+    }
+
     const newItem: LineItem = {
       id: `${Date.now()}`,
       productId: product.id,
@@ -164,6 +188,7 @@ export function PacklistForm({
       note: ''
     }
     setLineItems([...lineItems, newItem])
+    setDuplicateProductError(null)
     setProductSearchOpen(false)
   }
 
@@ -185,6 +210,7 @@ export function PacklistForm({
     } else {
       setAssignedUserIds([...assignedUserIds, userId])
     }
+    setUserError(false)
   }
 
   // Helper to check if a line item exceeds current stock
@@ -208,7 +234,39 @@ export function PacklistForm({
   }
 
   const handleSubmit = async () => {
-    if (!currentUser || !selectedPosId || !selectedDate) return
+    if (!currentUser || !selectedDate) return
+
+    // Validation
+    let hasError = false
+
+    if (!selectedPosId) {
+      setPosError(true)
+      hasError = true
+    }
+
+    if (!assignedUserIds.length) {
+      setUserError(true)
+      hasError = true
+    }
+
+    if (saveAsTemplate && !templateName.trim()) {
+      setTemplateNameError(true)
+      hasError = true
+    }
+
+    // Duplicate safety check
+    const productIds = lineItems.map((item) => item.productId)
+    const uniqueCount = new Set(productIds).size
+    if (uniqueCount !== productIds.length) {
+      setDuplicateProductError(
+        locale === 'de'
+          ? 'Jedes Produkt darf nur einmal in der Packliste vorkommen.'
+          : 'Each product may only appear once in the pack list.'
+      )
+      hasError = true
+    }
+
+    if (hasError) return
 
     setIsSaving(true)
 
@@ -248,10 +306,10 @@ export function PacklistForm({
         currentUser.uid
       )
 
-      // Optionally save as template
-      if (saveAsTemplate && templateName) {
+      // Optionally save as template (only if name is provided)
+      if (saveAsTemplate && templateName.trim()) {
         await createPacklistTemplate({
-          name: templateName,
+          name: templateName.trim(),
           description: '',
           defaultPosId: selectedPosId,
           changeAmount: parseFloat(changeAmount) || null,
@@ -289,9 +347,19 @@ export function PacklistForm({
           <div className="grid gap-4 md:grid-cols-2">
             {/* POS Selection */}
             <div className="space-y-2">
-              <Label>{t('form.selectPos')}</Label>
-              <Select value={selectedPosId} onValueChange={setSelectedPosId}>
-                <SelectTrigger>
+              <Label className={posError ? 'text-destructive' : ''}>{t('form.selectPos')}</Label>
+              <Select
+                value={selectedPosId}
+                onValueChange={(value) => {
+                  setSelectedPosId(value)
+                  setPosError(false)
+                }}
+              >
+                <SelectTrigger
+                  aria-invalid={posError}
+                  aria-describedby={posError ? 'pos-error' : undefined}
+                  className={cn(posError && 'border-destructive focus-visible:ring-destructive')}
+                >
                   <SelectValue placeholder={t('form.selectPos')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -302,6 +370,13 @@ export function PacklistForm({
                   ))}
                 </SelectContent>
               </Select>
+              {posError && (
+                <p id="pos-error" className="text-xs text-destructive">
+                  {locale === 'de'
+                    ? 'Bitte Verkaufsort auswählen.'
+                    : 'Please select a point of sale.'}
+                </p>
+              )}
             </div>
 
             {/* Date Picker */}
@@ -353,8 +428,15 @@ export function PacklistForm({
 
             {/* Assigned Users */}
             <div className="space-y-2">
-              <Label>{t('form.assignUsers')}</Label>
-              <div className="flex flex-wrap gap-2">
+              <Label className={userError ? 'text-destructive' : ''}>{t('form.assignUsers')}</Label>
+              <div
+                className={cn(
+                  'flex flex-wrap gap-2 rounded-md border border-transparent p-1',
+                  userError && 'border-destructive'
+                )}
+                aria-invalid={userError}
+                aria-describedby={userError ? 'users-error' : undefined}
+              >
                 {users.map((u) => (
                   <Badge
                     key={u.uid}
@@ -371,6 +453,13 @@ export function PacklistForm({
                   </Badge>
                 ))}
               </div>
+              {userError && (
+                <p id="users-error" className="text-xs text-destructive">
+                  {locale === 'de'
+                    ? 'Bitte Mitarbeiter auswählen.'
+                    : 'Please assign at least one worker.'}
+                </p>
+              )}
             </div>
           </div>
 
@@ -423,17 +512,22 @@ export function PacklistForm({
                   <CommandList>
                     <CommandEmpty>Kein Produkt gefunden.</CommandEmpty>
                     <CommandGroup>
-                      {products.map((product) => (
-                        <CommandItem
-                          key={product.id}
-                          onSelect={() => addLineItem(product)}
-                        >
-                          {getProductName(product)}
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            {getUnitLabel(product.unitType, locale)}
-                          </span>
-                        </CommandItem>
-                      ))}
+                      {products
+                        .filter(
+                          (product) =>
+                            !lineItems.some((item) => item.productId === product.id)
+                        )
+                        .map((product) => (
+                          <CommandItem
+                            key={product.id}
+                            onSelect={() => addLineItem(product)}
+                          >
+                            {getProductName(product)}
+                            <span className="ml-auto text-xs text-muted-foreground">
+                              {getUnitLabel(product.unitType, locale)}
+                            </span>
+                          </CommandItem>
+                        ))}
                     </CommandGroup>
                   </CommandList>
                 </Command>
@@ -442,6 +536,12 @@ export function PacklistForm({
           </div>
         </CardHeader>
         <CardContent>
+          {duplicateProductError && (
+            <div className="mb-3 text-sm text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{duplicateProductError}</span>
+            </div>
+          )}
           {lineItems.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               Noch keine Produkte hinzugefügt. Wählen Sie eine Vorlage oder
@@ -510,25 +610,31 @@ export function PacklistForm({
                       {getUnitLabel(item.unitType, locale)}
                     </TableCell>
                     <TableCell>
-                      <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                          €
-                        </span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={item.specialPrice || ''}
-                          onChange={(e) =>
-                            updateLineItem(item.id, {
-                              specialPrice: e.target.value
-                                ? parseFloat(e.target.value)
-                                : null
-                            })
-                          }
-                          placeholder="—"
-                          className="w-full pl-6"
-                        />
+                      <div className="space-y-1">
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                            €
+                          </span>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={item.specialPrice || ''}
+                            onChange={(e) =>
+                              updateLineItem(item.id, {
+                                specialPrice: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : null
+                              })
+                            }
+                            placeholder="—"
+                            className="w-full pl-6"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {locale === 'de' ? 'Normalpreis: ' : 'Base price: '}
+                          {formatCurrency(item.basePrice)}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -576,9 +682,27 @@ export function PacklistForm({
               {saveAsTemplate && (
                 <Input
                   value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
+                  onChange={(e) => {
+                    setTemplateName(e.target.value)
+                    if (e.target.value.trim()) {
+                      setTemplateNameError(false)
+                    }
+                  }}
                   placeholder={t('form.templateName')}
+                  aria-invalid={templateNameError}
+                  aria-describedby={templateNameError ? 'template-name-error' : undefined}
+                  className={cn(
+                    templateNameError &&
+                      'border-destructive focus-visible:ring-destructive'
+                  )}
                 />
+              )}
+              {saveAsTemplate && templateNameError && (
+                <p id="template-name-error" className="text-xs text-destructive">
+                  {locale === 'de'
+                    ? 'Bitte einen Vorlagen-Namen angeben.'
+                    : 'Please provide a template name.'}
+                </p>
               )}
             </div>
           </div>

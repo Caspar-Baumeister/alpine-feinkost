@@ -1,19 +1,18 @@
+import { db } from '@/lib/firebase'
 import {
+  Timestamp,
   collection,
   doc,
   getDoc,
   getDocs,
-  addDoc,
-  updateDoc,
-  Timestamp,
-  serverTimestamp,
-  query,
   orderBy,
-  where,
-  runTransaction
+  query,
+  runTransaction,
+  serverTimestamp,
+  updateDoc,
+  where
 } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import { Packlist, PacklistStatus, PacklistItem, Product, ProductUnitType } from './types'
+import { Packlist, PacklistStatus, Product, ProductUnitType } from './types'
 
 const COLLECTION = 'packlists'
 const PRODUCTS_COLLECTION = 'products'
