@@ -23,8 +23,7 @@ function docToPos(id: string, data: Record<string, unknown>): Pos {
   return {
     id,
     name: data.name as string,
-    location: data.location as string || '',
-    notes: data.notes as string || '',
+    address: (data.address as string | null) ?? null,
     active: data.active as boolean ?? true,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
     updatedAt: timestampToDate(data.updatedAt as Timestamp | null)
@@ -56,8 +55,7 @@ export async function createPos(
   const colRef = collection(db, COLLECTION)
   const docRef = await addDoc(colRef, {
     name: data.name,
-    location: data.location,
-    notes: data.notes,
+    address: data.address,
     active: data.active,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()

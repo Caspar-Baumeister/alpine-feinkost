@@ -85,8 +85,8 @@ async function fetchMarkets(ids: string[] | null | undefined): Promise<MarketDis
     .map((pos) => ({
       id: pos.id,
       name: pos.name,
-      location: pos.location,
-      notes: pos.notes
+      location: pos.address || '',
+      notes: ''
     }))
 }
 

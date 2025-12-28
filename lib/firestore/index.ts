@@ -44,7 +44,6 @@ export {
   startSellingPacklist,
   finishSellingPacklist,
   completePacklist,
-  confirmReturn,
   getProductsForPacklist
 } from './packlists'
 

@@ -326,7 +326,7 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
         nameEn,
         nameDe,
         descriptionDe,
-        descriptionEn: descriptionEn || null,
+        descriptionEn: descriptionEn || '', // Label type requires string, not null
         createdAt: null,
         updatedAt: null
       }

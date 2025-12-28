@@ -277,6 +277,9 @@ export function PacklistForm({
       if (template.changeAmount) {
         setChangeAmount(template.changeAmount.toString())
       }
+      if (template.note) {
+        setNote(template.note)
+      }
     }
     setSelectedTemplateId(templateId)
   }
@@ -779,155 +782,155 @@ export function PacklistForm({
                             isPacked && 'opacity-60 bg-muted/20'
                           )}
                         >
-                        <TableCell className="font-medium">
-                          {item.productName}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="1"
-                              value={item.plannedQuantity > 0 ? item.plannedQuantity : ''}
-                              onFocus={(e) => {
-                                // Select all text when focused for easy replacement
-                                e.target.select()
-                              }}
-                              onChange={(e) => {
-                                const value = e.target.value
-                                // Allow empty string during editing (user is clearing the field)
-                                if (value === '') {
-                                  updateLineItem(item.id, {
-                                    plannedQuantity: 0 // Temporary 0 for empty state, will be validated on save
-                                  })
-                                } else {
-                                  const numValue = parseFloat(value)
-                                  // Only update if it's a valid positive number
-                                  if (!isNaN(numValue) && numValue > 0) {
-                                    updateLineItem(item.id, {
-                                      plannedQuantity: numValue
-                                    })
-                                  }
-                                }
-                              }}
-                              onBlur={(e) => {
-                                // Ensure minimum of 1 when field loses focus (if empty or invalid)
-                                const value = parseFloat(e.target.value)
-                                if (isNaN(value) || value < 1) {
-                                  updateLineItem(item.id, {
-                                    plannedQuantity: 1
-                                  })
-                                }
-                              }}
-                              disabled={isPacked}
-                              className={cn(
-                                'w-full',
-                                stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive',
-                                isPacked && 'cursor-not-allowed',
-                                (!item.plannedQuantity || item.plannedQuantity < 1) && 'border-destructive'
-                              )}
-                            />
-                            {stockWarning.exceeds && (
-                              <div className="flex flex-col gap-1">
-                                <p className="text-xs text-destructive flex items-center gap-1">
-                                  <AlertTriangle className="h-3 w-3" />
-                                  {tValidation('notEnoughStock', { available: stockWarning.available })}
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={() => clipToAvailableStock(item.id)}
-                                  className="text-xs text-primary hover:underline text-left"
-                                >
-                                  {tValidation('setToAvailable')}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {getUnitLabel(item.unitType, locale)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="relative">
-                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                                €
-                              </span>
+                          <TableCell className="font-medium">
+                            {item.productName}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
                               <Input
                                 type="number"
-                                step="0.01"
-                                min="0"
-                                value={item.specialPrice || ''}
-                                onChange={(e) =>
-                                  updateLineItem(item.id, {
-                                    specialPrice: e.target.value
-                                      ? parseFloat(e.target.value)
-                                      : null
-                                  })
-                                }
+                                step="0.1"
+                                min="1"
+                                value={item.plannedQuantity > 0 ? item.plannedQuantity : ''}
+                                onFocus={(e) => {
+                                  // Select all text when focused for easy replacement
+                                  e.target.select()
+                                }}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  // Allow empty string during editing (user is clearing the field)
+                                  if (value === '') {
+                                    updateLineItem(item.id, {
+                                      plannedQuantity: 0 // Temporary 0 for empty state, will be validated on save
+                                    })
+                                  } else {
+                                    const numValue = parseFloat(value)
+                                    // Only update if it's a valid positive number
+                                    if (!isNaN(numValue) && numValue > 0) {
+                                      updateLineItem(item.id, {
+                                        plannedQuantity: numValue
+                                      })
+                                    }
+                                  }
+                                }}
+                                onBlur={(e) => {
+                                  // Ensure minimum of 1 when field loses focus (if empty or invalid)
+                                  const value = parseFloat(e.target.value)
+                                  if (isNaN(value) || value < 1) {
+                                    updateLineItem(item.id, {
+                                      plannedQuantity: 1
+                                    })
+                                  }
+                                }}
                                 disabled={isPacked}
-                                placeholder="—"
                                 className={cn(
-                                  'w-full pl-6',
-                                  isPacked && 'cursor-not-allowed'
+                                  'w-full',
+                                  stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive',
+                                  isPacked && 'cursor-not-allowed',
+                                  (!item.plannedQuantity || item.plannedQuantity < 1) && 'border-destructive'
                                 )}
                               />
+                              {stockWarning.exceeds && (
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-xs text-destructive flex items-center gap-1">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    {tValidation('notEnoughStock', { available: stockWarning.available })}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => clipToAvailableStock(item.id)}
+                                    className="text-xs text-primary hover:underline text-left"
+                                  >
+                                    {tValidation('setToAvailable')}
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                              {locale === 'de' ? 'Normalpreis: ' : 'Base price: '}
-                              {formatCurrency(item.basePrice)}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            value={item.note || ''}
-                            onChange={(e) =>
-                              updateLineItem(item.id, { note: e.target.value })
-                            }
-                            disabled={isPacked}
-                            placeholder="Optionale Notiz"
-                            className={cn(isPacked && 'cursor-not-allowed')}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => togglePacked(item.id)}
-                              className={cn(
-                                isPacked
-                                  ? 'text-primary hover:text-primary'
-                                  : 'text-muted-foreground hover:text-primary'
-                              )}
-                              aria-label={
-                                isPacked
-                                  ? locale === 'de'
-                                    ? 'Als ungepackt markieren'
-                                    : 'Mark as unpacked'
-                                  : locale === 'de'
-                                    ? 'Als gepackt markieren'
-                                    : 'Mark as packed'
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {getUnitLabel(item.unitType, locale)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="relative">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                  €
+                                </span>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={item.specialPrice || ''}
+                                  onChange={(e) =>
+                                    updateLineItem(item.id, {
+                                      specialPrice: e.target.value
+                                        ? parseFloat(e.target.value)
+                                        : null
+                                    })
+                                  }
+                                  disabled={isPacked}
+                                  placeholder="—"
+                                  className={cn(
+                                    'w-full pl-6',
+                                    isPacked && 'cursor-not-allowed'
+                                  )}
+                                />
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                {locale === 'de' ? 'Normalpreis: ' : 'Base price: '}
+                                {formatCurrency(item.basePrice)}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={item.note || ''}
+                              onChange={(e) =>
+                                updateLineItem(item.id, { note: e.target.value })
                               }
-                            >
-                              {isPacked ? (
-                                <RotateCcw className="h-4 w-4" />
-                              ) : (
-                                <CheckCircle2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeLineItem(item.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                              disabled={isPacked}
+                              placeholder="Optionale Notiz"
+                              className={cn(isPacked && 'cursor-not-allowed')}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => togglePacked(item.id)}
+                                className={cn(
+                                  isPacked
+                                    ? 'text-primary hover:text-primary'
+                                    : 'text-muted-foreground hover:text-primary'
+                                )}
+                                aria-label={
+                                  isPacked
+                                    ? locale === 'de'
+                                      ? 'Als ungepackt markieren'
+                                      : 'Mark as unpacked'
+                                    : locale === 'de'
+                                      ? 'Als gepackt markieren'
+                                      : 'Mark as packed'
+                                }
+                              >
+                                {isPacked ? (
+                                  <RotateCcw className="h-4 w-4" />
+                                ) : (
+                                  <CheckCircle2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeLineItem(item.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
                       </React.Fragment>
                     )
                   })}

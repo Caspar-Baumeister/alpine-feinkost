@@ -62,8 +62,8 @@ export default async function KontaktPage() {
                 <LocationCard
                   key={location.id}
                   name={location.name}
-                  address={location.location}
-                  notes={location.notes}
+                  address={location.address || ''}
+                  notes={''}
                   tagLabel={t('marketsBadge')}
                 />
               ))}

@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+// Textarea removed - Pos type doesn't have notes field
 import { Switch } from '@/components/ui/switch'
 import { StatusBadge } from '@/components/status-badge'
 import { Pos, createPos, updatePos } from '@/lib/firestore'
@@ -43,13 +43,12 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
   // Form state
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
-  const [notes, setNotes] = useState('')
+  // Notes removed - Pos type doesn't have notes field
   const [active, setActive] = useState(true)
 
   const resetForm = () => {
     setName('')
     setLocation('')
-    setNotes('')
     setActive(true)
     setEditingPOS(null)
   }
@@ -57,8 +56,7 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
   const openEditDialog = (pos: Pos) => {
     setEditingPOS(pos)
     setName(pos.name)
-    setLocation(pos.location)
-    setNotes(pos.notes)
+    setLocation(pos.address || '')
     setActive(pos.active)
     setIsDialogOpen(true)
   }
@@ -75,8 +73,7 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
     try {
       const posData = {
         name,
-        location,
-        notes,
+        address: location || null, // Use address field from Pos type
         active
       }
 
@@ -137,15 +134,6 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">{t('form.notes')}</Label>
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="active"
@@ -188,7 +176,6 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
               <TableRow>
                 <TableHead>{t('columns.name')}</TableHead>
                 <TableHead>{t('columns.location')}</TableHead>
-                <TableHead>{t('columns.notes')}</TableHead>
                 <TableHead>{t('columns.status')}</TableHead>
                 <TableHead className="w-[100px]">{t('columns.actions')}</TableHead>
               </TableRow>
@@ -196,7 +183,7 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
             <TableBody>
               {initialData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     Keine Verkaufsstellen vorhanden
                   </TableCell>
                 </TableRow>
@@ -207,11 +194,8 @@ export function POSTable({ initialData, onDataChange }: POSTableProps) {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        {pos.location}
+                        {pos.address || '—'}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {pos.notes || '—'}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={pos.active ? 'active' : 'inactive'} />

@@ -241,7 +241,8 @@ export async function confirmOrder(
   itemsWithReceivedQuantity: Array<{ productId: string; receivedQuantity: number }>,
   confirmedByUserId: string,
   deliveryDate: Date,
-  deliveryNoteNumber?: string | null
+  deliveryNoteNumber?: string | null,
+  note?: string
 ): Promise<void> {
   const orderRef = doc(db, COLLECTION, id)
   

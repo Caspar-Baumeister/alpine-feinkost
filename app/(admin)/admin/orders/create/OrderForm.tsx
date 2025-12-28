@@ -145,9 +145,8 @@ export function OrderForm({ products, templates }: OrderFormProps) {
           note: item.note
         }))
       )
-      if (template.note) {
-        setNote(template.note)
-      }
+      // Note: Order templates have a note field, but orders don't use it during creation
+      // The note is set when receiving/confirming the order
       setSelectedTemplateId(templateId)
     } else {
       // Clear selection if template not found
@@ -236,7 +235,7 @@ export function OrderForm({ products, templates }: OrderFormProps) {
         await createOrderTemplate({
           name: templateName,
           description: '',
-          note,
+          note: '', // Order templates have a note field, but it's not used during creation
           createdBy: currentUser.uid,
           items: lineItems.map((item) => ({
             productId: item.productId,

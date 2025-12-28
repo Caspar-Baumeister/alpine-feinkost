@@ -162,7 +162,7 @@ export function ProductDetailDialog({
                     {locale === 'de' ? 'Gesamtbestand' : 'Total Stock'}
                   </p>
                   <p className="text-lg font-semibold">
-                    {product.totalStock} {unitLabel}
+                    {product.currentStock} {unitLabel}
                   </p>
                 </div>
               </div>
