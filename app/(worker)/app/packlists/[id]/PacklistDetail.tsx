@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import {
@@ -14,7 +14,9 @@ import {
   CheckCircle,
   Loader2,
   AlertTriangle,
-  Info
+  Info,
+  X,
+  RotateCcw
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -44,6 +46,7 @@ import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
+import { usePacklistDraftStore } from '@/stores/usePacklistDraftStore'
 
 interface PacklistDetailProps {
   packlist: Packlist
@@ -64,10 +67,12 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   const locale = useLocale()
   const dateLocale = locale === 'de' ? de : enUS
   const { user: currentUser } = useCurrentUser()
+  const { saveDraft, getDraft, clearDraft } = usePacklistDraftStore()
 
-  // Local UI state
+  // Local UI state - initialize from packlist defaults
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null)
   const [lineItemStates, setLineItemStates] = useState<LineItemState[]>(
     packlist.items.map((item) => ({
       productId: item.productId,
@@ -81,6 +86,107 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
   const [workerNote, setWorkerNote] = useState<string>(
     packlist.workerNote || ''
   )
+  const [hasRestored, setHasRestored] = useState(false)
+
+  // Restore draft when user is loaded
+  useEffect(() => {
+    if (currentUser && !hasRestored && packlist.status !== 'completed') {
+      const draft = getDraft(packlist.id, currentUser.uid)
+      if (draft) {
+        // Restore from draft, matching items by productId
+        setLineItemStates(
+          packlist.items.map((item) => {
+            const draftItem = draft.items.find((d) => d.productId === item.productId)
+            if (draftItem) {
+              return {
+                productId: item.productId,
+                startQuantity: draftItem.startQuantity,
+                endQuantity: draftItem.endQuantity
+              }
+            }
+            // No draft for this item, use packlist defaults
+            return {
+              productId: item.productId,
+              startQuantity: item.startQuantity ?? item.plannedQuantity,
+              endQuantity: item.endQuantity ?? 0
+            }
+          })
+        )
+        setFinalCash(draft.finalCash)
+        setWorkerNote(draft.workerNote)
+        setRestoreMessage(
+          locale === 'de'
+            ? 'Ihr Packfortschritt wurde wiederhergestellt.'
+            : 'Your packing progress has been restored.'
+        )
+        setHasRestored(true)
+        // Auto-hide message after 5 seconds
+        const timer = setTimeout(() => setRestoreMessage(null), 5000)
+        return () => clearTimeout(timer)
+      } else {
+        setHasRestored(true) // Mark as checked even if no draft
+      }
+    }
+  }, [currentUser, packlist.id, packlist.items, packlist.status, getDraft, locale, hasRestored])
+
+  // Debounced save to localStorage
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const debouncedSaveDraft = useCallback(() => {
+    if (!currentUser) return
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    // Set new timeout
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft(
+        packlist.id,
+        currentUser.uid,
+        lineItemStates,
+        finalCash,
+        workerNote
+      )
+    }, 500) // 500ms debounce
+  }, [currentUser, packlist.id, lineItemStates, finalCash, workerNote, saveDraft])
+
+  // Save draft whenever state changes (but not on initial restore)
+  useEffect(() => {
+    if (currentUser && packlist.status !== 'completed' && hasRestored) {
+      debouncedSaveDraft()
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [lineItemStates, finalCash, workerNote, currentUser, packlist.status, hasRestored, debouncedSaveDraft])
+
+  // Clear draft when packlist is completed
+  useEffect(() => {
+    if (packlist.status === 'completed' && currentUser) {
+      clearDraft(packlist.id, currentUser.uid)
+    }
+  }, [packlist.status, packlist.id, currentUser, clearDraft])
+
+  const handleDiscardDraft = () => {
+    if (currentUser) {
+      clearDraft(packlist.id, currentUser.uid)
+      setRestoreMessage(null)
+      // Reset to packlist defaults
+      setLineItemStates(
+        packlist.items.map((item) => ({
+          productId: item.productId,
+          startQuantity: item.startQuantity ?? item.plannedQuantity,
+          endQuantity: item.endQuantity ?? 0
+        }))
+      )
+      setFinalCash(packlist.reportedCash?.toString() || '')
+      setWorkerNote(packlist.workerNote || '')
+    }
+  }
 
   // Product detail dialog state
   const [detailProduct, setDetailProduct] = useState<Product | null>(null)
@@ -179,6 +285,11 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
         currentUser.uid
       )
 
+      // Clear draft when starting selling (state is now saved to Firestore)
+      if (currentUser) {
+        clearDraft(packlist.id, currentUser.uid)
+      }
+
       onUpdate()
     } catch (err) {
       console.error('Failed to start selling:', err)
@@ -237,6 +348,11 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
         workerNote.trim() || undefined // Pass worker note if provided
       )
 
+      // Clear draft when packlist is completed
+      if (currentUser) {
+        clearDraft(packlist.id, currentUser.uid)
+      }
+
       onUpdate()
     } catch (err) {
       console.error('Failed to finish selling:', err)
@@ -266,6 +382,20 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
             {packlist.id.slice(0, 8)}...
           </p>
         </div>
+        {/* Discard Draft Button - only show if draft exists and packlist is not completed */}
+        {currentUser &&
+          packlist.status !== 'completed' &&
+          getDraft(packlist.id, currentUser.uid) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDiscardDraft}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              {locale === 'de' ? 'Gespeicherten Fortschritt verwerfen' : 'Discard saved progress'}
+            </Button>
+          )}
       </div>
 
       {/* Error Message */}
@@ -273,6 +403,24 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
         <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
           <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           {error}
+        </div>
+      )}
+
+      {/* Restore Message */}
+      {restoreMessage && (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm">
+          <div className="flex items-center gap-2">
+            <RotateCcw className="h-4 w-4 flex-shrink-0" />
+            <span>{restoreMessage}</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDiscardDraft}
+            className="h-auto py-1 px-2 text-xs"
+          >
+            {locale === 'de' ? 'Verwerfen' : 'Discard'}
+          </Button>
         </div>
       )}
 

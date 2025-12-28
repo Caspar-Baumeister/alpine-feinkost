@@ -48,6 +48,7 @@ import {
 } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { cn } from '@/lib/utils'
+import { usePacklistFormDraftStore } from '@/stores/usePacklistFormDraftStore'
 import { format } from 'date-fns'
 import { de, enUS } from 'date-fns/locale'
 import {
@@ -61,7 +62,7 @@ import {
 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface PacklistFormProps {
   products: Product[]
@@ -95,6 +96,9 @@ export function PacklistForm({
   const locale = useLocale()
   const dateLocale = locale === 'de' ? de : enUS
   const { user: currentUser } = useCurrentUser()
+  const { saveDraft, getDraft, clearDraft } = usePacklistFormDraftStore()
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [hasRestored, setHasRestored] = useState(false)
 
   const getProductName = (product: Product) => {
     if (locale === 'de') {
@@ -121,6 +125,92 @@ export function PacklistForm({
   const [templateName, setTemplateName] = useState('')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
+
+  // Restore draft on mount
+  useEffect(() => {
+    if (!currentUser) return
+
+    const draft = getDraft(currentUser.uid)
+    if (draft) {
+      // Restore form state from draft
+      setSelectedPosId(draft.selectedPosId)
+      setSelectedDate(draft.selectedDate ? new Date(draft.selectedDate) : new Date())
+      setAssignedUserIds(draft.assignedUserIds)
+      setChangeAmount(draft.changeAmount)
+      setNote(draft.note)
+      setLineItems(draft.lineItems)
+      setSaveAsTemplate(draft.saveAsTemplate)
+      setTemplateName(draft.templateName)
+      setSelectedTemplateId(draft.selectedTemplateId)
+      setHasRestored(true)
+    } else {
+      setHasRestored(true)
+    }
+  }, [currentUser, getDraft])
+
+  // Debounced save function
+  const debouncedSaveDraft = useCallback(() => {
+    if (!currentUser || !hasRestored) return
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    // Set new timeout
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft(currentUser.uid, {
+        selectedPosId,
+        selectedDate,
+        assignedUserIds,
+        changeAmount,
+        note,
+        lineItems,
+        saveAsTemplate,
+        templateName,
+        selectedTemplateId
+      })
+    }, 500) // 500ms debounce
+  }, [
+    currentUser,
+    hasRestored,
+    selectedPosId,
+    selectedDate,
+    assignedUserIds,
+    changeAmount,
+    note,
+    lineItems,
+    saveAsTemplate,
+    templateName,
+    selectedTemplateId,
+    saveDraft
+  ])
+
+  // Save draft whenever form state changes (but not on initial restore)
+  useEffect(() => {
+    if (currentUser && hasRestored) {
+      debouncedSaveDraft()
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [
+    selectedPosId,
+    selectedDate,
+    assignedUserIds,
+    changeAmount,
+    note,
+    lineItems,
+    saveAsTemplate,
+    templateName,
+    selectedTemplateId,
+    currentUser,
+    hasRestored,
+    debouncedSaveDraft
+  ])
 
   // Product selector state
   const [productSearchOpen, setProductSearchOpen] = useState(false)
@@ -325,6 +415,11 @@ export function PacklistForm({
             note: item.note
           }))
         })
+      }
+
+      // Clear draft after successful creation
+      if (currentUser) {
+        clearDraft(currentUser.uid)
       }
 
       router.push('/admin/packlists')
@@ -710,7 +805,18 @@ export function PacklistForm({
 
       {/* Actions */}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button variant="outline" onClick={() => router.back()} disabled={isSaving} className="w-full sm:w-auto">
+        <Button
+          variant="outline"
+          onClick={() => {
+            // Clear draft when canceling
+            if (currentUser) {
+              clearDraft(currentUser.uid)
+            }
+            router.back()
+          }}
+          disabled={isSaving}
+          className="w-full sm:w-auto"
+        >
           {tActions('cancel')}
         </Button>
         <Button onClick={handleSubmit} disabled={isSaving || !selectedPosId} className="w-full sm:w-auto">
