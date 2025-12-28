@@ -1,12 +1,12 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { ArrowRight, Leaf, Sparkles } from 'lucide-react'
-import { getLocale, getTranslations } from 'next-intl/server'
 import { ProductCard } from '@/components/public-site/product-card'
 import { ProductImageCutout } from '@/components/public-site/product-image-cutout'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { getPublicCatalog } from '@/lib/public/catalog'
+import { ArrowRight, Leaf, Sparkles } from 'lucide-react'
+import { getLocale, getTranslations } from 'next-intl/server'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default async function LandingPage() {
   const locale = (await getLocale()) as 'de' | 'en'
@@ -42,34 +42,51 @@ export default async function LandingPage() {
         {/* Bottom Fade to White - Starts later, taller gradient */}
         <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-background via-background/90 via-background/50 to-transparent sm:h-[28rem]" />
 
+        {/* Subtle translucent panel behind text for contrast */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[60vh] w-full max-w-4xl rounded-3xl bg-white/5 backdrop-blur-[2px] md:h-[70vh]" />
+
         {/* Content Container - Centered in viewport */}
         <div className="relative z-10 mx-auto flex h-screen max-w-6xl flex-col justify-center px-4 pt-20 sm:px-6 md:pt-24">
-          <div className="mx-auto w-full max-w-3xl space-y-6 text-center">
-            <Badge className="gap-2 bg-primary/15 text-primary backdrop-blur-sm">
-              <Sparkles className="h-4 w-4" />
+          <div className="mx-auto w-full max-w-3xl space-y-5 text-center md:space-y-6">
+            {/* Eyebrow Badge */}
+            <Badge className="gap-1.5 bg-primary/10 px-4 py-1.5 text-xs font-medium tracking-wider text-primary backdrop-blur-sm ring-1 ring-primary/20 md:text-sm">
+              <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4" />
               {t('hero.badge')}
             </Badge>
-            <h1 className="text-4xl font-bold leading-tight text-foreground drop-shadow-lg sm:text-5xl lg:text-6xl">
+
+            {/* Premium Headline */}
+            <h1 className="hero-headline mx-auto max-w-4xl text-[32px] leading-[1.15] text-[#0b1220] drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] sm:text-[44px] sm:leading-[1.18] md:text-[56px] md:leading-[1.2] lg:text-[64px] lg:leading-[1.15]">
               {t('hero.title')}
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-foreground/90 drop-shadow-md sm:text-xl">
+
+            {/* Elegant Subheadline */}
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#24324a] drop-shadow-[0_1px_4px_rgba(0,0,0,0.08)] sm:text-lg sm:leading-relaxed md:text-xl md:leading-[1.7]">
               {t('hero.subtitle')}
             </p>
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
-              <Button asChild size="lg" className="shadow-lg">
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 pt-1 md:gap-4 md:pt-2">
+              <Button asChild size="lg" className="font-medium shadow-lg">
                 <Link href="/sortiment" className="inline-flex items-center gap-2">
                   {t('hero.ctaPrimary')}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="lg" className="bg-background/80 backdrop-blur-sm shadow-md">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-2 border-primary/20 bg-white/70 font-medium backdrop-blur-sm shadow-md transition-all hover:border-primary/30 hover:bg-white/85"
+              >
                 <Link href="/kontakt" className="inline-flex items-center gap-2">
                   {t('hero.ctaSecondary')}
                 </Link>
               </Button>
             </div>
-            <div className="flex items-center justify-center gap-3 pt-2 text-sm text-foreground/80">
-              <Leaf className="h-4 w-4 text-primary drop-shadow-sm" />
+
+            {/* Promise Microcopy */}
+            <div className="flex items-center justify-center gap-2.5 pt-1 text-sm text-[#24324a]/85 md:gap-3 md:text-base">
+              <Leaf className="h-4 w-4 text-primary drop-shadow-sm md:h-5 md:w-5" />
               <span className="drop-shadow-sm">{t('hero.promise')}</span>
             </div>
           </div>
