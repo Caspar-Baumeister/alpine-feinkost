@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Product, updateProductCurrentStock } from '@/lib/firestore'
+import { Product, updateProductStock } from '@/lib/firestore'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
 import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
 import { format } from 'date-fns'
@@ -43,7 +43,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
   const dateLocale = locale === 'de' ? de : enUS
   const { user: currentUser } = useCurrentUser()
   const { getDisplayName } = useUserLookup()
-  const [view, setView] = useState<'total' | 'current'>('current')
+  // Removed view toggle - only show current stock now
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [newStock, setNewStock] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -58,7 +58,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
 
     setIsSaving(true)
     try {
-      await updateProductCurrentStock(
+      await updateProductStock(
         editingProduct.id,
         parseFloat(newStock) || 0,
         currentUser.uid
@@ -82,12 +82,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
   return (
     <div className="space-y-4">
       {/* View Toggle */}
-      <Tabs value={view} onValueChange={(v) => setView(v as 'total' | 'current')}>
-        <TabsList>
-          <TabsTrigger value="current">{t('viewCurrent')}</TabsTrigger>
-          <TabsTrigger value="total">{t('viewTotal')}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* View toggle removed - only current stock is tracked */}
 
       {/* Table */}
       <Card>
@@ -98,7 +93,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
                 <TableHead>{t('columns.product')}</TableHead>
                 <TableHead>{t('columns.unit')}</TableHead>
                 <TableHead className="text-right">
-                  {view === 'total' ? t('columns.totalStock') : t('columns.currentStock')}
+                  {t('columns.currentStock')}
                 </TableHead>
                 <TableHead>{t('columns.lastUpdated')}</TableHead>
                 <TableHead className="w-[100px]">{t('columns.actions')}</TableHead>
@@ -114,7 +109,7 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
               ) : (
                 products.map((product) => {
                   const unitLabel = getUnitLabel(product.unitType, locale)
-                  const stockValue = view === 'total' ? product.totalStock : product.currentStock
+                  const stockValue = product.currentStock
                   const lastUpdated = product.updatedAt
                     ? format(new Date(product.updatedAt), 'dd.MM.yyyy, HH:mm', { locale: dateLocale })
                     : null
@@ -166,19 +161,15 @@ export function LagerbestandTable({ products, onDataChange }: LagerbestandTableP
             <DialogTitle>{t('adjustDialog.title')}: {editingProduct?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Show current values */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">{t('columns.totalStock')}:</span>
-                <span className="ml-2 font-medium">{editingProduct?.totalStock} {editingUnitLabel}</span>
-              </div>
+            {/* Show current value */}
+            <div className="text-sm">
               <div>
                 <span className="text-muted-foreground">{t('columns.currentStock')}:</span>
                 <span className="ml-2 font-medium">{editingProduct?.currentStock} {editingUnitLabel}</span>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newStock">{t('adjustDialog.newTotalStock')} ({editingUnitLabel})</Label>
+              <Label htmlFor="newStock">{t('adjustDialog.newCurrentStock')} ({editingUnitLabel})</Label>
               <Input
                 id="newStock"
                 type="number"

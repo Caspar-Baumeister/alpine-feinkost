@@ -9,7 +9,7 @@ import './globals.css'
 const fraunces = Fraunces({
   variable: '--font-fraunces',
   subsets: ['latin', 'latin-ext'], // Latin-ext for German umlauts
-  weight: ['400', '600', '700'],
+  weight: ['400', '600', '700', '800', '900'], // Include heavy weights for display headlines
   display: 'swap'
 })
 

@@ -20,9 +20,10 @@ function timestampToDate(timestamp: Timestamp | null): Date | null {
 }
 
 function docToProduct(id: string, data: Record<string, unknown>): Product {
-  const totalStock = data.totalStock as number ?? 0
-  // If currentStock is not set, default to totalStock (for backwards compatibility)
-  const currentStock = data.currentStock as number ?? totalStock
+  // Backward compatibility: if totalStock exists but currentStock doesn't, use totalStock
+  // Otherwise use currentStock, defaulting to 0
+  const legacyTotalStock = (data.totalStock as number | undefined) ?? 0
+  const currentStock = (data.currentStock as number | undefined) ?? legacyTotalStock
   const labels = (data.labels as string[]) ?? []
   const legacyName = (data.name as string) ?? ''
   const nameDe = (data.nameDe as string | null) ?? legacyName
@@ -56,7 +57,6 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
     imagePath: primaryImagePath,
     availableAtPosIds,
     isActive: data.isActive as boolean ?? true,
-    totalStock,
     currentStock,
     lastStockUpdatedByUserId,
     createdAt: timestampToDate(data.createdAt as Timestamp | null),
@@ -105,7 +105,6 @@ export async function createProduct(
     imagePaths,
     imagePath,
     isActive: data.isActive,
-    totalStock: 0,
     currentStock: 0,
     lastStockUpdatedByUserId: null,
     createdAt: serverTimestamp(),
@@ -135,61 +134,10 @@ export async function updateProduct(
 }
 
 /**
- * Update product stock values.
- * When updating totalStock manually (e.g., physical inventory count),
- * we also adjust currentStock by the same delta to keep them in sync.
+ * Update product current stock (manual adjustment, e.g., physical inventory count).
+ * This is the single source of truth for stock.
  */
 export async function updateProductStock(
-  id: string,
-  totalStock: number,
-  currentStock?: number,
-  updatedByUserId?: string | null
-): Promise<void> {
-  const docRef = doc(db, COLLECTION, id)
-  const stockUserUpdate = updatedByUserId !== undefined
-    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
-    : {}
-
-  // If currentStock is provided, use it directly
-  if (currentStock !== undefined) {
-    await updateDoc(docRef, {
-      totalStock,
-      currentStock,
-      ...stockUserUpdate,
-      updatedAt: serverTimestamp()
-    })
-  } else {
-    // Otherwise, get current values and adjust currentStock by the same delta
-    const docSnap = await getDoc(docRef)
-    if (docSnap.exists()) {
-      const data = docSnap.data()
-      const oldTotalStock = data.totalStock as number ?? 0
-      const oldCurrentStock = data.currentStock as number ?? oldTotalStock
-      const delta = totalStock - oldTotalStock
-      const newCurrentStock = oldCurrentStock + delta
-
-      await updateDoc(docRef, {
-        totalStock,
-        currentStock: newCurrentStock,
-        ...stockUserUpdate,
-        updatedAt: serverTimestamp()
-      })
-    } else {
-      await updateDoc(docRef, {
-        totalStock,
-        currentStock: totalStock,
-        ...stockUserUpdate,
-        updatedAt: serverTimestamp()
-      })
-    }
-  }
-}
-
-/**
- * Update only the currentStock (what is physically in storage).
- * Does not touch totalStock.
- */
-export async function updateProductCurrentStock(
   id: string,
   currentStock: number,
   updatedByUserId?: string | null

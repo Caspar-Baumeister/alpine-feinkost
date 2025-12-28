@@ -207,14 +207,4 @@
   .font-serif {
     font-family: var(--font-serif), serif;
   }
-
-  /* Text rendering improvements for serif headlines */
-  .hero-headline {
-    font-family: var(--font-serif), serif;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
 }

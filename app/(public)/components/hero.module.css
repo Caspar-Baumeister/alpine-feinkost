@@ -1,0 +1,55 @@
+/* Hero Typography Styles */
+/* Traditional display serif for headline with premium crafted feel */
+
+.heroHeadline {
+  font-family: var(--font-fraunces), serif;
+  font-weight: 800; /* Strong, premium weight (700-900 range) */
+  letter-spacing: -0.015em; /* Slightly tighter tracking for crafted look */
+  line-height: 1.15;
+  color: oklch(0.18 0.01 260 / 0.92); /* Soft charcoal/slate, 92% opacity */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Subtle text shadow for readability - avoids box artifacts */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.heroSubheadline {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+  color: oklch(0.25 0.015 260 / 0.88); /* Lighter charcoal, 88% opacity */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  
+  /* Subtle text shadow for readability */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 0 15px rgba(255, 255, 255, 0.12);
+}
+
+/* Responsive typography - fluid sizing */
+@media (min-width: 640px) {
+  .heroHeadline {
+    letter-spacing: -0.02em;
+    line-height: 1.18;
+  }
+}
+
+@media (min-width: 768px) {
+  .heroHeadline {
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroHeadline {
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+}
+

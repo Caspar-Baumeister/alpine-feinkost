@@ -7,6 +7,7 @@ import { ArrowRight, Leaf, Sparkles } from 'lucide-react'
 import { getLocale, getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import Link from 'next/link'
+import heroStyles from './components/hero.module.css'
 
 export default async function LandingPage() {
   const locale = (await getLocale()) as 'de' | 'en'
@@ -33,17 +34,14 @@ export default async function LandingPage() {
           />
         </div>
 
-        {/* Top Overlay for Readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-transparent" />
+        {/* Gradient Scrim Overlay for Readability - prevents white box artifacts */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-white/8 via-white/5 to-transparent" />
 
         {/* Radial Glow Behind Content (Primary Blue) */}
         <div className="absolute left-1/2 top-1/3 h-96 w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-3xl" />
 
         {/* Bottom Fade to White - Starts later, taller gradient */}
         <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-background via-background/90 via-background/50 to-transparent sm:h-[28rem]" />
-
-        {/* Subtle translucent panel behind text for contrast */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[60vh] w-full max-w-4xl rounded-3xl bg-white/5 backdrop-blur-[2px] md:h-[70vh]" />
 
         {/* Content Container - Centered in viewport */}
         <div className="relative z-10 mx-auto flex h-screen max-w-6xl flex-col justify-center px-4 pt-20 sm:px-6 md:pt-24">
@@ -54,13 +52,13 @@ export default async function LandingPage() {
               {t('hero.badge')}
             </Badge>
 
-            {/* Premium Headline */}
-            <h1 className="hero-headline mx-auto max-w-4xl text-[32px] leading-[1.15] text-[#0b1220] drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] sm:text-[44px] sm:leading-[1.18] md:text-[56px] md:leading-[1.2] lg:text-[64px] lg:leading-[1.15]">
+            {/* Premium Headline - Traditional Display Serif */}
+            <h1 className={`${heroStyles.heroHeadline} mx-auto max-w-4xl text-[32px] sm:text-[44px] md:text-[56px] lg:text-[64px]`}>
               {t('hero.title')}
             </h1>
 
             {/* Elegant Subheadline */}
-            <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#24324a] drop-shadow-[0_1px_4px_rgba(0,0,0,0.08)] sm:text-lg sm:leading-relaxed md:text-xl md:leading-[1.7]">
+            <p className={`${heroStyles.heroSubheadline} mx-auto max-w-2xl text-base sm:text-lg md:text-xl`}>
               {t('hero.subtitle')}
             </p>
 
@@ -85,9 +83,9 @@ export default async function LandingPage() {
             </div>
 
             {/* Promise Microcopy */}
-            <div className="flex items-center justify-center gap-2.5 pt-1 text-sm text-[#24324a]/85 md:gap-3 md:text-base">
-              <Leaf className="h-4 w-4 text-primary drop-shadow-sm md:h-5 md:w-5" />
-              <span className="drop-shadow-sm">{t('hero.promise')}</span>
+            <div className="flex items-center justify-center gap-2.5 pt-1 text-sm text-[#3a4a5c]/85 md:gap-3 md:text-base">
+              <Leaf className="h-4 w-4 text-primary md:h-5 md:w-5" />
+              <span>{t('hero.promise')}</span>
             </div>
           </div>
         </div>

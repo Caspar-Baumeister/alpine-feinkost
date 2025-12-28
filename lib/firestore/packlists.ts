@@ -12,7 +12,9 @@ import {
   updateDoc,
   where
 } from 'firebase/firestore'
+import { createStockMovement, getActorInfo } from './stockMovements'
 import { Packlist, PacklistStatus, Product, ProductUnitType } from './types'
+import { getUserByUid } from './users'
 
 const COLLECTION = 'packlists'
 const PRODUCTS_COLLECTION = 'products'
@@ -103,7 +105,7 @@ export async function getPacklist(id: string): Promise<Packlist | null> {
  * Create a new packlist with stock reservation.
  * When a packlist is created with status 'open':
  * - Subtract plannedQuantity from each product's currentStock
- * - Do NOT change totalStock (products are just reserved, not sold)
+ * - Creates stock movement records for audit trail
  */
 export async function createPacklist(
   data: Omit<Packlist, 'id' | 'createdAt' | 'updatedAt' | 'closedAt'>,
@@ -112,14 +114,21 @@ export async function createPacklist(
   const colRef = collection(db, COLLECTION)
   const stockUpdatedBy = stockUpdatedByUserId ?? data.createdBy ?? null
 
+  // Get actor info for stock movements
+  const actor = stockUpdatedBy ? await getUserByUid(stockUpdatedBy) : null
+  const actorInfo = getActorInfo(actor)
+
+  // Store product updates for stock movements (created after transaction)
+  const productUpdates: Array<{
+    productId: string
+    previousStock: number
+    newCurrentStock: number
+    plannedQty: number
+  }> = []
+
   // Use a transaction to atomically update stock and create the packlist
   const packlistId = await runTransaction(db, async (transaction) => {
     // First: for each item, read the product and compute new currentStock
-    const productUpdates: Array<{
-      productId: string
-      newCurrentStock: number
-    }> = []
-
     for (const item of data.items) {
       const productRef = doc(db, PRODUCTS_COLLECTION, item.productId)
       const productSnap = await transaction.get(productRef)
@@ -129,10 +138,9 @@ export async function createPacklist(
       }
 
       const productData = productSnap.data()
-      const currentStock =
-        (productData.currentStock as number) ??
-        (productData.totalStock as number) ??
-        0
+      // Backward compatibility: use totalStock if currentStock doesn't exist
+      const legacyTotalStock = (productData.totalStock as number | undefined) ?? 0
+      const currentStock = (productData.currentStock as number | undefined) ?? legacyTotalStock
       const newCurrentStock = currentStock - item.plannedQuantity
 
       if (newCurrentStock < 0) {
@@ -141,17 +149,17 @@ export async function createPacklist(
         )
       }
 
+      // Store for stock movement creation after transaction
       productUpdates.push({
         productId: item.productId,
-        newCurrentStock
+        previousStock: currentStock,
+        newCurrentStock,
+        plannedQty: item.plannedQuantity
       })
-    }
 
-    // After all reads are done, apply the product stock updates
-    for (const update of productUpdates) {
-      const productRef = doc(db, PRODUCTS_COLLECTION, update.productId)
+      // Update product stock within transaction (reuse productRef from above)
       transaction.update(productRef, {
-        currentStock: update.newCurrentStock,
+        currentStock: newCurrentStock,
         lastStockUpdatedByUserId: stockUpdatedBy,
         updatedAt: serverTimestamp()
       })
@@ -193,6 +201,24 @@ export async function createPacklist(
     transaction.set(newDocRef, docData)
     return newDocRef.id
   })
+
+  // Create stock movement records (after transaction completes)
+  const packlistNote = data.note || null
+  for (const update of productUpdates) {
+    await createStockMovement({
+      productId: update.productId,
+      orderId: null,
+      packlistId: packlistId,
+      type: 'packlist_created',
+      delta: -update.plannedQty, // Negative because stock is decreasing
+      previousStock: update.previousStock,
+      newStock: update.newCurrentStock,
+      actorUserId: stockUpdatedBy || '',
+      actorName: actorInfo.actorName,
+      actorRole: actorInfo.actorRole,
+      note: packlistNote
+    })
+  }
 
   return packlistId
 }
@@ -253,9 +279,7 @@ interface StartSellingItem {
  * Start selling a packlist:
  * - Sets startQuantity for each item
  * - Changes status to 'currently_selling'
- * - Adjusts currentStock if startQuantity differs from plannedQuantity
- *   (e.g., if worker takes more or less than planned)
- * - Does NOT change totalStock (nothing is sold yet)
+ * - Does NOT change stock (stock was already reduced when packlist was created)
  */
 export async function startSellingPacklist(
   id: string,
@@ -263,9 +287,6 @@ export async function startSellingPacklist(
   updatedByUserId?: string | null
 ): Promise<void> {
   const packlistRef = doc(db, COLLECTION, id)
-  const stockUserUpdate = updatedByUserId !== undefined
-    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
-    : {}
 
   await runTransaction(db, async (transaction) => {
     // Read the packlist
@@ -283,42 +304,7 @@ export async function startSellingPacklist(
 
     const existingItems = packlistData.items as Record<string, unknown>[]
 
-    // For each item, check if startQuantity differs from plannedQuantity
-    // If so, adjust currentStock by the difference
-    const stockAdjustments: Map<string, number> = new Map()
-
-    for (const startItem of itemsWithStartQuantity) {
-      const existingItem = existingItems.find((ei) => ei.productId === startItem.productId)
-      if (!existingItem) continue
-
-      const plannedQuantity = existingItem.plannedQuantity as number
-      const startQuantity = startItem.startQuantity
-      const difference = startQuantity - plannedQuantity
-
-      // Only adjust if there's a difference
-      // difference > 0 means taking more than planned -> subtract from currentStock
-      // difference < 0 means taking less than planned -> add to currentStock
-      if (difference !== 0) {
-        const productRef = doc(db, PRODUCTS_COLLECTION, startItem.productId)
-        const productSnap = await transaction.get(productRef)
-
-        if (!productSnap.exists()) {
-          throw new Error(`Product ${startItem.productId} not found`)
-        }
-
-        const productData = productSnap.data()
-        const currentStock = productData.currentStock as number ?? productData.totalStock as number ?? 0
-        const newCurrentStock = currentStock - difference
-
-        if (newCurrentStock < 0) {
-          console.warn(`Product ${startItem.productId} will have negative currentStock: ${newCurrentStock}`)
-        }
-
-        stockAdjustments.set(startItem.productId, newCurrentStock)
-      }
-    }
-
-    // Update items with startQuantity
+    // Update items with startQuantity (no stock changes)
     const updatedItems = existingItems.map((item) => {
       const startItem = itemsWithStartQuantity.find((si) => si.productId === item.productId)
       if (startItem) {
@@ -332,16 +318,6 @@ export async function startSellingPacklist(
         startQuantity: item.plannedQuantity // fallback to plannedQuantity
       }
     })
-
-    // Write: update each product's currentStock where there was a difference
-    for (const [productId, newCurrentStock] of stockAdjustments.entries()) {
-      const productRef = doc(db, PRODUCTS_COLLECTION, productId)
-      transaction.update(productRef, {
-        currentStock: newCurrentStock,
-        ...stockUserUpdate,
-        updatedAt: serverTimestamp()
-      })
-    }
 
     // Write: update the packlist
     transaction.update(packlistRef, {
@@ -410,19 +386,15 @@ export async function finishSellingPacklist(
 /**
  * Complete a packlist (admin action):
  * - Computes soldQuantity, expectedCash, difference
- * - Updates stock:
- *   - totalStock -= soldQuantity (goods that are really sold leave our total stock)
- *   - currentStock += endQuantity (leftover goods return to warehouse)
  * - Changes status to 'completed'
+ * - Does NOT update stock (stock was already reduced when packlist was created)
+ * - Note: Returns are handled separately via confirmReturn function
  */
 export async function completePacklist(
   id: string,
   updatedByUserId?: string | null
 ): Promise<void> {
   const packlistRef = doc(db, COLLECTION, id)
-  const stockUserUpdate = updatedByUserId !== undefined
-    ? { lastStockUpdatedByUserId: updatedByUserId ?? null }
-    : {}
 
   await runTransaction(db, async (transaction) => {
     // Read the packlist
@@ -442,39 +414,6 @@ export async function completePacklist(
     const changeAmount = packlistData.changeAmount as number ?? 0
     const reportedCash = packlistData.reportedCash as number ?? 0
 
-    // For each item, compute soldQuantity and update both stock values
-    interface StockUpdate {
-      newTotalStock: number
-      newCurrentStock: number
-    }
-    const productUpdates: Map<string, StockUpdate> = new Map()
-
-    for (const item of items) {
-      const productId = item.productId as string
-      const startQty = (item.startQuantity as number) ?? (item.plannedQuantity as number)
-      const endQty = (item.endQuantity as number) ?? 0
-      const soldQty = startQty - endQty
-
-      const productRef = doc(db, PRODUCTS_COLLECTION, productId)
-      const productSnap = await transaction.get(productRef)
-
-      if (productSnap.exists()) {
-        const productData = productSnap.data()
-        const currentTotalStock = productData.totalStock as number ?? 0
-        const currentCurrentStock = productData.currentStock as number ?? currentTotalStock
-
-        // totalStock -= soldQuantity (sold goods leave inventory)
-        // currentStock += endQuantity (returned goods come back to warehouse)
-        const newTotalStock = currentTotalStock - soldQty
-        const newCurrentStock = currentCurrentStock + endQty
-
-        productUpdates.set(productId, {
-          newTotalStock,
-          newCurrentStock
-        })
-      }
-    }
-
     // Calculate expected cash
     let expectedCash = changeAmount
     for (const item of items) {
@@ -487,18 +426,7 @@ export async function completePacklist(
 
     const difference = reportedCash - expectedCash
 
-    // Write: update each product's stock
-    for (const [productId, update] of productUpdates.entries()) {
-      const productRef = doc(db, PRODUCTS_COLLECTION, productId)
-      transaction.update(productRef, {
-        totalStock: update.newTotalStock,
-        currentStock: update.newCurrentStock,
-        ...stockUserUpdate,
-        updatedAt: serverTimestamp()
-      })
-    }
-
-    // Write: update the packlist
+    // Write: update the packlist (no stock changes)
     transaction.update(packlistRef, {
       status: 'completed',
       expectedCash,
@@ -548,8 +476,7 @@ export async function getProductsForPacklist(productIds: string[]): Promise<Map<
         descriptionDe,
         descriptionEn,
         isActive: data.isActive as boolean ?? true,
-        totalStock,
-        currentStock: data.currentStock as number ?? totalStock,
+        currentStock: (data.currentStock as number | undefined) ?? (data.totalStock as number | undefined) ?? 0,
         lastStockUpdatedByUserId,
         createdAt: timestampToDate(data.createdAt as Timestamp | null),
         updatedAt: timestampToDate(data.updatedAt as Timestamp | null)

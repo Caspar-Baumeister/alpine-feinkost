@@ -90,7 +90,7 @@
     "unknownUser": "unknown",
     "adjustDialog": {
       "title": "Adjust Stock",
-      "newTotalStock": "New Current Stock",
+      "newCurrentStock": "New Current Stock",
       "hint": "Note: This updates the stock currently in storage."
     }
   },

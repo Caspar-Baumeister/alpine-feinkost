@@ -442,7 +442,6 @@ export function ProductsTable({ products, labels, onRefresh }: ProductsTableProp
         imagePaths: resolvedImagePaths,
         imagePath: resolvedImagePaths[0] || null,
         isActive,
-        totalStock: 0,
         currentStock: 0
       }
 

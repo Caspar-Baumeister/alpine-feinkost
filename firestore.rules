@@ -124,6 +124,20 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────
+    // stockMovements – nur intern, read für worker+, write nur bei stock updates
+    // ─────────────────────────────
+    match /stockMovements/{movementId} {
+      // Nur interne User (worker/admin/superadmin) haben Zugriff
+      allow read: if isWorkerOrAbove();
+
+      // Write nur für worker/admin/superadmin (wird automatisch bei stock updates erstellt)
+      allow create: if isWorkerOrAbove();
+      
+      // Update/Delete nur für admin/superadmin (normalerweise nicht nötig)
+      allow update, delete: if isAdminOrAbove();
+    }
+
+    // ─────────────────────────────
     // templates – nur intern (legacy, falls noch verwendet)
     // ─────────────────────────────
     match /templates/{templateId} {

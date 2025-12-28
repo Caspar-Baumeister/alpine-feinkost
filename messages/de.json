@@ -90,7 +90,7 @@
     "unknownUser": "unbekannt",
     "adjustDialog": {
       "title": "Bestand anpassen",
-      "newTotalStock": "Neuer Lagerbestand",
+      "newCurrentStock": "Neuer Lagerbestand",
       "hint": "Hinweis: Hier ändern Sie den aktuellen Bestand im Lager."
     }
   },

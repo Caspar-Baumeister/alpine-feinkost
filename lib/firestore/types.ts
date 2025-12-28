@@ -34,11 +34,29 @@ export type Product = {
   imagePath?: string | null   // legacy single image
   availableAtPosIds?: string[] | null
   isActive: boolean
-  totalStock: number      // Total inventory owned (not yet sold)
-  currentStock: number    // What's physically in warehouse (not assigned to open/in-progress packlists)
+  currentStock: number    // What's physically in warehouse (single source of truth)
   lastStockUpdatedByUserId?: string | null
   createdAt: Date | null
   updatedAt: Date | null
+}
+
+// ===== Stock Movement =====
+export type StockMovementType = 'delivery_received' | 'packlist_created' | 'return_confirmed' | 'manual_adjustment'
+
+export type StockMovement = {
+  id: string
+  productId: string
+  orderId: string | null      // Reference to order if type is delivery_received
+  packlistId: string | null   // Reference to packlist if type is packlist_created or return_confirmed
+  type: StockMovementType
+  delta: number               // Signed number: +incoming / -outgoing
+  previousStock: number
+  newStock: number
+  actorUserId: string
+  actorName: string | null
+  actorRole: AppRole | null
+  note: string | null          // Optional context (e.g., supplier, delivery note number)
+  createdAt: Date
 }
 
 // ===== Label =====
@@ -48,17 +66,16 @@ export type Label = {
   nameEn: string
   nameDe: string
   descriptionDe: string
-  descriptionEn: string | null
+  descriptionEn: string
   createdAt: Date | null
   updatedAt: Date | null
 }
 
-// ===== POS / Market =====
+// ===== POS =====
 export type Pos = {
   id: string
   name: string
-  location: string
-  notes: string
+  address: string | null
   active: boolean
   createdAt: Date | null
   updatedAt: Date | null
@@ -86,17 +103,17 @@ export type Packlist = {
   date: Date
   assignedUserIds: string[]
   changeAmount: number
-  note: string
-  workerNote: string | null    // Note from worker when finishing sales
+  note: string | null
+  workerNote: string | null
   templateId: string | null
   reportedCash: number | null
   expectedCash: number | null
   difference: number | null
+  items: PacklistItem[]
   createdBy: string
   createdAt: Date | null
   updatedAt: Date | null
   closedAt: Date | null
-  items: PacklistItem[]
 }
 
 // ===== Packlist Template =====
@@ -187,4 +204,3 @@ export type OrderTemplate = {
   updatedAt: Date | null
   items: OrderTemplateItem[]
 }
-

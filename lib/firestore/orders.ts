@@ -14,6 +14,8 @@ import {
   where
 } from 'firebase/firestore'
 import { Order, OrderItem, OrderStatus, ProductUnitType } from './types'
+import { createStockMovement, getActorInfo } from './stockMovements'
+import { getUserByUid } from './users'
 
 const COLLECTION = 'orders'
 const PRODUCTS_COLLECTION = 'products'
@@ -242,9 +244,18 @@ export async function confirmOrder(
   deliveryNoteNumber?: string | null
 ): Promise<void> {
   const orderRef = doc(db, COLLECTION, id)
-  const stockUserUpdate = {
-    lastStockUpdatedByUserId: confirmedByUserId
-  }
+  
+  // Get actor info for stock movements
+  const actor = await getUserByUid(confirmedByUserId)
+  const actorInfo = getActorInfo(actor)
+
+  // Store product updates for stock movements (created after transaction)
+  const productUpdates: Array<{
+    productId: string
+    previousStock: number
+    newCurrentStock: number
+    receivedQty: number
+  }> = []
 
   await runTransaction(db, async (transaction) => {
     // Read the order
@@ -281,13 +292,7 @@ export async function confirmOrder(
       }
     })
 
-    // For each item, prepare product stock updates
-    const productUpdates: Array<{
-      productId: string
-      newTotalStock: number
-      newCurrentStock: number
-    }> = []
-
+    // Read all products first, then update
     for (const item of updatedItems) {
       const productId = item.productId as string
       const receivedQty = item.receivedQuantity as number
@@ -299,30 +304,28 @@ export async function confirmOrder(
 
       if (productSnap.exists()) {
         const productData = productSnap.data()
-        const currentTotalStock = (productData.totalStock as number) ?? 0
-        const currentCurrentStock = (productData.currentStock as number) ?? currentTotalStock
+        // Backward compatibility: use totalStock if currentStock doesn't exist
+        const legacyTotalStock = (productData.totalStock as number | undefined) ?? 0
+        const currentStock = (productData.currentStock as number | undefined) ?? legacyTotalStock
 
-        // Add received quantity to both totalStock and currentStock
-        const newTotalStock = currentTotalStock + receivedQty
-        const newCurrentStock = currentCurrentStock + receivedQty
+        // Add received quantity to currentStock only
+        const newCurrentStock = currentStock + receivedQty
 
+        // Store for stock movement creation after transaction
         productUpdates.push({
           productId,
-          newTotalStock,
-          newCurrentStock
+          previousStock: currentStock,
+          newCurrentStock,
+          receivedQty
+        })
+
+        // Update product stock within transaction
+        transaction.update(productRef, {
+          currentStock: newCurrentStock,
+          lastStockUpdatedByUserId: confirmedByUserId,
+          updatedAt: serverTimestamp()
         })
       }
-    }
-
-    // After all reads, perform the product stock updates
-    for (const update of productUpdates) {
-      const productRef = doc(db, PRODUCTS_COLLECTION, update.productId)
-      transaction.update(productRef, {
-        totalStock: update.newTotalStock,
-        currentStock: update.newCurrentStock,
-        ...stockUserUpdate,
-        updatedAt: serverTimestamp()
-      })
     }
 
     // Write: update the order
@@ -349,5 +352,30 @@ export async function confirmOrder(
     
     transaction.update(orderRef, updateData)
   })
+
+  // Create stock movement records (after transaction completes)
+  const orderData = (await getDoc(orderRef)).data()
+  if (!orderData) return
+
+  const supplierLabel = (orderData.supplierLabel as string | null) ?? null
+  const deliveryNote = deliveryNoteNumber || null
+  const noteText = note || null
+  const movementNote = [supplierLabel, deliveryNote, noteText].filter(Boolean).join(' | ') || null
+
+  for (const update of productUpdates) {
+    await createStockMovement({
+      productId: update.productId,
+      orderId: id,
+      packlistId: null,
+      type: 'delivery_received',
+      delta: update.receivedQty,
+      previousStock: update.previousStock,
+      newStock: update.newCurrentStock,
+      actorUserId: confirmedByUserId,
+      actorName: actorInfo.actorName,
+      actorRole: actorInfo.actorRole,
+      note: movementNote
+    })
+  }
 }
 

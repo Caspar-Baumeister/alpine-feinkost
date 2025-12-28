@@ -24,8 +24,7 @@ export {
   getProduct,
   createProduct,
   updateProduct,
-  updateProductStock,
-  updateProductCurrentStock
+  updateProductStock
 } from './products'
 
 // POS
@@ -45,6 +44,7 @@ export {
   startSellingPacklist,
   finishSellingPacklist,
   completePacklist,
+  confirmReturn,
   getProductsForPacklist
 } from './packlists'
 
@@ -74,4 +74,13 @@ export {
   updateOrderTemplate,
   deleteOrderTemplate
 } from './orderTemplates'
+
+// Stock Movements
+export {
+  createStockMovement,
+  listStockMovementsByProduct,
+  listStockMovementsByOrder,
+  listStockMovementsByPacklist,
+  getActorInfo
+} from './stockMovements'
 
