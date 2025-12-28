@@ -150,8 +150,11 @@ export function OrderForm({ products, templates }: OrderFormProps) {
       if (template.note) {
         setNote(template.note)
       }
+      setSelectedTemplateId(templateId)
+    } else {
+      // Clear selection if template not found
+      setSelectedTemplateId('')
     }
-    setSelectedTemplateId(templateId)
   }
 
   const addLineItem = (product: Product) => {
@@ -355,12 +358,14 @@ export function OrderForm({ products, templates }: OrderFormProps) {
             {templates.length > 0 && (
               <div className="space-y-2">
                 <Label>{t('form.startFromTemplate')}</Label>
-                <Select value={selectedTemplateId} onValueChange={handleTemplateSelect}>
+                <Select
+                  value={selectedTemplateId || undefined}
+                  onValueChange={handleTemplateSelect}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder={t('form.startFromTemplate')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{locale === 'de' ? 'Keine Vorlage' : 'No template'}</SelectItem>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}
