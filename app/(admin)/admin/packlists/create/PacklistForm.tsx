@@ -55,14 +55,16 @@ import {
   AlertTriangle,
   CalendarDays,
   Check,
+  CheckCircle2,
   FileText,
   Loader2,
   Plus,
+  RotateCcw,
   Trash2
 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface PacklistFormProps {
   products: Product[]
@@ -121,6 +123,12 @@ export function PacklistForm({
   const [changeAmount, setChangeAmount] = useState<string>('100')
   const [note, setNote] = useState<string>('')
   const [lineItems, setLineItems] = useState<LineItem[]>([])
+  // Local-only state: track which items are packed (not persisted to Firestore)
+  const [packedItemIds, setPackedItemIds] = useState<Set<string>>(new Set())
+  // Track when items were added for sorting (newest first in unpacked section)
+  const [itemAddedAt, setItemAddedAt] = useState<Map<string, number>>(new Map())
+  // Track when items were packed for sorting within packed section
+  const [itemPackedAt, setItemPackedAt] = useState<Map<string, number>>(new Map())
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
@@ -142,6 +150,15 @@ export function PacklistForm({
       setSaveAsTemplate(draft.saveAsTemplate)
       setTemplateName(draft.templateName)
       setSelectedTemplateId(draft.selectedTemplateId)
+      // Reset packed state when restoring draft (packed state is not persisted)
+      setPackedItemIds(new Set())
+      setItemPackedAt(new Map())
+      // Restore addedAt timestamps for sorting
+      const restoredAddedAt = new Map<string, number>()
+      draft.lineItems.forEach((item) => {
+        restoredAddedAt.set(item.id, Date.now() - draft.lineItems.length + draft.lineItems.indexOf(item))
+      })
+      setItemAddedAt(restoredAddedAt)
       setHasRestored(true)
     } else {
       setHasRestored(true)
@@ -235,19 +252,28 @@ export function PacklistForm({
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId)
     if (template) {
-      setLineItems(
-        template.items.map((item, idx) => ({
-          id: `${Date.now()}-${idx}`,
-          productId: item.productId,
-          productName: item.productName,
-          unitType: item.unitType,
-          unitLabel: getUnitLabel(item.unitType, locale),
-          basePrice: item.basePrice,
-          plannedQuantity: item.defaultQuantity,
-          specialPrice: item.specialPrice,
-          note: item.note
-        }))
-      )
+      const now = Date.now()
+      const templateItems = template.items.map((item, idx) => ({
+        id: `${now}-${idx}`,
+        productId: item.productId,
+        productName: item.productName,
+        unitType: item.unitType,
+        unitLabel: getUnitLabel(item.unitType, locale),
+        basePrice: item.basePrice,
+        plannedQuantity: item.defaultQuantity,
+        specialPrice: item.specialPrice,
+        note: item.note
+      }))
+      setLineItems(templateItems)
+      // Track when items were added (for sorting - newest first in unpacked section)
+      const addedAtMap = new Map<string, number>()
+      templateItems.forEach((item, idx) => {
+        addedAtMap.set(item.id, now - idx) // Slightly offset to maintain order
+      })
+      setItemAddedAt(addedAtMap)
+      // Reset packed state when loading template
+      setPackedItemIds(new Set())
+      setItemPackedAt(new Map())
       if (template.changeAmount) {
         setChangeAmount(template.changeAmount.toString())
       }
@@ -291,6 +317,42 @@ export function PacklistForm({
 
   const removeLineItem = (id: string) => {
     setLineItems(lineItems.filter((item) => item.id !== id))
+    // Clean up local state when item is removed
+    setPackedItemIds((prev) => {
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+    setItemAddedAt((prev) => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+    setItemPackedAt((prev) => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+  }
+
+  const togglePacked = (id: string) => {
+    setPackedItemIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+        // Remove packed timestamp when unpacking
+        setItemPackedAt((prevPacked) => {
+          const nextPacked = new Map(prevPacked)
+          nextPacked.delete(id)
+          return nextPacked
+        })
+      } else {
+        next.add(id)
+        // Record when item was packed (for sorting within packed section)
+        setItemPackedAt((prevPacked) => new Map(prevPacked).set(id, Date.now()))
+      }
+      return next
+    })
   }
 
   const toggleUserAssignment = (userId: string) => {
@@ -301,6 +363,36 @@ export function PacklistForm({
     }
     setUserError(false)
   }
+
+  // Sort items: unpacked first (newest at top), packed last (by packed time)
+  const sortedLineItems = useMemo(() => {
+    const unpacked: LineItem[] = []
+    const packed: LineItem[] = []
+
+    lineItems.forEach((item) => {
+      if (packedItemIds.has(item.id)) {
+        packed.push(item)
+      } else {
+        unpacked.push(item)
+      }
+    })
+
+    // Sort unpacked: newest first (by addedAt timestamp)
+    unpacked.sort((a, b) => {
+      const aTime = itemAddedAt.get(a.id) || 0
+      const bTime = itemAddedAt.get(b.id) || 0
+      return bTime - aTime // Descending (newest first)
+    })
+
+    // Sort packed: by packed time (stable order)
+    packed.sort((a, b) => {
+      const aTime = itemPackedAt.get(a.id) || 0
+      const bTime = itemPackedAt.get(b.id) || 0
+      return aTime - bTime // Ascending (first packed first)
+    })
+
+    return [...unpacked, ...packed]
+  }, [lineItems, packedItemIds, itemAddedAt, itemPackedAt])
 
   // Helper to check if a line item exceeds current stock
   const getStockWarning = (item: LineItem): { exceeds: boolean; available: number } => {
@@ -355,12 +447,19 @@ export function PacklistForm({
       hasError = true
     }
 
+    // Validate quantities (must be >= 1)
+    const invalidQuantities = lineItems.filter((item) => !item.plannedQuantity || item.plannedQuantity < 1)
+    if (invalidQuantities.length > 0) {
+      hasError = true
+      // Could show a toast or inline error here, but for now just block save
+    }
+
     if (hasError) return
 
     setIsSaving(true)
 
     try {
-      // Convert line items to PacklistItem format, normalizing empty/undefined quantities to 0
+      // Convert line items to PacklistItem format, ensuring minimum quantity of 1
       const items: PacklistItem[] = lineItems.map((item) => ({
         productId: item.productId,
         productName: item.productName,
@@ -368,7 +467,7 @@ export function PacklistForm({
         unitLabel: item.unitLabel,
         basePrice: item.basePrice,
         specialPrice: item.specialPrice,
-        plannedQuantity: item.plannedQuantity || 0, // Normalize empty to 0
+        plannedQuantity: item.plannedQuantity && item.plannedQuantity > 0 ? item.plannedQuantity : 1, // Ensure minimum of 1
         startQuantity: null,
         endQuantity: null,
         note: item.note
@@ -411,7 +510,7 @@ export function PacklistForm({
             unitLabel: item.unitLabel,
             basePrice: item.basePrice,
             specialPrice: item.specialPrice,
-            defaultQuantity: item.plannedQuantity,
+            defaultQuantity: item.plannedQuantity && item.plannedQuantity > 0 ? item.plannedQuantity : 1, // Ensure minimum of 1
             note: item.note
           }))
         })
@@ -421,6 +520,9 @@ export function PacklistForm({
       if (currentUser) {
         clearDraft(currentUser.uid)
       }
+      // Clear packed state
+      setPackedItemIds(new Set())
+      setItemPackedAt(new Map())
 
       router.push('/admin/packlists')
     } catch (error) {
@@ -655,14 +757,28 @@ export function PacklistForm({
                       {t('form.specialPrice')}
                     </TableHead>
                     <TableHead>{t('form.lineNote')}</TableHead>
-                    <TableHead className="w-[60px]"></TableHead>
+                    <TableHead className="w-[120px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {lineItems.map((item) => {
+                  {sortedLineItems.map((item, index) => {
                     const stockWarning = getStockWarning(item)
+                    const isPacked = packedItemIds.has(item.id)
+                    const isFirstPacked = index > 0 && !packedItemIds.has(sortedLineItems[index - 1]?.id) && isPacked
                     return (
-                      <TableRow key={item.id}>
+                      <React.Fragment key={item.id}>
+                        {isFirstPacked && (
+                          <TableRow key={`divider-${item.id}`} className="bg-muted/30">
+                            <TableCell colSpan={6} className="h-1 p-0">
+                              <div className="h-px bg-border" />
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        <TableRow
+                          className={cn(
+                            isPacked && 'opacity-60 bg-muted/20'
+                          )}
+                        >
                         <TableCell className="font-medium">
                           {item.productName}
                         </TableCell>
@@ -671,16 +787,44 @@ export function PacklistForm({
                             <Input
                               type="number"
                               step="0.1"
-                              min="0"
-                              value={item.plannedQuantity}
-                              onChange={(e) =>
-                                updateLineItem(item.id, {
-                                  plannedQuantity: parseFloat(e.target.value) || 0
-                                })
-                              }
+                              min="1"
+                              value={item.plannedQuantity > 0 ? item.plannedQuantity : ''}
+                              onFocus={(e) => {
+                                // Select all text when focused for easy replacement
+                                e.target.select()
+                              }}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                // Allow empty string during editing (user is clearing the field)
+                                if (value === '') {
+                                  updateLineItem(item.id, {
+                                    plannedQuantity: 0 // Temporary 0 for empty state, will be validated on save
+                                  })
+                                } else {
+                                  const numValue = parseFloat(value)
+                                  // Only update if it's a valid positive number
+                                  if (!isNaN(numValue) && numValue > 0) {
+                                    updateLineItem(item.id, {
+                                      plannedQuantity: numValue
+                                    })
+                                  }
+                                }
+                              }}
+                              onBlur={(e) => {
+                                // Ensure minimum of 1 when field loses focus (if empty or invalid)
+                                const value = parseFloat(e.target.value)
+                                if (isNaN(value) || value < 1) {
+                                  updateLineItem(item.id, {
+                                    plannedQuantity: 1
+                                  })
+                                }
+                              }}
+                              disabled={isPacked}
                               className={cn(
                                 'w-full',
-                                stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive'
+                                stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive',
+                                isPacked && 'cursor-not-allowed',
+                                (!item.plannedQuantity || item.plannedQuantity < 1) && 'border-destructive'
                               )}
                             />
                             {stockWarning.exceeds && (
@@ -721,8 +865,12 @@ export function PacklistForm({
                                       : null
                                   })
                                 }
+                                disabled={isPacked}
                                 placeholder="—"
-                                className="w-full pl-6"
+                                className={cn(
+                                  'w-full pl-6',
+                                  isPacked && 'cursor-not-allowed'
+                                )}
                               />
                             </div>
                             <p className="text-xs text-muted-foreground">
@@ -737,20 +885,50 @@ export function PacklistForm({
                             onChange={(e) =>
                               updateLineItem(item.id, { note: e.target.value })
                             }
+                            disabled={isPacked}
                             placeholder="Optionale Notiz"
+                            className={cn(isPacked && 'cursor-not-allowed')}
                           />
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeLineItem(item.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => togglePacked(item.id)}
+                              className={cn(
+                                isPacked
+                                  ? 'text-primary hover:text-primary'
+                                  : 'text-muted-foreground hover:text-primary'
+                              )}
+                              aria-label={
+                                isPacked
+                                  ? locale === 'de'
+                                    ? 'Als ungepackt markieren'
+                                    : 'Mark as unpacked'
+                                  : locale === 'de'
+                                    ? 'Als gepackt markieren'
+                                    : 'Mark as packed'
+                              }
+                            >
+                              {isPacked ? (
+                                <RotateCcw className="h-4 w-4" />
+                              ) : (
+                                <CheckCircle2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeLineItem(item.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
+                      </React.Fragment>
                     )
                   })}
                 </TableBody>
@@ -812,6 +990,9 @@ export function PacklistForm({
             if (currentUser) {
               clearDraft(currentUser.uid)
             }
+            // Clear packed state
+            setPackedItemIds(new Set())
+            setItemPackedAt(new Map())
             router.back()
           }}
           disabled={isSaving}
