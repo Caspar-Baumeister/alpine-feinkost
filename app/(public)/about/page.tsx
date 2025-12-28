@@ -18,7 +18,7 @@ export default async function AboutPage() {
           <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">{t('title')}</h1>
           <p className="text-lg text-muted-foreground">{t('intro')}</p>
         </div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-emerald-400/15 via-background to-background shadow-lg">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 via-background to-background shadow-lg">
           <Image
             src="/alpinefeinkostlabel.png"
             alt="Alpine Feinkost"

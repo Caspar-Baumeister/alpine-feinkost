@@ -404,7 +404,7 @@ export default function OrderDetailPage({ params }: PageProps) {
 
       {/* Confirm Action */}
       {canConfirm && (
-        <Card className="border-emerald-500/30">
+        <Card className="border-primary/30">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -417,7 +417,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                 onClick={handleConfirm}
                 disabled={isConfirming}
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {isConfirming ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

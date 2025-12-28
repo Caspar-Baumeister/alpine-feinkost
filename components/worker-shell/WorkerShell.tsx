@@ -83,7 +83,7 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Signing out...</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function WorkerShell({ children, user }: WorkerShellProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-emerald-500/20 text-emerald-500 text-sm">
+                  <AvatarFallback className="bg-primary/20 text-primary text-sm">
                     {getInitials(user.displayName)}
                   </AvatarFallback>
                 </Avatar>

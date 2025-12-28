@@ -167,7 +167,7 @@ export function ProductDetailContent({
       <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
         <div className="space-y-3 sm:space-y-4">
           <Card className="overflow-hidden border-border/70 bg-muted/30">
-            <div className="relative aspect-square w-full bg-gradient-to-br from-emerald-500/10 via-background to-background">
+            <div className="relative aspect-square w-full bg-gradient-to-br from-primary/10 via-background to-background">
               {mainImage ? (
                 <Image
                   src={mainImage.url}

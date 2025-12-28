@@ -303,7 +303,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Signing out...</p>
         </div>
       </div>
@@ -399,7 +399,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                     {/* User Info */}
                     <div className={styles.drawerUserInfo}>
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-emerald-500/20 text-emerald-500">
+                        <AvatarFallback className="bg-primary/20 text-primary">
                           {getInitials(user.displayName)}
                         </AvatarFallback>
                       </Avatar>
@@ -500,7 +500,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                       className="relative h-9 w-9 rounded-full"
                     >
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className="bg-emerald-500/20 text-emerald-500">
+                        <AvatarFallback className="bg-primary/20 text-primary">
                           {getInitials(user.displayName)}
                         </AvatarFallback>
                       </Avatar>

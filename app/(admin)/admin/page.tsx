@@ -156,7 +156,7 @@ function TopSellingProductsCard() {
                 <span className="font-medium text-foreground">{item.name}</span>
                 <span className="text-sm text-muted-foreground">{item.quantity} sold</span>
               </div>
-              <span className="text-sm font-semibold text-emerald-500">{item.revenue}</span>
+              <span className="text-sm font-semibold text-primary">{item.revenue}</span>
             </div>
           ))}
         </div>

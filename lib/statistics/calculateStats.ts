@@ -239,12 +239,12 @@ export function prepareChartData(
  * Generate a color for an entity based on its index
  */
 const CHART_COLORS = [
-  '#10b981', // emerald
-  '#3b82f6', // blue
+  '#20489c', // primary blue (brand)
+  '#2b5bd6', // lighter blue
+  '#17346f', // darker blue
   '#f59e0b', // amber
   '#ef4444', // red
   '#8b5cf6', // violet
-  '#ec4899', // pink
   '#14b8a6', // teal
   '#f97316', // orange
 ]

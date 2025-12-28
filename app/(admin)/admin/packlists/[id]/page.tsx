@@ -184,7 +184,7 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
           <Button
             onClick={handleComplete}
             disabled={isCompleting}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {isCompleting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -407,11 +407,11 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
 
       {/* Action for sold packlists */}
       {packlist.status === 'sold' && (
-        <Card className="border-emerald-500/30">
+        <Card className="border-primary/30">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Clock className="h-6 w-6 text-emerald-500" />
+                <Clock className="h-6 w-6 text-primary" />
                 <div>
                   <p className="font-medium">
                     {locale === 'de' ? 'Warte auf Überprüfung' : 'Awaiting Review'}
@@ -428,7 +428,7 @@ export default function AdminPacklistDetailPage({ params }: PageProps) {
                 onClick={handleComplete}
                 disabled={isCompleting}
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {isCompleting ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

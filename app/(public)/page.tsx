@@ -16,15 +16,15 @@ export default async function LandingPage() {
 
   return (
     <div className="space-y-16 pb-16">
-      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-emerald-500/10 via-background to-background">
+      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-10 top-10 h-24 w-24 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="absolute left-10 top-10 h-24 w-24 rounded-full bg-primary/20 blur-3xl" />
           <div className="absolute bottom-10 right-10 h-32 w-32 rounded-full bg-amber-400/10 blur-3xl" />
         </div>
 
         <div className="relative mx-auto flex max-w-6xl flex-col-reverse gap-10 px-4 py-12 sm:px-6 md:flex-row md:items-center md:py-16">
           <div className="flex-1 space-y-6">
-            <Badge className="gap-2 bg-emerald-500/10 text-emerald-700">
+            <Badge className="gap-2 bg-primary/10 text-primary">
               <Sparkles className="h-4 w-4" />
               {t('hero.badge')}
             </Badge>
@@ -46,7 +46,7 @@ export default async function LandingPage() {
               </Button>
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Leaf className="h-4 w-4 text-emerald-500" />
+              <Leaf className="h-4 w-4 text-primary" />
               <span>{t('hero.promise')}</span>
             </div>
           </div>

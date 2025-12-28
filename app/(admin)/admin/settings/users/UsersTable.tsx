@@ -317,7 +317,7 @@ export function UsersTable({ initialData, onDataChange }: UsersTableProps) {
                           {user.active ? (
                             <UserX className="h-4 w-4 text-destructive" />
                           ) : (
-                            <UserCheck className="h-4 w-4 text-emerald-500" />
+                            <UserCheck className="h-4 w-4 text-primary" />
                           )}
                         </Button>
                       </div>

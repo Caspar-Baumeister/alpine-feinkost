@@ -59,7 +59,7 @@ export function ProductCard({
 
   return (
     <Card className="h-full overflow-hidden border-border/70 bg-card shadow-sm">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-500/20 via-background to-background">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/20 via-background to-background">
         {imageUrl ? (
           <Image
             src={imageUrl}

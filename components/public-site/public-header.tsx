@@ -1,13 +1,13 @@
 'use client'
 
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Menu, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { LanguageSwitcher } from '@/components/language-switcher'
-import { cn } from '@/lib/utils'
 
 const navItems = [
   { key: 'home', href: '/' },
@@ -33,7 +33,7 @@ export function PublicHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-sm">
               AF
             </div>
             <div className="flex flex-col leading-tight">

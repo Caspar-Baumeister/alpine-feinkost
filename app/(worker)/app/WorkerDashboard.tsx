@@ -51,7 +51,7 @@ export function WorkerDashboard({ packlists }: WorkerDashboardProps) {
       {activePacklists.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-emerald-500" />
+            <Clock className="h-5 w-5 text-primary" />
             {locale === 'de' ? 'Aktiv' : 'Active'}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -97,7 +97,7 @@ function PacklistCard({ packlist, dateLocale }: PacklistCardProps) {
 
   return (
     <Link href={`/app/packlists/${packlist.id}`}>
-      <Card className={`transition-colors hover:border-emerald-500/50 ${isActive ? 'border-emerald-500/30' : ''}`}>
+      <Card className={`transition-colors hover:border-primary/50 ${isActive ? 'border-primary/30' : ''}`}>
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base font-medium truncate">

@@ -417,7 +417,7 @@ export function StatisticsView({
               <CardTitle className="text-base">{t('totalRevenue')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+              <p className="text-3xl font-bold text-primary">
                 {formatCurrency(totalRevenue)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
