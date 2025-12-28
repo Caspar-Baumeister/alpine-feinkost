@@ -1,27 +1,20 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTranslations, useLocale } from 'next-intl'
-import { format } from 'date-fns'
-import { de, enUS } from 'date-fns/locale'
-import {
-  CalendarDays,
-  Plus,
-  Trash2,
-  FileText,
-  Save,
-  Check,
-  Loader2,
-  AlertTriangle
-} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Calendar } from '@/components/ui/calendar'
 import {
   Popover,
   PopoverContent,
@@ -35,14 +28,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from '@/components/ui/command'
-import {
   Table,
   TableBody,
   TableCell,
@@ -50,19 +35,33 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
+import { useCurrentUser } from '@/lib/auth/useCurrentUser'
 import {
-  Product,
-  Pos,
   AppUser,
-  PacklistTemplate,
   PacklistItem,
+  PacklistTemplate,
+  Pos,
+  Product,
   createPacklist,
   createPacklistTemplate
 } from '@/lib/firestore'
-import { useCurrentUser } from '@/lib/auth/useCurrentUser'
-import { cn } from '@/lib/utils'
 import { getUnitLabel } from '@/lib/products/getUnitLabelForLocale'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { de, enUS } from 'date-fns/locale'
+import {
+  AlertTriangle,
+  CalendarDays,
+  Check,
+  FileText,
+  Loader2,
+  Plus,
+  Trash2
+} from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
 interface PacklistFormProps {
   products: Product[]
@@ -549,118 +548,118 @@ export function PacklistForm({
             </div>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('form.product')}</TableHead>
-                  <TableHead className="w-[120px]">
-                    {t('form.plannedQuantity')}
-                  </TableHead>
-                  <TableHead className="w-[100px]">Einheit</TableHead>
-                  <TableHead className="w-[120px]">
-                    {t('form.specialPrice')}
-                  </TableHead>
-                  <TableHead>{t('form.lineNote')}</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {lineItems.map((item) => {
-                  const stockWarning = getStockWarning(item)
-                  return (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      {item.productName}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          value={item.plannedQuantity}
-                          onChange={(e) =>
-                            updateLineItem(item.id, {
-                              plannedQuantity: parseFloat(e.target.value) || 0
-                            })
-                          }
-                          className={cn(
-                            'w-full',
-                            stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive'
-                          )}
-                        />
-                        {stockWarning.exceeds && (
-                          <div className="flex flex-col gap-1">
-                            <p className="text-xs text-destructive flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              {tValidation('notEnoughStock', { available: stockWarning.available })}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => clipToAvailableStock(item.id)}
-                              className="text-xs text-primary hover:underline text-left"
-                            >
-                              {tValidation('setToAvailable')}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {getUnitLabel(item.unitType, locale)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="relative">
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                            €
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={item.specialPrice || ''}
-                            onChange={(e) =>
-                              updateLineItem(item.id, {
-                                specialPrice: e.target.value
-                                  ? parseFloat(e.target.value)
-                                  : null
-                              })
-                            }
-                            placeholder="—"
-                            className="w-full pl-6"
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {locale === 'de' ? 'Normalpreis: ' : 'Base price: '}
-                          {formatCurrency(item.basePrice)}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={item.note || ''}
-                        onChange={(e) =>
-                          updateLineItem(item.id, { note: e.target.value })
-                        }
-                        placeholder="Optionale Notiz"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeLineItem(item.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('form.product')}</TableHead>
+                    <TableHead className="w-[120px]">
+                      {t('form.plannedQuantity')}
+                    </TableHead>
+                    <TableHead className="w-[100px]">Einheit</TableHead>
+                    <TableHead className="w-[120px]">
+                      {t('form.specialPrice')}
+                    </TableHead>
+                    <TableHead>{t('form.lineNote')}</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {lineItems.map((item) => {
+                    const stockWarning = getStockWarning(item)
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          {item.productName}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              value={item.plannedQuantity}
+                              onChange={(e) =>
+                                updateLineItem(item.id, {
+                                  plannedQuantity: parseFloat(e.target.value) || 0
+                                })
+                              }
+                              className={cn(
+                                'w-full',
+                                stockWarning.exceeds && 'border-destructive text-destructive focus-visible:ring-destructive'
+                              )}
+                            />
+                            {stockWarning.exceeds && (
+                              <div className="flex flex-col gap-1">
+                                <p className="text-xs text-destructive flex items-center gap-1">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {tValidation('notEnoughStock', { available: stockWarning.available })}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => clipToAvailableStock(item.id)}
+                                  className="text-xs text-primary hover:underline text-left"
+                                >
+                                  {tValidation('setToAvailable')}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {getUnitLabel(item.unitType, locale)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="relative">
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                                €
+                              </span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={item.specialPrice || ''}
+                                onChange={(e) =>
+                                  updateLineItem(item.id, {
+                                    specialPrice: e.target.value
+                                      ? parseFloat(e.target.value)
+                                      : null
+                                  })
+                                }
+                                placeholder="—"
+                                className="w-full pl-6"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {locale === 'de' ? 'Normalpreis: ' : 'Base price: '}
+                              {formatCurrency(item.basePrice)}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={item.note || ''}
+                            onChange={(e) =>
+                              updateLineItem(item.id, { note: e.target.value })
+                            }
+                            placeholder="Optionale Notiz"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeLineItem(item.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
@@ -693,7 +692,7 @@ export function PacklistForm({
                   aria-describedby={templateNameError ? 'template-name-error' : undefined}
                   className={cn(
                     templateNameError &&
-                      'border-destructive focus-visible:ring-destructive'
+                    'border-destructive focus-visible:ring-destructive'
                   )}
                 />
               )}

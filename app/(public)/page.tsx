@@ -24,7 +24,7 @@ export default async function LandingPage() {
 
         <div className="relative mx-auto flex max-w-6xl flex-col-reverse gap-10 px-4 py-12 sm:px-6 md:flex-row md:items-center md:py-16">
           <div className="flex-1 space-y-6">
-            <Badge className="gap-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200">
+            <Badge className="gap-2 bg-emerald-500/10 text-emerald-700">
               <Sparkles className="h-4 w-4" />
               {t('hero.badge')}
             </Badge>

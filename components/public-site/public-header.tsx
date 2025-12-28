@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/language-switcher'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -63,7 +62,6 @@ export function PublicHeader() {
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <ThemeToggle />
           <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
             <Link href="/login">{t('admin')}</Link>
           </Button>

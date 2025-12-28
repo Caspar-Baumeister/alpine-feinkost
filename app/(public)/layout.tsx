@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { PublicHeader } from '@/components/public-site/public-header'
 import { PublicFooter } from '@/components/public-site/public-footer'
+import { LightThemeProvider } from '@/components/public-site/light-theme-provider'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 const ogImagePath = '/opengraph-image.png'
@@ -44,11 +45,13 @@ export const metadata: Metadata = {
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <PublicHeader />
-      <main className="flex-1">{children}</main>
-      <PublicFooter />
-    </div>
+    <LightThemeProvider>
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
+        <PublicHeader />
+        <main className="flex-1">{children}</main>
+        <PublicFooter />
+      </div>
+    </LightThemeProvider>
   )
 }
 
