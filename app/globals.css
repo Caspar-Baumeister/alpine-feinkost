@@ -171,4 +171,14 @@
   .focus-ring {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

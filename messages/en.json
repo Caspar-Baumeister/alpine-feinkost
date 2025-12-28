@@ -485,6 +485,11 @@
       "ctaSecondary": "Contact & locations",
       "promise": "Regional, handcrafted, delivered directly to you"
     },
+    "productImpressions": {
+      "title": "Our Assortment",
+      "subtitle": "A selection of our Alpine cheese specialties",
+      "cta": "View all products"
+    },
     "featured": {
       "kicker": "Highlights",
       "title": "A taste of our assortment",
@@ -513,7 +518,11 @@
       "title": "Curated cheese selection",
       "subtitle": "Handpicked Alpine specialties for market lovers.",
       "comingSoon": "Online ordering coming soon",
-      "empty": "No products available at the moment."
+      "empty": "No products available at the moment.",
+      "visualOverview": {
+        "title": "Visual Overview",
+        "subtitle": "A glimpse of our assortment"
+      }
     },
     "productDetail": {
       "back": "Back to assortment",
@@ -647,6 +656,10 @@
         "ctaDescription": "Send us an email or give us a call – we look forward to hearing from you.",
         "emailButton": "Send Email",
         "phoneButton": "Call"
+      },
+      "assortmentGlance": {
+        "title": "Our Assortment at a Glance",
+        "subtitle": "Selected Alpine cheese specialties"
       }
     }
   }

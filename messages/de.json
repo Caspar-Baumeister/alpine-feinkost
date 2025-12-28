@@ -484,6 +484,11 @@
       "ctaSecondary": "Kontakt & Standorte",
       "promise": "Regional, handwerklich gereift und direkt zu Ihnen"
     },
+    "productImpressions": {
+      "title": "Unser Sortiment",
+      "subtitle": "Eine Auswahl unserer Alpenkäse-Spezialitäten",
+      "cta": "Alle Produkte ansehen"
+    },
     "featured": {
       "kicker": "Beliebte Auswahl",
       "title": "Unsere Empfehlung für Sie",
@@ -512,7 +517,11 @@
       "title": "Ausgewählte Käsespezialitäten",
       "subtitle": "Handverlesen, mit Sorgfalt gereift und für Marktbesucher zusammengestellt.",
       "comingSoon": "Online-Bestellung in Vorbereitung",
-      "empty": "Derzeit sind keine Produkte verfügbar."
+      "empty": "Derzeit sind keine Produkte verfügbar.",
+      "visualOverview": {
+        "title": "Visueller Überblick",
+        "subtitle": "Ein Blick auf unser Sortiment"
+      }
     },
     "productDetail": {
       "back": "Zurück zum Sortiment",
@@ -646,6 +655,10 @@
         "ctaDescription": "Schreiben Sie uns eine E-Mail oder rufen Sie uns an – wir freuen uns auf Ihre Nachricht.",
         "emailButton": "E-Mail senden",
         "phoneButton": "Anrufen"
+      },
+      "assortmentGlance": {
+        "title": "Unser Sortiment auf einen Blick",
+        "subtitle": "Ausgewählte Alpenkäse-Spezialitäten"
       }
     }
   }

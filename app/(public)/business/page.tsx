@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import {
   CheckCircle,
   Package,
@@ -13,6 +13,7 @@ import {
   Phone,
   Clock
 } from 'lucide-react'
+import { ProductImageCutout } from '@/components/public-site/product-image-cutout'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -43,6 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BusinessPage() {
+  const locale = (await getLocale()) as 'de' | 'en'
   const t = await getTranslations('marketing.business')
 
   const keyPoints = [
@@ -127,6 +129,47 @@ export default async function BusinessPage() {
             {t('team.title')}
           </h2>
           <p className="text-muted-foreground leading-relaxed">{t('team.description')}</p>
+        </div>
+      </section>
+
+      {/* Assortment at a Glance */}
+      <section className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
+            {t('assortmentGlance.title')}
+          </h2>
+          <p className="text-muted-foreground">{t('assortmentGlance.subtitle')}</p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative rounded-xl bg-gradient-to-br from-primary/5 via-background to-background p-6">
+            <ProductImageCutout
+              src="/products1.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 1' : 'Alpine cheese specialty 1'}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative rounded-xl bg-gradient-to-br from-primary/5 via-background to-background p-6">
+            <ProductImageCutout
+              src="/products2.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 2' : 'Alpine cheese specialty 2'}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative rounded-xl bg-gradient-to-br from-primary/5 via-background to-background p-6">
+            <ProductImageCutout
+              src="/products3.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 3' : 'Alpine cheese specialty 3'}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            />
+          </div>
+          <div className="relative rounded-xl bg-gradient-to-br from-primary/5 via-background to-background p-6">
+            <ProductImageCutout
+              src="/products4.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 4' : 'Alpine cheese specialty 4'}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            />
+          </div>
         </div>
       </section>
 

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { ArrowRight, Leaf, Sparkles } from 'lucide-react'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { ProductCard } from '@/components/public-site/product-card'
+import { ProductImageCutout } from '@/components/public-site/product-image-cutout'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { getPublicCatalog } from '@/lib/public/catalog'
@@ -63,6 +64,87 @@ export default async function LandingPage() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Product Impressions Section */}
+      <section className="mx-auto max-w-6xl space-y-6 px-4 sm:px-6">
+        <div className="space-y-2 text-center">
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">
+            {t('productImpressions.title')}
+          </p>
+          <p className="text-muted-foreground">{t('productImpressions.subtitle')}</p>
+        </div>
+
+        {/* Desktop: 4-up grid */}
+        <div className="hidden grid-cols-4 gap-8 md:grid">
+          <ProductImageCutout
+            src="/products1.png"
+            alt={locale === 'de' ? 'Alpenkäse Spezialität 1' : 'Alpine cheese specialty 1'}
+            href="/sortiment"
+            priority
+          />
+          <ProductImageCutout
+            src="/products2.png"
+            alt={locale === 'de' ? 'Alpenkäse Spezialität 2' : 'Alpine cheese specialty 2'}
+            href="/sortiment"
+          />
+          <ProductImageCutout
+            src="/products3.png"
+            alt={locale === 'de' ? 'Alpenkäse Spezialität 3' : 'Alpine cheese specialty 3'}
+            href="/sortiment"
+          />
+          <ProductImageCutout
+            src="/products4.png"
+            alt={locale === 'de' ? 'Alpenkäse Spezialität 4' : 'Alpine cheese specialty 4'}
+            href="/sortiment"
+          />
+        </div>
+
+        {/* Mobile: Scrollable row */}
+        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide md:hidden">
+          <div className="min-w-[200px] flex-shrink-0">
+            <ProductImageCutout
+              src="/products1.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 1' : 'Alpine cheese specialty 1'}
+              href="/sortiment"
+              priority
+              sizes="200px"
+            />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0">
+            <ProductImageCutout
+              src="/products2.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 2' : 'Alpine cheese specialty 2'}
+              href="/sortiment"
+              sizes="200px"
+            />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0">
+            <ProductImageCutout
+              src="/products3.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 3' : 'Alpine cheese specialty 3'}
+              href="/sortiment"
+              sizes="200px"
+            />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0">
+            <ProductImageCutout
+              src="/products4.png"
+              alt={locale === 'de' ? 'Alpenkäse Spezialität 4' : 'Alpine cheese specialty 4'}
+              href="/sortiment"
+              sizes="200px"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center pt-4">
+          <Button asChild variant="outline">
+            <Link href="/sortiment" className="inline-flex items-center gap-2">
+              {t('productImpressions.cta')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 
