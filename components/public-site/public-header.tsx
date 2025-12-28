@@ -13,6 +13,7 @@ const navItems = [
   { key: 'home', href: '/' },
   { key: 'sortiment', href: '/sortiment' },
   { key: 'about', href: '/about' },
+  { key: 'business', href: '/business' },
   { key: 'contact', href: '/kontakt' }
 ]
 

@@ -470,6 +470,7 @@
       "home": "Start",
       "sortiment": "Sortiment",
       "about": "Über uns",
+      "business": "Business",
       "contact": "Kontakt & Standorte",
       "admin": "Verwaltung",
       "openMenu": "Menü öffnen",
@@ -598,6 +599,54 @@
       "contact": "Kontakt",
       "admin": "Verwaltung",
       "rights": "Alle Rechte vorbehalten"
+    },
+    "business": {
+      "kicker": "Unternehmen",
+      "title": "Alpine Feinkost – Ihr Partner für Alpenkäse",
+      "intro": "Wir sind spezialisiert auf hochwertige Alpenkäse-Spezialitäten für Wochenmärkte, Gastronomie und den Einzelhandel. Mit jahrzehntelanger Erfahrung bringen wir authentische Produkte direkt zu Ihnen.",
+      "keyPoints": {
+        "title": "Unsere Stärken",
+        "quality": {
+          "title": "Qualität & Frische",
+          "description": "Wir arbeiten direkt mit ausgewählten Höfen und Affineuren in den Alpen zusammen und garantieren höchste Qualität und Frische."
+        },
+        "sortiment": {
+          "title": "Kuratiertes Sortiment",
+          "description": "Unser Sortiment wird sorgfältig ausgewählt und regelmäßig erweitert, um Ihnen die besten Alpenkäse-Spezialitäten zu bieten."
+        },
+        "markets": {
+          "title": "Präsenz auf Märkten",
+          "description": "Regelmäßig auf Wochenmärkten in Brandenburg und Berlin präsent – direkt und persönlich für unsere Kunden."
+        },
+        "regional": {
+          "title": "Regionale Beschaffung",
+          "description": "Wir bevorzugen kurze Wege und direkte Partnerschaften mit Produzenten aus den Alpenregionen."
+        },
+        "logistics": {
+          "title": "Zuverlässige Logistik",
+          "description": "Professionelle Lagerung und schonender Transport sorgen dafür, dass unsere Produkte in bester Qualität bei Ihnen ankommen."
+        },
+        "service": {
+          "title": "Persönlicher Service",
+          "description": "Unser Team steht Ihnen mit Fachwissen und Engagement zur Seite – von der Beratung bis zur Lieferung."
+        }
+      },
+      "team": {
+        "title": "Unser Team",
+        "description": "Hinter Alpine Feinkost steht ein erfahrenes Team, das mit Leidenschaft für Qualität und Tradition arbeitet. Wir kennen unsere Produkte und unsere Partner persönlich."
+      },
+      "contact": {
+        "title": "Kontakt aufnehmen",
+        "description": "Haben Sie Fragen zu unserem Sortiment oder möchten Sie eine Zusammenarbeit besprechen? Wir freuen uns auf Ihre Nachricht.",
+        "address": "Lichterfelder Allee 127, 14513 Teltow",
+        "email": "info@alpinefeinkost.de",
+        "phone": "+49 15679 070067",
+        "hours": "Mo–Fr: 9:00–17:00 Uhr",
+        "ctaTitle": "Kontakt aufnehmen",
+        "ctaDescription": "Schreiben Sie uns eine E-Mail oder rufen Sie uns an – wir freuen uns auf Ihre Nachricht.",
+        "emailButton": "E-Mail senden",
+        "phoneButton": "Anrufen"
+      }
     }
   }
 }

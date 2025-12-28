@@ -471,6 +471,7 @@
       "home": "Home",
       "sortiment": "Products",
       "about": "About us",
+      "business": "Business",
       "contact": "Contact & Locations",
       "admin": "Admin",
       "openMenu": "Open menu",
@@ -599,6 +600,54 @@
       "contact": "Contact",
       "admin": "Admin",
       "rights": "All rights reserved"
+    },
+    "business": {
+      "kicker": "Business",
+      "title": "Alpine Feinkost – Your Partner for Alpine Cheese",
+      "intro": "We specialize in premium Alpine cheese specialties for weekly markets, restaurants, and retail. With decades of experience, we bring authentic products directly to you.",
+      "keyPoints": {
+        "title": "Our Strengths",
+        "quality": {
+          "title": "Quality & Freshness",
+          "description": "We work directly with selected farms and affineurs in the Alps, guaranteeing the highest quality and freshness."
+        },
+        "sortiment": {
+          "title": "Curated Assortment",
+          "description": "Our assortment is carefully selected and regularly expanded to offer you the best Alpine cheese specialties."
+        },
+        "markets": {
+          "title": "Market Presence",
+          "description": "Regularly present at weekly markets in Brandenburg and Berlin – direct and personal for our customers."
+        },
+        "regional": {
+          "title": "Regional Sourcing",
+          "description": "We prefer short routes and direct partnerships with producers from Alpine regions."
+        },
+        "logistics": {
+          "title": "Reliable Logistics",
+          "description": "Professional storage and careful transport ensure our products arrive at your location in the best quality."
+        },
+        "service": {
+          "title": "Personal Service",
+          "description": "Our team supports you with expertise and commitment – from consultation to delivery."
+        }
+      },
+      "team": {
+        "title": "Our Team",
+        "description": "Behind Alpine Feinkost is an experienced team that works with passion for quality and tradition. We know our products and our partners personally."
+      },
+      "contact": {
+        "title": "Get in Touch",
+        "description": "Do you have questions about our assortment or would you like to discuss a collaboration? We look forward to hearing from you.",
+        "address": "Lichterfelder Allee 127, 14513 Teltow",
+        "email": "info@alpinefeinkost.de",
+        "phone": "+49 15679 070067",
+        "hours": "Mon–Fri: 9:00–17:00",
+        "ctaTitle": "Get in Touch",
+        "ctaDescription": "Send us an email or give us a call – we look forward to hearing from you.",
+        "emailButton": "Send Email",
+        "phoneButton": "Call"
+      }
     }
   }
 }
