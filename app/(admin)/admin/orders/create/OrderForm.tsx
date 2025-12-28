@@ -91,10 +91,8 @@ export function OrderForm({ products, templates }: OrderFormProps) {
   }
 
   // Form state
-  const [orderName, setOrderName] = useState<string>('')
-  const [orderDate, setOrderDate] = useState<Date | undefined>(new Date())
-  const [expectedArrivalDate, setExpectedArrivalDate] = useState<Date | undefined>(undefined)
-  const [note, setNote] = useState<string>('')
+  const [orderDate, setOrderDate] = useState<Date | undefined>(new Date()) // Used as "Erwartetes Lieferdatum" in UI
+  const [supplierLabel, setSupplierLabel] = useState<string>('')
   const [lineItems, setLineItems] = useState<LineItem[]>([])
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [templateName, setTemplateName] = useState('')
@@ -201,7 +199,7 @@ export function OrderForm({ products, templates }: OrderFormProps) {
   }
 
   const handleSubmit = async () => {
-    if (!currentUser || !expectedArrivalDate) return
+    if (!currentUser || !orderDate) return
 
     setIsSaving(true)
 
@@ -219,13 +217,16 @@ export function OrderForm({ products, templates }: OrderFormProps) {
       }))
 
       // Create the order
+      // orderDate is used as "Erwartetes Lieferdatum" in UI
+      // name, note, and expectedArrivalDate will be set when receiving the order
       const orderId = await createOrder({
-        name: orderName || null,
+        name: null, // Will be set to delivery note number when receiving
         orderDate: orderDate || new Date(),
-        expectedArrivalDate,
+        expectedArrivalDate: orderDate || new Date(), // Set to same as orderDate initially, will be updated to actual delivery date when receiving
         status: 'open',
-        note,
+        note: '', // Will be set when receiving
         templateId: selectedTemplateId || null,
+        supplierLabel: supplierLabel || null,
         createdBy: currentUser.uid,
         items
       })
@@ -282,19 +283,9 @@ export function OrderForm({ products, templates }: OrderFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            {/* Order Name */}
+            {/* Expected Delivery Date (using orderDate field) */}
             <div className="space-y-2">
-              <Label>{t('form.name')}</Label>
-              <Input
-                value={orderName}
-                onChange={(e) => setOrderName(e.target.value)}
-                placeholder={t('form.namePlaceholder')}
-              />
-            </div>
-
-            {/* Order Date */}
-            <div className="space-y-2">
-              <Label>{t('form.orderDate')}</Label>
+              <Label>{t('form.expectedDeliveryDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -323,35 +314,14 @@ export function OrderForm({ products, templates }: OrderFormProps) {
               </Popover>
             </div>
 
-            {/* Expected Arrival Date */}
+            {/* Supplier */}
             <div className="space-y-2">
-              <Label>{t('form.expectedArrivalDate')} *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !expectedArrivalDate && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarDays className="mr-2 h-4 w-4" />
-                    {expectedArrivalDate ? (
-                      format(expectedArrivalDate, 'PPP', { locale: dateLocale })
-                    ) : (
-                      locale === 'de' ? 'Datum wählen' : 'Select date'
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={expectedArrivalDate}
-                    onSelect={setExpectedArrivalDate}
-                    locale={dateLocale}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label>{t('form.supplier')}</Label>
+              <Input
+                value={supplierLabel}
+                onChange={(e) => setSupplierLabel(e.target.value)}
+                placeholder={t('form.supplierPlaceholder')}
+              />
             </div>
 
             {/* Template Selection */}
@@ -375,17 +345,6 @@ export function OrderForm({ products, templates }: OrderFormProps) {
                 </Select>
               </div>
             )}
-          </div>
-
-          {/* Note */}
-          <div className="space-y-2">
-            <Label>{t('form.note')}</Label>
-            <Textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder={locale === 'de' ? 'Optionale Notiz...' : 'Optional note...'}
-              rows={3}
-            />
           </div>
         </CardContent>
       </Card>
@@ -530,7 +489,7 @@ export function OrderForm({ products, templates }: OrderFormProps) {
         <Button variant="outline" onClick={() => router.push('/admin/orders')}>
           {tActions('cancel')}
         </Button>
-        <Button onClick={handleSubmit} disabled={isSaving || !expectedArrivalDate || lineItems.length === 0}>
+        <Button onClick={handleSubmit} disabled={isSaving || !orderDate || lineItems.length === 0}>
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -552,20 +511,34 @@ export function OrderForm({ products, templates }: OrderFormProps) {
             {locale === 'de' ? 'Summen' : 'Totals'}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1">
-          <p className="text-sm">
-            <span className="font-medium">
-              {locale === 'de' ? 'Total:' : 'Total:'}{' '}
-            </span>
-            {totals.totalKg.toFixed(2)} kg
-          </p>
-          <p className="text-sm">
-            <span className="font-medium">
-              {locale === 'de' ? 'Total:' : 'Total:'}{' '}
-            </span>
-            {totals.totalPieces}{' '}
-            {locale === 'de' ? 'Stück' : 'pieces'}
-          </p>
+        <CardContent className="space-y-4">
+          <div className="space-y-1">
+            <div className="text-sm">
+              <span className="font-medium">
+                {locale === 'de' ? 'Total:' : 'Total:'}{' '}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {locale === 'de' ? 'Gesamtgewicht netto' : 'Total weight net'}
+              </span>
+            </div>
+            <p className="text-lg font-semibold">
+              {totals.totalKg.toFixed(2)} kg
+            </p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm">
+              <span className="font-medium">
+                {locale === 'de' ? 'Total:' : 'Total:'}{' '}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {locale === 'de' ? 'Total (Stück)' : 'Total (pieces)'}
+              </span>
+            </div>
+            <p className="text-lg font-semibold">
+              {totals.totalPieces}{' '}
+              {locale === 'de' ? 'Stück' : 'pieces'}
+            </p>
+          </div>
         </CardContent>
       </Card>
 

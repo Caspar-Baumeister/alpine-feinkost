@@ -141,9 +141,9 @@ export type OrderItem = {
 
 export type Order = {
   id: string
-  name: string | null  // Optional order reference/name
-  orderDate: Date
-  expectedArrivalDate: Date
+  name: string | null  // Optional order reference/name (also used for "Lieferschein Nummer" when order is received)
+  orderDate: Date  // Used as "Erwartetes Lieferdatum" in UI
+  expectedArrivalDate: Date  // Used as "Lieferdatum" in UI (actual delivery date when received)
   status: OrderStatus
   note: string
   templateId: string | null
@@ -158,6 +158,8 @@ export type Order = {
     originalFileName?: string
     sizeBytes?: number
   } | null
+  // Supplier information
+  supplierLabel: string | null  // Free text "Lieferant"
   confirmedBy: string | null
   confirmedAt: Date | null
   createdBy: string

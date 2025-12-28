@@ -50,8 +50,12 @@ export function OrdersTable({ initialData, onDataChange }: OrdersTableProps) {
       filtered = filtered.filter((order) => order.status === statusFilter)
     }
     return filtered.sort((a, b) => {
-      // Sort by expected arrival date ascending
-      return a.expectedArrivalDate.getTime() - b.expectedArrivalDate.getTime()
+      // For completed orders, sort by actual delivery date (expectedArrivalDate is reused as "Lieferdatum")
+      if (a.status === 'completed' && b.status === 'completed') {
+        return b.expectedArrivalDate.getTime() - a.expectedArrivalDate.getTime() // Most recent first
+      }
+      // For open/check_pending orders, sort by expected delivery date (orderDate is reused as "Erwartetes Lieferdatum")
+      return a.orderDate.getTime() - b.orderDate.getTime() // Earliest first
     })
   }, [initialData, statusFilter])
 
@@ -103,9 +107,10 @@ export function OrdersTable({ initialData, onDataChange }: OrdersTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('columns.name')}</TableHead>
-                <TableHead>{t('columns.orderDate')}</TableHead>
-                <TableHead>{t('columns.expectedArrival')}</TableHead>
+                <TableHead>{t('detail.deliveryNoteNumber')}</TableHead>
+                <TableHead>{t('detail.supplier')}</TableHead>
+                <TableHead>{t('detail.expectedDeliveryDate')}</TableHead>
+                <TableHead>{t('detail.deliveryDate')}</TableHead>
                 <TableHead>{t('columns.status')}</TableHead>
                 <TableHead>{t('columns.productCount')}</TableHead>
                 <TableHead className="text-right">{t('columns.actions')}</TableHead>
@@ -114,7 +119,7 @@ export function OrdersTable({ initialData, onDataChange }: OrdersTableProps) {
             <TableBody>
               {filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     {t('empty')}
                   </TableCell>
                 </TableRow>
@@ -125,7 +130,10 @@ export function OrdersTable({ initialData, onDataChange }: OrdersTableProps) {
                     className={isOverdue(order) ? 'bg-destructive/5' : ''}
                   >
                     <TableCell className="font-medium">
-                      {order.name || `#${order.id.slice(0, 8)}`}
+                      {order.name || '—'}
+                    </TableCell>
+                    <TableCell>
+                      {order.supplierLabel || '—'}
                     </TableCell>
                     <TableCell>
                       {format(order.orderDate, 'PP', { locale: dateLocale })}

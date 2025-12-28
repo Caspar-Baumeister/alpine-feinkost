@@ -18,6 +18,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import {
   Table,
   TableBody,
@@ -44,6 +51,7 @@ import {
 } from '@/components/ui/dialog'
 import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
 import { uploadOrderDocumentImage, deleteOrderDocumentImage } from '@/lib/storage/orders'
+import { cn } from '@/lib/utils'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -66,6 +74,11 @@ export default function OrderDetailPage({ params }: PageProps) {
   const [receivedQuantities, setReceivedQuantities] = useState<Map<string, number>>(new Map())
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null)
   const [isUpdatingPhoto, setIsUpdatingPhoto] = useState(false)
+  const [receiveDialogOpen, setReceiveDialogOpen] = useState(false)
+  const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(new Date())
+  const [deliveryNoteNumber, setDeliveryNoteNumber] = useState<string>('')
+  const [note, setNote] = useState<string>('')
+  const [deliveryDateError, setDeliveryDateError] = useState(false)
 
   const loadData = async () => {
     try {
@@ -92,6 +105,9 @@ export default function OrderDetailPage({ params }: PageProps) {
         )
       })
       setReceivedQuantities(initialQuantities)
+      
+      // Initialize note from order
+      setNote(orderData.note || '')
     } catch (err) {
       console.error('Failed to load order:', err)
       setError(
@@ -125,8 +141,15 @@ export default function OrderDetailPage({ params }: PageProps) {
       return
     }
 
+    // Validate delivery date
+    if (!deliveryDate) {
+      setDeliveryDateError(true)
+      return
+    }
+
     setIsConfirming(true)
     setError(null)
+    setDeliveryDateError(false)
 
     try {
       const itemsWithReceivedQuantity = Array.from(receivedQuantities.entries()).map(
@@ -136,7 +159,14 @@ export default function OrderDetailPage({ params }: PageProps) {
         })
       )
 
-      await confirmOrder(order.id, itemsWithReceivedQuantity, currentUser.uid)
+      await confirmOrder(
+        order.id,
+        itemsWithReceivedQuantity,
+        currentUser.uid,
+        deliveryDate,
+        deliveryNoteNumber || null,
+        note
+      )
       router.push('/admin/orders')
     } catch (err) {
       console.error('Failed to confirm order:', err)
@@ -233,7 +263,7 @@ export default function OrderDetailPage({ params }: PageProps) {
           <div className="flex flex-wrap items-center gap-6">
             <div>
               <p className="text-sm text-muted-foreground">
-                {locale === 'de' ? 'Total (Gewicht)' : 'Total (weight)'}
+                {t('detail.totalWeightNetto')}
               </p>
               <p className="text-lg font-semibold">
                 {order.totalKg.toFixed(2)} kg
@@ -274,13 +304,13 @@ export default function OrderDetailPage({ params }: PageProps) {
       )}
 
       {/* Info Grid */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <CalendarDays className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm text-muted-foreground">{t('columns.orderDate')}</p>
+                <p className="text-sm text-muted-foreground">{t('detail.expectedDeliveryDate')}</p>
                 <p className="font-medium">
                   {format(order.orderDate, 'PP', { locale: dateLocale })}
                 </p>
@@ -294,7 +324,7 @@ export default function OrderDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-3">
               <CalendarDays className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm text-muted-foreground">{t('columns.expectedArrival')}</p>
+                <p className="text-sm text-muted-foreground">{t('detail.deliveryDate')}</p>
                 <p className="font-medium">
                   {format(order.expectedArrivalDate, 'PP', { locale: dateLocale })}
                 </p>
@@ -302,6 +332,34 @@ export default function OrderDetailPage({ params }: PageProps) {
             </div>
           </CardContent>
         </Card>
+
+        {order.supplierLabel && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">{t('detail.supplier')}</p>
+                  <p className="font-medium">{order.supplierLabel}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {order.name && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">{t('detail.deliveryNoteNumber')}</p>
+                  <p className="font-medium">{order.name}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Note */}
@@ -413,19 +471,114 @@ export default function OrderDetailPage({ params }: PageProps) {
                   {t('detail.checkDescription')}
                 </p>
               </div>
-              <Button
-                onClick={handleConfirm}
-                disabled={isConfirming}
-                size="lg"
-                className="bg-primary hover:bg-primary/90"
-              >
-                {isConfirming ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                )}
-                {t('detail.confirmOrder')}
-              </Button>
+              <Dialog open={receiveDialogOpen} onOpenChange={setReceiveDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {t('detail.confirmOrder')}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>{t('detail.checkDelivery')}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    {/* Delivery Date - Required */}
+                    <div className="space-y-2">
+                      <Label className={deliveryDateError ? 'text-destructive' : ''}>
+                        {t('detail.deliveryDate')} *
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              'w-full justify-start text-left font-normal',
+                              !deliveryDate && 'text-muted-foreground',
+                              deliveryDateError && 'border-destructive'
+                            )}
+                          >
+                            <CalendarDays className="mr-2 h-4 w-4" />
+                            {deliveryDate ? (
+                              format(deliveryDate, 'PPP', { locale: dateLocale })
+                            ) : (
+                              locale === 'de' ? 'Datum wählen' : 'Select date'
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={deliveryDate}
+                            onSelect={(date) => {
+                              setDeliveryDate(date)
+                              setDeliveryDateError(false)
+                            }}
+                            locale={dateLocale}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {deliveryDateError && (
+                        <p className="text-xs text-destructive">
+                          {t('detail.deliveryDateRequired')}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Delivery Note Number - Optional */}
+                    <div className="space-y-2">
+                      <Label>{t('detail.deliveryNoteNumber')}</Label>
+                      <Input
+                        value={deliveryNoteNumber}
+                        onChange={(e) => setDeliveryNoteNumber(e.target.value)}
+                        placeholder={t('detail.deliveryNoteNumberPlaceholder')}
+                      />
+                    </div>
+
+                    {/* Note - Editable */}
+                    <div className="space-y-2">
+                      <Label>{t('form.note')}</Label>
+                      <Textarea
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder={locale === 'de' ? 'Optionale Notiz...' : 'Optional note...'}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setReceiveDialogOpen(false)
+                        setDeliveryDateError(false)
+                      }}
+                    >
+                      {tActions('cancel')}
+                    </Button>
+                    <Button
+                      onClick={handleConfirm}
+                      disabled={isConfirming}
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      {isConfirming ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          {locale === 'de' ? 'Bestätigen...' : 'Confirming...'}
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          {t('detail.confirmOrder')}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </CardContent>
         </Card>

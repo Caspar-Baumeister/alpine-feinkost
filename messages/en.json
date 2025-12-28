@@ -242,7 +242,7 @@
     "orderTemplates": "Order Templates"
   },
   "orders": {
-    "title": "Orders",
+    "title": "Order/Delivery",
     "description": "Manage incoming orders from suppliers",
     "createOrder": "Create new order",
     "editOrder": "Edit order",
@@ -264,7 +264,10 @@
       "name": "Order name/reference",
       "namePlaceholder": "e.g. Order from Supplier XY",
       "orderDate": "Order date",
+      "supplier": "Supplier",
+      "supplierPlaceholder": "e.g. Supplier XY or reference",
       "expectedArrivalDate": "Expected arrival date",
+      "expectedDeliveryDate": "Expected delivery date",
       "expectedArrivalDateRequired": "Expected arrival date is required",
       "note": "Note",
       "products": "Products",
@@ -288,7 +291,14 @@
       "confirmed": "This order has been completed",
       "ordered": "Ordered",
       "received": "Received",
-      "difference": "Difference"
+      "difference": "Difference",
+      "supplier": "Supplier",
+      "expectedDeliveryDate": "Expected delivery date",
+      "deliveryDate": "Delivery date",
+      "deliveryDateRequired": "Delivery date is required",
+      "deliveryNoteNumber": "Delivery note number",
+      "deliveryNoteNumberPlaceholder": "Optional",
+      "totalWeightNetto": "Total weight net"
     },
     "filters": {
       "status": "Status",

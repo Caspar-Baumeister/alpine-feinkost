@@ -90,6 +90,7 @@ function docToOrder(id: string, data: Record<string, unknown>): Order {
     totalKg,
     totalPieces,
     bestelllistePhoto: (data.bestelllistePhoto as Order['bestelllistePhoto']) ?? null,
+    supplierLabel: (data.supplierLabel as string | null) ?? null,
     confirmedBy: (data.confirmedBy as string | null) ?? null,
     confirmedAt: timestampToDate(data.confirmedAt as Timestamp | null),
     createdBy: (data.createdBy as string) || '',
@@ -165,6 +166,7 @@ export async function createOrder(
     totalKg,
     totalPieces,
     bestelllistePhoto: data.bestelllistePhoto ?? null,
+    supplierLabel: data.supplierLabel ?? null,
     confirmedBy: null,
     confirmedAt: null,
     createdAt: serverTimestamp(),
@@ -216,6 +218,11 @@ export async function updateOrder(
   if (data.bestelllistePhoto !== undefined) {
     updateData.bestelllistePhoto = data.bestelllistePhoto
   }
+  if (data.supplierLabel !== undefined) updateData.supplierLabel = data.supplierLabel
+  if (data.name !== undefined) updateData.name = data.name
+  if (data.expectedArrivalDate !== undefined) {
+    updateData.expectedArrivalDate = Timestamp.fromDate(data.expectedArrivalDate)
+  }
 
   await updateDoc(docRef, updateData)
 }
@@ -225,11 +232,14 @@ export async function updateOrder(
  * - Updates stock: adds received quantities to both totalStock and currentStock
  * - Sets order status to 'completed'
  * - Records who confirmed and when
+ * - Records delivery date (required) and optional delivery note number
  */
 export async function confirmOrder(
   id: string,
   itemsWithReceivedQuantity: Array<{ productId: string; receivedQuantity: number }>,
-  confirmedByUserId: string
+  confirmedByUserId: string,
+  deliveryDate: Date,
+  deliveryNoteNumber?: string | null
 ): Promise<void> {
   const orderRef = doc(db, COLLECTION, id)
   const stockUserUpdate = {
@@ -316,13 +326,28 @@ export async function confirmOrder(
     }
 
     // Write: update the order
-    transaction.update(orderRef, {
+    // Reuse expectedArrivalDate as delivery date (shown as "Lieferdatum" in UI)
+    // Reuse name as delivery note number if provided (shown as "Lieferschein Nummer" in UI)
+    const updateData: Record<string, unknown> = {
       status: 'completed',
       items: updatedItems,
+      expectedArrivalDate: Timestamp.fromDate(deliveryDate),
       confirmedBy: confirmedByUserId,
       confirmedAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    })
+    }
+    
+    // Update name with delivery note number if provided
+    if (deliveryNoteNumber) {
+      updateData.name = deliveryNoteNumber
+    }
+    
+    // Update note if provided
+    if (note !== undefined) {
+      updateData.note = note
+    }
+    
+    transaction.update(orderRef, updateData)
   })
 }
 

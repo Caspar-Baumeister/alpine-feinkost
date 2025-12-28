@@ -9,7 +9,7 @@
     "products": "Produkte",
     "pos": "Verkaufsstellen",
     "packlists": "Packlisten",
-    "orders": "Bestellungen",
+    "orders": "Bestellung/Lieferung",
     "templates": "Vorlagen",
     "statistics": "Statistiken",
     "settings": "Einstellungen",
@@ -242,7 +242,7 @@
     "orderTemplates": "Bestell-Vorlagen"
   },
   "orders": {
-    "title": "Bestellungen",
+    "title": "Bestellung/Lieferung",
     "description": "Verwalten Sie eingehende Bestellungen von Lieferanten",
     "createOrder": "Neue Bestellung anlegen",
     "editOrder": "Bestellung bearbeiten",
@@ -264,7 +264,10 @@
       "name": "Bestellname/Referenz",
       "namePlaceholder": "z.B. Bestellung Käselieferant XY",
       "orderDate": "Bestelldatum",
+      "supplier": "Lieferant",
+      "supplierPlaceholder": "z.B. Käselieferant XY oder Referenz",
       "expectedArrivalDate": "Erwartetes Ankunftsdatum",
+      "expectedDeliveryDate": "Erwartetes Lieferdatum",
       "expectedArrivalDateRequired": "Erwartetes Ankunftsdatum ist erforderlich",
       "note": "Notiz",
       "products": "Produkte",
@@ -288,7 +291,14 @@
       "confirmed": "Diese Bestellung wurde abgeschlossen",
       "ordered": "Bestellt",
       "received": "Erhalten",
-      "difference": "Differenz"
+      "difference": "Differenz",
+      "supplier": "Lieferant",
+      "expectedDeliveryDate": "Erwartetes Lieferdatum",
+      "deliveryDate": "Lieferdatum",
+      "deliveryDateRequired": "Lieferdatum ist erforderlich",
+      "deliveryNoteNumber": "Lieferschein Nummer",
+      "deliveryNoteNumberPlaceholder": "Optional",
+      "totalWeightNetto": "Gesamtgewicht netto"
     },
     "filters": {
       "status": "Status",
