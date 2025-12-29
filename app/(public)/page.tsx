@@ -92,10 +92,10 @@ export default async function LandingPage() {
       </section>
 
       {/* Continuation Gradient for Perfect Transition */}
-      <div className="relative -mt-1 h-4 bg-gradient-to-b from-transparent to-background" />
+      <div className="relative -mt-1 h-2 bg-gradient-to-b from-transparent to-background" />
 
       {/* Product Impressions Section */}
-      <section className="mx-auto max-w-6xl space-y-6 px-4 pt-16 sm:px-6 sm:pt-20">
+      <section className="mx-auto max-w-6xl space-y-6 px-4 pt-8 sm:px-6 sm:pt-12">
         <div className="space-y-2 text-center">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">
             {t('productImpressions.title')}

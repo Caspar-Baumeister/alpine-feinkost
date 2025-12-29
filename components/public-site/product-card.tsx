@@ -1,5 +1,3 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import {
@@ -8,13 +6,15 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { Product, Label } from '@/lib/firestore'
-import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
+import { Label, Product } from '@/lib/firestore'
 import { getLabelDescription } from '@/lib/labels/getLabelDescription'
-import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
+import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
 import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
 import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
 import { getUnitLabelForLocale } from '@/lib/products/getUnitLabelForLocale'
+import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
+import Image from 'next/image'
+import Link from 'next/link'
 
 type ProductCardProps = {
   product: Product
@@ -47,9 +47,9 @@ export function ProductCard({
   const productLabels =
     labelsBySlug?.size && product.labels.length
       ? product.labels
-          .map((slug) => labelsBySlug.get(slug))
-          .filter(Boolean)
-          .map((label) => label as Label)
+        .map((slug) => labelsBySlug.get(slug))
+        .filter(Boolean)
+        .map((label) => label as Label)
       : []
   const primaryImagePath = product.imagePaths?.[0] || product.imagePath
   const imageUrl = getPublicStorageUrl(primaryImagePath || null)

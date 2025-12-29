@@ -1,8 +1,5 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -17,6 +14,9 @@ import {
 import { ProductUnitType } from '@/lib/firestore'
 import { getPublicStorageUrl } from '@/lib/storage/publicUrl'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react'
 
 type LabelDisplay = {
   slug: string
