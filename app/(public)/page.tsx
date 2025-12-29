@@ -19,7 +19,7 @@ export default async function LandingPage() {
   return (
     <div className="pb-16">
       {/* Hero Section with Background Image - Full Screen */}
-      <section className="relative h-[120vh] overflow-hidden -mt-16">
+      <section className="relative h-[100vh] overflow-hidden -mt-16 sm:h-[105vh]">
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
@@ -30,7 +30,7 @@ export default async function LandingPage() {
             className="object-cover object-center"
             priority
             quality={90}
-            style={{ objectPosition: 'center top' }}
+            style={{ objectPosition: 'center 30%' }}
           />
         </div>
 
@@ -40,8 +40,8 @@ export default async function LandingPage() {
         {/* Radial Glow Behind Content (Primary Blue) */}
         <div className="absolute left-1/2 top-1/3 h-96 w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-3xl" />
 
-        {/* Bottom Fade to White - Starts later, taller gradient */}
-        <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-background via-background/90 via-background/50 to-transparent sm:h-[28rem]" />
+        {/* Bottom Fade to White - Reduced height to minimize white space */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/95 via-background/60 to-transparent sm:h-64" />
 
         {/* Content Container - Centered in viewport */}
         <div className="relative z-10 mx-auto flex h-screen max-w-6xl flex-col justify-center px-4 pt-20 sm:px-6 md:pt-24">
@@ -92,7 +92,7 @@ export default async function LandingPage() {
       </section>
 
       {/* Continuation Gradient for Perfect Transition */}
-      <div className="relative -mt-1 h-8 bg-gradient-to-b from-transparent to-background" />
+      <div className="relative -mt-1 h-4 bg-gradient-to-b from-transparent to-background" />
 
       {/* Product Impressions Section */}
       <section className="mx-auto max-w-6xl space-y-6 px-4 pt-16 sm:px-6 sm:pt-20">

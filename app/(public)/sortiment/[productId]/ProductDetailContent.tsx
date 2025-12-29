@@ -176,6 +176,7 @@ export function ProductDetailContent({
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
                   priority
+                  unoptimized
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -206,6 +207,7 @@ export function ProductDetailContent({
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 64px, 80px"
+                    unoptimized
                   />
                 </button>
               ))}

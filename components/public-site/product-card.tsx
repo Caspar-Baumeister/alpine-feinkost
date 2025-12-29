@@ -68,6 +68,7 @@ export function ProductCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover transition-transform duration-300 hover:scale-105"
             priority={false}
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
