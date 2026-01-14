@@ -1,17 +1,52 @@
 import { ProductCard } from '@/components/public-site/product-card'
 import { ProductImageCutout } from '@/components/public-site/product-image-cutout'
+import { SortimentFilters } from './sortiment-filters'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { getPublicCatalog } from '@/lib/public/catalog'
+import { getLabelDisplayName } from '@/lib/labels/getLabelDisplayName'
+import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'
 import { getLocale, getTranslations } from 'next-intl/server'
 
-export default async function SortimentPage() {
+interface PageProps {
+  searchParams: Promise<{ label?: string; q?: string }>
+}
+
+export default async function SortimentPage({ searchParams }: PageProps) {
   const locale = (await getLocale()) as 'de' | 'en'
   const t = await getTranslations('marketing.sortiment')
   const tProducts = await getTranslations('marketing.products')
   const { products, labels } = await getPublicCatalog()
   const labelsBySlug = new Map(labels.map((label) => [label.slug, label]))
-  const activeProducts = products.filter((product) => product.isActive)
+
+  const resolvedParams = await searchParams
+  const labelFilter = resolvedParams?.label || null
+  const queryFilter = resolvedParams?.q || null
+
+  // Get label display name for filter badge
+  const filterLabel = labelFilter ? labelsBySlug.get(labelFilter) : null
+  const filterLabelName = filterLabel ? getLabelDisplayName(filterLabel, locale) : labelFilter
+
+  // Filter products
+  let filteredProducts = products.filter((product) => product.isActive)
+
+  // Filter by label
+  if (labelFilter) {
+    filteredProducts = filteredProducts.filter((product) =>
+      product.labels.includes(labelFilter)
+    )
+  }
+
+  // Filter by search query
+  if (queryFilter) {
+    const queryLower = queryFilter.toLowerCase()
+    filteredProducts = filteredProducts.filter((product) => {
+      const name = getProductNameForLocale(product, locale).toLowerCase()
+      return name.includes(queryLower)
+    })
+  }
+
+  const hasFilters = labelFilter || queryFilter
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6">
@@ -27,6 +62,18 @@ export default async function SortimentPage() {
           {t('comingSoon')}
         </Badge>
       </div>
+
+      {/* Active Filters */}
+      {hasFilters && (
+        <SortimentFilters
+          labelFilter={labelFilter}
+          labelName={filterLabelName}
+          queryFilter={queryFilter}
+          filterByLabelText={t('filterByLabel')}
+          searchForText={t('searchFor')}
+          clearFilterText={t('clearFilter')}
+        />
+      )}
 
       {/* Visual Overview Gallery */}
       <section className="space-y-6">
@@ -78,9 +125,9 @@ export default async function SortimentPage() {
         </div>
       </section>
 
-      {activeProducts.length ? (
+      {filteredProducts.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {activeProducts.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -92,6 +139,10 @@ export default async function SortimentPage() {
               learnMoreLabel={tProducts('learnMore')}
             />
           ))}
+        </div>
+      ) : hasFilters ? (
+        <div className="rounded-lg border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+          {t('noMatchingProducts')}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">

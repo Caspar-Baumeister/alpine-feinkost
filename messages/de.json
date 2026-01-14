@@ -486,6 +486,14 @@
       "openMenu": "Menü öffnen",
       "closeMenu": "Menü schließen"
     },
+    "search": {
+      "placeholder": "Käse oder Label suchen …",
+      "noResults": "Keine Ergebnisse gefunden",
+      "products": "Produkte",
+      "labels": "Labels",
+      "openSearch": "Suche öffnen",
+      "closeSearch": "Suche schließen"
+    },
     "hero": {
       "badge": "Seit 1994 auf Wochenmärkten",
       "title": "Feinster Alpenkäse auf Ihren Märkten",
@@ -531,7 +539,11 @@
       "visualOverview": {
         "title": "Visueller Überblick",
         "subtitle": "Ein Blick auf unser Sortiment"
-      }
+      },
+      "filterByLabel": "Gefiltert nach",
+      "searchFor": "Suche nach",
+      "clearFilter": "Filter entfernen",
+      "noMatchingProducts": "Keine Produkte gefunden, die Ihren Kriterien entsprechen."
     },
     "productDetail": {
       "back": "Zurück zum Sortiment",

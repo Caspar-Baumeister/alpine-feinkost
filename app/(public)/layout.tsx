@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { getLocale } from 'next-intl/server'
 import { PublicHeader } from '@/components/public-site/public-header'
 import { PublicFooter } from '@/components/public-site/public-footer'
 import { LightThemeProvider } from '@/components/public-site/light-theme-provider'
+import { getPublicCatalog } from '@/lib/public/catalog'
+import { buildSearchIndex } from '@/lib/public/search-index'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 const ogImagePath = '/opengraph-image.png'
@@ -43,14 +46,16 @@ export const metadata: Metadata = {
   }
 }
 
-export default function PublicLayout({ children }: { children: ReactNode }) {
+export default async function PublicLayout({ children }: { children: ReactNode }) {
+  const locale = (await getLocale()) as 'de' | 'en'
+  const { products, labels } = await getPublicCatalog()
+  const searchIndex = buildSearchIndex(products, labels)
+
   return (
-    <LightThemeProvider>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <PublicHeader />
-        <main className="flex-1">{children}</main>
-        <PublicFooter />
-      </div>
+    <LightThemeProvider className="flex min-h-screen flex-col bg-background text-foreground">
+      <PublicHeader searchIndex={searchIndex} locale={locale} />
+      <main className="flex-1">{children}</main>
+      <PublicFooter />
     </LightThemeProvider>
   )
 }

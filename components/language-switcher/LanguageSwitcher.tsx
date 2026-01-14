@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -18,11 +19,26 @@ const languages = [
 
 export function LanguageSwitcher() {
   const t = useTranslations('common')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLanguageChange = async (locale: 'de' | 'en') => {
     await setLocaleCookie(locale)
     // Refresh the page to apply new locale
     window.location.reload()
+  }
+
+  // Render placeholder during SSR to avoid hydration mismatch from Radix IDs
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Globe className="h-4 w-4" />
+        <span className="sr-only">{t('language')}</span>
+      </Button>
+    )
   }
 
   return (

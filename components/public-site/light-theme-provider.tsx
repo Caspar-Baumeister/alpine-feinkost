@@ -1,27 +1,32 @@
 'use client'
 
 import * as React from 'react'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import { useTheme } from 'next-themes'
+import { useEffect } from 'react'
 
 /**
- * Theme provider that forces light mode only for the public webshop.
- * This prevents dark mode from being applied to public-facing pages.
+ * Forces light mode for public webshop pages.
+ * Sets the theme via the root ThemeProvider context.
+ * The wrapper div forces light class to prevent any dark mode flash.
  */
 export function LightThemeProvider({
-  children
+  children,
+  className
 }: {
   children: React.ReactNode
+  className?: string
 }) {
+  const { setTheme } = useTheme()
+
+  useEffect(() => {
+    setTheme('light')
+  }, [setTheme])
+
+  // Force light class on wrapper to ensure light theme regardless of system preference
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="light"
-      forcedTheme="light"
-      enableSystem={false}
-      disableTransitionOnChange
-    >
+    <div className={`light ${className ?? ''}`} style={{ colorScheme: 'light' }}>
       {children}
-    </NextThemesProvider>
+    </div>
   )
 }
 

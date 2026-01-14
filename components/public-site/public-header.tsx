@@ -1,10 +1,13 @@
 'use client'
 
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { WebshopSearch } from '@/components/public-site/webshop-search'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { SearchIndex } from '@/lib/public/search-index'
 import { Menu, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -17,7 +20,12 @@ const navItems = [
   { key: 'contact', href: '/kontakt' }
 ]
 
-export function PublicHeader() {
+interface PublicHeaderProps {
+  searchIndex: SearchIndex
+  locale: 'de' | 'en'
+}
+
+export function PublicHeader({ searchIndex, locale }: PublicHeaderProps) {
   const t = useTranslations('marketing.nav')
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
@@ -33,16 +41,15 @@ export function PublicHeader() {
     <header className="sticky top-0 z-40 border-b border-border/20 bg-transparent backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-sm">
-              AF
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm uppercase tracking-wide text-foreground/80 drop-shadow-sm">
-                Alpenkäse Lämmle
-              </span>
-              <span className="text-base font-semibold text-foreground drop-shadow-sm">Alpine Feinkost</span>
-            </div>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/alpinefeinkostlabel.png"
+              alt="Alpine Feinkost"
+              width={160}
+              height={48}
+              className="h-12 w-auto object-contain"
+              priority
+            />
           </Link>
         </div>
 
@@ -62,6 +69,7 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <WebshopSearch searchIndex={searchIndex} locale={locale} />
           <LanguageSwitcher />
           <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex bg-background/80 backdrop-blur-sm border-border/40">
             <Link href="/login">{t('admin')}</Link>

@@ -111,11 +111,24 @@ export async function createPacklist(
   data: Omit<Packlist, 'id' | 'createdAt' | 'updatedAt' | 'closedAt'>,
   stockUpdatedByUserId?: string | null
 ): Promise<string> {
+  console.log('[createPacklist] Starting...')
+  console.log('[createPacklist] stockUpdatedByUserId:', stockUpdatedByUserId)
+  console.log('[createPacklist] data.createdBy:', data.createdBy)
+  console.log('[createPacklist] items count:', data.items.length)
+  
   const colRef = collection(db, COLLECTION)
   const stockUpdatedBy = stockUpdatedByUserId ?? data.createdBy ?? null
 
   // Get actor info for stock movements
-  const actor = stockUpdatedBy ? await getUserByUid(stockUpdatedBy) : null
+  console.log('[createPacklist] Getting actor info...')
+  let actor = null
+  try {
+    actor = stockUpdatedBy ? await getUserByUid(stockUpdatedBy) : null
+    console.log('[createPacklist] Actor fetched:', actor?.displayName, actor?.role)
+  } catch (err) {
+    console.error('[createPacklist] Failed to get actor info:', err)
+    throw err
+  }
   const actorInfo = getActorInfo(actor)
 
   // Store product updates for stock movements (created after transaction)
@@ -127,7 +140,9 @@ export async function createPacklist(
   }> = []
 
   // Use a transaction to atomically update stock and create the packlist
+  console.log('[createPacklist] Starting transaction...')
   const packlistId = await runTransaction(db, async (transaction) => {
+    console.log('[createPacklist] Inside transaction, processing items...')
     // First: for each item, read the product and compute new currentStock
     for (const item of data.items) {
       const productRef = doc(db, PRODUCTS_COLLECTION, item.productId)
@@ -166,6 +181,7 @@ export async function createPacklist(
     }
 
     // Create the packlist document
+    console.log('[createPacklist] Creating packlist document...')
     const newDocRef = doc(colRef)
     const docData = {
       posId: data.posId,
@@ -198,13 +214,19 @@ export async function createPacklist(
       closedAt: null
     }
 
+    console.log('[createPacklist] Setting packlist document in transaction...')
     transaction.set(newDocRef, docData)
+    console.log('[createPacklist] Transaction set complete, returning id:', newDocRef.id)
     return newDocRef.id
   })
+  
+  console.log('[createPacklist] Transaction completed successfully, packlistId:', packlistId)
 
   // Create stock movement records (after transaction completes)
+  console.log('[createPacklist] Creating stock movement records...')
   const packlistNote = data.note || null
   for (const update of productUpdates) {
+    console.log('[createPacklist] Creating stock movement for product:', update.productId)
     await createStockMovement({
       productId: update.productId,
       orderId: null,
@@ -220,6 +242,7 @@ export async function createPacklist(
     })
   }
 
+  console.log('[createPacklist] All done, returning packlistId:', packlistId)
   return packlistId
 }
 

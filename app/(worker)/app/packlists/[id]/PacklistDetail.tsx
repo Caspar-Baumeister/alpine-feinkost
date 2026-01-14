@@ -190,15 +190,17 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
 
   // Product detail dialog state
   const [detailProduct, setDetailProduct] = useState<Product | null>(null)
+  const [detailSpecialPrice, setDetailSpecialPrice] = useState<number | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
 
-  const openProductDetail = async (productId: string) => {
+  const openProductDetail = async (productId: string, specialPrice: number | null) => {
     setIsLoadingProduct(true)
     try {
       const product = await getProduct(productId)
       if (product) {
         setDetailProduct(product)
+        setDetailSpecialPrice(specialPrice)
         setIsDetailOpen(true)
       }
     } catch (err) {
@@ -388,12 +390,25 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
           getDraft(packlist.id, currentUser.uid) && (
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={handleDiscardDraft}
-              className="gap-2"
+              className="sm:hidden flex-shrink-0"
+              title={locale === 'de' ? 'Gespeicherten Fortschritt verwerfen' : 'Discard saved progress'}
             >
               <X className="h-4 w-4" />
-              {locale === 'de' ? 'Gespeicherten Fortschritt verwerfen' : 'Discard saved progress'}
+            </Button>
+          )}
+        {currentUser &&
+          packlist.status !== 'completed' &&
+          getDraft(packlist.id, currentUser.uid) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDiscardDraft}
+              className="hidden sm:flex gap-2 flex-shrink-0"
+            >
+              <X className="h-4 w-4" />
+              {locale === 'de' ? 'Fortschritt verwerfen' : 'Discard progress'}
             </Button>
           )}
       </div>
@@ -529,7 +544,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                         <TableCell>
                           <button
                             type="button"
-                            onClick={() => openProductDetail(item.productId)}
+                            onClick={() => openProductDetail(item.productId, item.specialPrice)}
                             className="flex items-center gap-2 font-medium text-left hover:text-primary transition-colors"
                             disabled={isLoadingProduct}
                           >
@@ -616,7 +631,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
                         <TableCell>
                           <button
                             type="button"
-                            onClick={() => openProductDetail(item.productId)}
+                            onClick={() => openProductDetail(item.productId, item.specialPrice)}
                             className="flex items-center gap-2 font-medium text-left hover:text-primary transition-colors"
                             disabled={isLoadingProduct}
                           >

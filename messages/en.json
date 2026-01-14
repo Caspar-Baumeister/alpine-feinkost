@@ -487,6 +487,14 @@
       "openMenu": "Open menu",
       "closeMenu": "Close menu"
     },
+    "search": {
+      "placeholder": "Search cheeses or labels …",
+      "noResults": "No results found",
+      "products": "Products",
+      "labels": "Labels",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
     "hero": {
       "badge": "Since 1994 on local markets",
       "title": "Finest Alpine cheese at your markets",
@@ -532,7 +540,11 @@
       "visualOverview": {
         "title": "Visual Overview",
         "subtitle": "A glimpse of our assortment"
-      }
+      },
+      "filterByLabel": "Filtered by",
+      "searchFor": "Search for",
+      "clearFilter": "Clear filter",
+      "noMatchingProducts": "No products match your criteria."
     },
     "productDetail": {
       "back": "Back to assortment",

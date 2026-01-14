@@ -43,8 +43,10 @@ function docToStockMovement(id: string, data: Record<string, unknown>): StockMov
 export async function createStockMovement(
   movement: Omit<StockMovement, 'id' | 'createdAt'>
 ): Promise<string> {
+  console.log('[createStockMovement] Creating movement:', movement.type, 'for product:', movement.productId)
   const colRef = collection(db, COLLECTION)
-  const docRef = await addDoc(colRef, {
+  try {
+    const docRef = await addDoc(colRef, {
     productId: movement.productId,
     orderId: movement.orderId,
     packlistId: movement.packlistId,
@@ -57,8 +59,13 @@ export async function createStockMovement(
     actorRole: movement.actorRole,
     note: movement.note,
     createdAt: serverTimestamp()
-  })
-  return docRef.id
+    })
+    console.log('[createStockMovement] Created successfully:', docRef.id)
+    return docRef.id
+  } catch (err) {
+    console.error('[createStockMovement] Failed to create:', err)
+    throw err
+  }
 }
 
 /**
