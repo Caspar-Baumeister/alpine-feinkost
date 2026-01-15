@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { Product, Label, listLabels } from '@/lib/firestore'
 import { getProductDescriptionForLocale } from '@/lib/products/getProductDescriptionForLocale'
 import { getProductNameForLocale } from '@/lib/products/getProductNameForLocale'

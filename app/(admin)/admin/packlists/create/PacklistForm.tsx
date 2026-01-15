@@ -37,7 +37,6 @@ import {
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { useCurrentUser } from '@/lib/auth/useCurrentUser'
-import { auth } from '@/lib/firebase'
 import {
   AppUser,
   PacklistItem,
@@ -419,27 +418,7 @@ export function PacklistForm({
   }
 
   const handleSubmit = async () => {
-    console.log('[PacklistForm] handleSubmit called')
-    console.log('[PacklistForm] currentUser:', currentUser)
-    console.log('[PacklistForm] currentUser.uid:', currentUser?.uid)
-    console.log('[PacklistForm] currentUser.role:', currentUser?.role)
-    console.log('[PacklistForm] Firebase auth.currentUser:', auth.currentUser)
-    console.log('[PacklistForm] Firebase auth.currentUser?.uid:', auth.currentUser?.uid)
-    
-    // Check if Firebase auth token is available
-    if (auth.currentUser) {
-      try {
-        const token = await auth.currentUser.getIdToken()
-        console.log('[PacklistForm] Firebase auth token available:', !!token)
-      } catch (tokenErr) {
-        console.error('[PacklistForm] Failed to get auth token:', tokenErr)
-      }
-    }
-    
-    if (!currentUser || !selectedDate) {
-      console.log('[PacklistForm] Early return: no currentUser or selectedDate')
-      return
-    }
+    if (!currentUser || !selectedDate) return
 
     // Validation
     let hasError = false
@@ -550,9 +529,7 @@ export function PacklistForm({
 
       router.push('/admin/packlists')
     } catch (error) {
-      console.error('[PacklistForm] Failed to create packlist:', error)
-      console.error('[PacklistForm] Error code:', (error as any)?.code)
-      console.error('[PacklistForm] Error message:', (error as any)?.message)
+      console.error('Failed to create packlist:', error)
     } finally {
       setIsSaving(false)
     }

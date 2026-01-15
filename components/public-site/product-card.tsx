@@ -58,7 +58,7 @@ export function ProductCard({
   const productName = getProductNameForLocale(product, locale)
 
   return (
-    <Card className="h-full overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card className="h-full overflow-hidden border-border/50 !bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/20 via-background to-background">
         {imageUrl ? (
           <Image

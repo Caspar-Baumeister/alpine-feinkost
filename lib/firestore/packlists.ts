@@ -12,7 +12,7 @@ import {
   updateDoc,
   where
 } from 'firebase/firestore'
-import { createStockMovement, getActorInfo } from './stockMovements'
+import { getActorInfo } from './stockMovements'
 import { Packlist, PacklistStatus, Product, ProductUnitType } from './types'
 import { getUserByUid } from './users'
 
@@ -111,39 +111,25 @@ export async function createPacklist(
   data: Omit<Packlist, 'id' | 'createdAt' | 'updatedAt' | 'closedAt'>,
   stockUpdatedByUserId?: string | null
 ): Promise<string> {
-  console.log('[createPacklist] Starting...')
-  console.log('[createPacklist] stockUpdatedByUserId:', stockUpdatedByUserId)
-  console.log('[createPacklist] data.createdBy:', data.createdBy)
-  console.log('[createPacklist] items count:', data.items.length)
-  
   const colRef = collection(db, COLLECTION)
   const stockUpdatedBy = stockUpdatedByUserId ?? data.createdBy ?? null
 
   // Get actor info for stock movements
-  console.log('[createPacklist] Getting actor info...')
-  let actor = null
-  try {
-    actor = stockUpdatedBy ? await getUserByUid(stockUpdatedBy) : null
-    console.log('[createPacklist] Actor fetched:', actor?.displayName, actor?.role)
-  } catch (err) {
-    console.error('[createPacklist] Failed to get actor info:', err)
-    throw err
-  }
+  const actor = stockUpdatedBy ? await getUserByUid(stockUpdatedBy) : null
   const actorInfo = getActorInfo(actor)
 
-  // Store product updates for stock movements (created after transaction)
-  const productUpdates: Array<{
-    productId: string
-    previousStock: number
-    newCurrentStock: number
-    plannedQty: number
-  }> = []
-
-  // Use a transaction to atomically update stock and create the packlist
-  console.log('[createPacklist] Starting transaction...')
+  // Use a transaction to atomically update stock, create packlist, and create stock movements
   const packlistId = await runTransaction(db, async (transaction) => {
-    console.log('[createPacklist] Inside transaction, processing items...')
-    // First: for each item, read the product and compute new currentStock
+    
+    // PHASE 1: Read ALL products first (Firestore requires all reads before any writes)
+    const productReads: Array<{
+      item: typeof data.items[0]
+      productRef: ReturnType<typeof doc>
+      productData: Record<string, unknown>
+      currentStock: number
+      newCurrentStock: number
+    }> = []
+    
     for (const item of data.items) {
       const productRef = doc(db, PRODUCTS_COLLECTION, item.productId)
       const productSnap = await transaction.get(productRef)
@@ -164,15 +150,23 @@ export async function createPacklist(
         )
       }
 
-      // Store for stock movement creation after transaction
-      productUpdates.push({
-        productId: item.productId,
-        previousStock: currentStock,
-        newCurrentStock,
-        plannedQty: item.plannedQuantity
+      productReads.push({
+        item,
+        productRef,
+        productData,
+        currentStock,
+        newCurrentStock
       })
-
-      // Update product stock within transaction (reuse productRef from above)
+    }
+    
+    // Generate packlist ID upfront so we can reference it in stock movements
+    const newPacklistRef = doc(colRef)
+    const packlistNote = data.note || null
+    
+    // PHASE 2: Queue all writes (products, packlist, stock movements)
+    
+    // 2a: Update product stock
+    for (const { productRef, newCurrentStock } of productReads) {
       transaction.update(productRef, {
         currentStock: newCurrentStock,
         lastStockUpdatedByUserId: stockUpdatedBy,
@@ -180,9 +174,7 @@ export async function createPacklist(
       })
     }
 
-    // Create the packlist document
-    console.log('[createPacklist] Creating packlist document...')
-    const newDocRef = doc(colRef)
+    // 2b: Create the packlist document
     const docData = {
       posId: data.posId,
       posName: data.posName,
@@ -213,36 +205,31 @@ export async function createPacklist(
       updatedAt: serverTimestamp(),
       closedAt: null
     }
+    transaction.set(newPacklistRef, docData)
 
-    console.log('[createPacklist] Setting packlist document in transaction...')
-    transaction.set(newDocRef, docData)
-    console.log('[createPacklist] Transaction set complete, returning id:', newDocRef.id)
-    return newDocRef.id
+    // 2c: Create stock movement records (inside transaction for atomicity)
+    const stockMovementsColRef = collection(db, 'stockMovements')
+    for (const { item, currentStock, newCurrentStock } of productReads) {
+      const stockMovementRef = doc(stockMovementsColRef)
+      transaction.set(stockMovementRef, {
+        productId: item.productId,
+        orderId: null,
+        packlistId: newPacklistRef.id,
+        type: 'packlist_created',
+        delta: -item.plannedQuantity,
+        previousStock: currentStock,
+        newStock: newCurrentStock,
+        actorUserId: stockUpdatedBy || '',
+        actorName: actorInfo.actorName,
+        actorRole: actorInfo.actorRole,
+        note: packlistNote,
+        createdAt: serverTimestamp()
+      })
+    }
+
+    return newPacklistRef.id
   })
   
-  console.log('[createPacklist] Transaction completed successfully, packlistId:', packlistId)
-
-  // Create stock movement records (after transaction completes)
-  console.log('[createPacklist] Creating stock movement records...')
-  const packlistNote = data.note || null
-  for (const update of productUpdates) {
-    console.log('[createPacklist] Creating stock movement for product:', update.productId)
-    await createStockMovement({
-      productId: update.productId,
-      orderId: null,
-      packlistId: packlistId,
-      type: 'packlist_created',
-      delta: -update.plannedQty, // Negative because stock is decreasing
-      previousStock: update.previousStock,
-      newStock: update.newCurrentStock,
-      actorUserId: stockUpdatedBy || '',
-      actorName: actorInfo.actorName,
-      actorRole: actorInfo.actorRole,
-      note: packlistNote
-    })
-  }
-
-  console.log('[createPacklist] All done, returning packlistId:', packlistId)
   return packlistId
 }
 

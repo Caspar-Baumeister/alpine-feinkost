@@ -812,6 +812,7 @@ export function PacklistDetail({ packlist, onUpdate }: PacklistDetailProps) {
       {/* Product Detail Dialog */}
       <ProductDetailDialog
         product={detailProduct}
+        specialPrice={detailSpecialPrice}
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
       />
